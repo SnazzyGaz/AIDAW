@@ -263,4 +263,8 @@ function live() {
     if (e.version !== S?.version) { clearTimeout(pending); pending = setTimeout(refresh, 80); } };
   es.onerror = () => { es.close(); setTimeout(live, 2000); };
 }
+// playback repeats (loop on by default); open with the last loop preview ready to play
+document.getElementById("looptoggle").onchange = e => { document.getElementById("player").loop = e.target.checked; };
+{ const p = document.getElementById("player");
+  if (!p.src) { p.onerror = () => { p.onerror = null; p.removeAttribute("src"); }; p.onloadeddata = () => { p.onerror = null; }; p.src = "/renders/preview.wav?t=" + Date.now(); } }
 refresh().then(live);

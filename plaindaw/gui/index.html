@@ -15,7 +15,8 @@
   <button id="undo" title="Undo (Ctrl+Z)">Undo</button>
   <button id="redo" title="Redo (Ctrl+Y)">Redo</button>
   <button id="render" class="primary" title="Render WAV + MP3 and analyse">Render</button>
-  <audio id="player" controls></audio>
+  <audio id="player" controls loop></audio>
+  <label class="status" title="Repeat playback"><input type="checkbox" id="looptoggle" checked> Loop</label>
   <span id="status" class="status"></span>
 </header>
 <main>
