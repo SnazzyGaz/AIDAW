@@ -407,7 +407,7 @@ def _instrument_for(e, states_dir: Path) -> dict:
         st = states_dir / f"lib_{e['id']}.bin"
         st.parent.mkdir(parents=True, exist_ok=True)
         st.write_bytes(data[kit.SURGE_FXP_HEADER:])
-        return {"plugin": f"clap:{kit.SURGE_ID}", "state": st.name}
+        return {"plugin": kit.surge_ref(), "state": st.name}
     if e.get("engine") == "vst3":
         path = _vst3_for_class(e.get("classId", ""))
         if not path:

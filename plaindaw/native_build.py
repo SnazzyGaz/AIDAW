@@ -27,6 +27,17 @@ def _cc() -> str:
                        "Visual Studio Developer prompt). Needed only for CLAP hosting; VST3 works without it.")
 
 
+def clap_host_available() -> bool:
+    """True if the CLAP host library is built or can be built (a C compiler is present)."""
+    if (OUT / LIB_NAME).exists():
+        return True
+    try:
+        _cc()
+        return True
+    except RuntimeError:
+        return False
+
+
 def _build(src: Path, out: Path, libs: list[str]) -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     inc = NATIVE_SRC / "third_party" / "clap-include"

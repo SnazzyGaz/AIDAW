@@ -130,6 +130,17 @@ def plugin_dirs() -> list[Path]:
     return [d] if d.exists() else []
 
 
+def surge_ref() -> str:
+    """Plugin ref for Surge XT: CLAP when the CLAP host can run here, else the VST3 (same patch states)."""
+    from .native_build import clap_host_available
+    s = registry().get("surge") or {}
+    if clap_host_available():
+        return f"clap:{SURGE_ID}"
+    if s.get("vst3") and _abs(s["vst3"]).exists():
+        return "vst3:Surge XT"
+    return "vst3:Surge XT"
+
+
 def resolve_ref(ref: str) -> str | None:
     """Fast path for kit plugins: plugin ref -> bundle path."""
     s = registry().get("surge") or {}
@@ -469,7 +480,7 @@ def surge_preset_for(role, style, preset=None, project_dir=None) -> dict | None:
     if not name or name not in surge_presets():
         return None
     state = _copy_state(_abs(surge_presets()[name]["state"]), project_dir)
-    return {"plugin": f"clap:{SURGE_ID}", "state": state, "name": name}
+    return {"plugin": surge_ref(), "state": state, "name": name}
 
 
 def instrument_spec(name: str, preset=None, sfz=None, project_dir=None) -> dict:
@@ -477,7 +488,7 @@ def instrument_spec(name: str, preset=None, sfz=None, project_dir=None) -> dict:
     if name in ("surge", "surge-xt", "surgext", "surge xt"):
         if not installed()["surge"]:
             raise KitError("Surge XT is not installed: run `plaindaw kit install`")
-        spec = {"plugin": f"clap:{SURGE_ID}", "label": "Surge XT (init patch)"}
+        spec = {"plugin": surge_ref(), "label": "Surge XT (init patch)"}
         if preset:
             k = _find_preset(preset)
             if not k:

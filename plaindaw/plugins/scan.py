@@ -90,7 +90,12 @@ def resolve(ref: str, path_hint: str | None = None) -> tuple[str, str, str | Non
     if path_hint and Path(path_hint).exists():
         return fmt, path_hint, ident if fmt == "clap" else None
     try:
-        from ..kit import resolve_ref
+        from ..kit import SURGE_ID, resolve_ref
+        from ..native_build import clap_host_available
+        if fmt == "clap" and ident == SURGE_ID and not clap_host_available():
+            vp = resolve_ref("vst3:Surge XT")      # no CLAP host here (no C compiler): same patch on the VST3
+            if vp:
+                return "vst3", vp, None
         kp = resolve_ref(ref)
     except Exception:
         kp = None

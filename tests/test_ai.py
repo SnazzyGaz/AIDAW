@@ -376,3 +376,25 @@ def test_listen_notes_key_mismatch():
     assert "relative key" in L.key_relation("Ab major", "F minor")
     assert L.key_relation("F minor", "F minor") is None
     assert "5 of 7" in L.key_relation("Bb major", "F minor")
+
+
+def test_juce_vst3_state_wrapper():
+    from plaindaw.plugins.host import juce_b64, juce_vst3_state
+    assert juce_b64(b"") == "0."
+    st = juce_vst3_state(b"sub3hello")
+    assert st[:4] == b"VC2!" and b"<IComponent>9." in st and st.endswith(b"\0")
+
+
+def test_surge_vst3_fallback_plays_kit_patch(proj, real_kit, monkeypatch):
+    """Without a CLAP host (Windows without a compiler) kit Surge patches play on the Surge VST3."""
+    from plaindaw import native_build
+    from plaindaw.plugins import scan
+    monkeypatch.setattr(native_build, "clap_host_available", lambda: False)
+    scan.reset_cache()
+    s = proj
+    r = s.call("instrument.add", {"plugin": "surge", "preset": "Bass 1", "name": "SB"})
+    t = next(x for x in s.doc["tracks"] if x["id"] == "sb")
+    assert t["instrument"]["plugin"] == "vst3:Surge XT"
+    s.apply("clip.add_notes", {"track": "sb", "at": "1.1.1", "notes": [{"t": 0, "len": 1, "key": "F2"}]})
+    a = s.render("1.1.1", "2.1.1", stems=True).stems["sb"]
+    assert np.abs(a).max() > 0.01

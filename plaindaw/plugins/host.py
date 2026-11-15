@@ -42,6 +42,24 @@ def _clap(job: dict) -> dict:
         pl.close()
 
 
+JUCE_B64 = ".ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+"
+
+
+def juce_b64(data: bytes) -> str:
+    """JUCE MemoryBlock::toBase64Encoding (size + '.' + 6-bit little-endian groups)."""
+    acc = int.from_bytes(data, "little")
+    n = (len(data) * 8 + 5) // 6
+    return f"{len(data)}." + "".join(JUCE_B64[(acc >> (6 * i)) & 63] for i in range(n))
+
+
+def juce_vst3_state(component: bytes) -> bytes:
+    """Wrap a plugin's raw component state the way JUCE's VST3 host (pedalboard) stores it."""
+    import struct
+    xml = ('<?xml version="1.0" encoding="UTF-8"?> <VST3PluginState><IComponent>' + juce_b64(component)
+           + "</IComponent></VST3PluginState>").encode() + b"\0"
+    return b"VC2!" + struct.pack("<I", len(xml) - 1) + xml
+
+
 def _vst3(job: dict) -> dict:
     import pedalboard
     pl = pedalboard.load_plugin(job["path"])
@@ -49,8 +67,11 @@ def _vst3(job: dict) -> dict:
         st = bytes(job["state"])
         if st[:4] == b"VST3":      # a .vstpreset file (from the sound library)
             pl.preset_data = st
-        else:
+        elif st[:4] == b"VC2!":    # JUCE VST3 state as saved by pedalboard
             pl.raw_state = st
+        else:                      # a bare component state (e.g. a kit Surge XT patch shared with CLAP)
+            pl.raw_state = juce_vst3_state(st)
+    warm = bool(job.get("state"))
     for k, v in (job.get("params") or {}).items():
         setattr(pl, k, v)
     sr, n, B = job["sample_rate"], job["n_frames"], job["block"]
@@ -67,6 +88,8 @@ def _vst3(job: dict) -> dict:
             msgs_all.append((int(e), bytes([0x80, int(k), 0])))
         msgs_all.sort(key=lambda m: (m[0], 0 if m[1][0] == 0x80 else 1))
         mi = 0
+        if warm:   # some plugins (Surge XT) apply a loaded state on the next audio block
+            pl([], duration=max(B, 512) / sr, sample_rate=sr, num_channels=2, buffer_size=B, reset=True)
         for start in range(0, n, chunk):
             m = min(chunk, n - start)
             while pi < len(points) and points[pi][0] < start + m:
@@ -74,7 +97,7 @@ def _vst3(job: dict) -> dict:
             msgs = []
             while mi < len(msgs_all) and msgs_all[mi][0] < start + m:
                 msgs.append((msgs_all[mi][1], (msgs_all[mi][0] - start) / sr)); mi += 1
-            a = pl(msgs, duration=m / sr, sample_rate=sr, num_channels=2, buffer_size=B, reset=(start == 0))
+            a = pl(msgs, duration=m / sr, sample_rate=sr, num_channels=2, buffer_size=B, reset=(start == 0 and not warm))
             a = np.asarray(a, dtype=np.float64)
             out[:, start:start + min(m, a.shape[1])] = a[:2, :m]
     else:
