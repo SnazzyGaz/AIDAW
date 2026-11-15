@@ -85,7 +85,7 @@ def _vst3(job: dict) -> dict:
         else:                      # a bare component state (e.g. a kit Surge XT patch shared with CLAP)
             pl.raw_state = juce_vst3_state(st)
     warm = bool(job.get("state"))
-    for k, v in (job.get("params") or {}).items():
+    for k, v in _ordered(job.get("params") or {}):
         setattr(pl, k, v)
     sr, n, B = job["sample_rate"], job["n_frames"], job["block"]
     points = list(job.get("param_points") or [])
@@ -147,6 +147,17 @@ def render_plugin(job: dict) -> dict:
     if job["format"] == "vst3":
         return _vst3(job)
     raise ValueError(f"unknown plugin format {job['format']}")
+
+
+PRESET_PARAMS = ("program", "preset", "patch")
+
+
+def _ordered(params: dict) -> list:
+    """Preset selectors first, so a preset loads and the other params then adjust it
+    (otherwise loading a preset would wipe settings applied before it)."""
+    items = list(params.items())
+    return [kv for kv in items if kv[0].lower() in PRESET_PARAMS] + \
+           [kv for kv in items if kv[0].lower() not in PRESET_PARAMS]
 
 
 def _plain(v):

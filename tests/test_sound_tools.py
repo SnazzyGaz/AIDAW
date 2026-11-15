@@ -91,3 +91,21 @@ def test_project_uses_new_tools(proj):
     ss._scan = lambda p: []                       # don't walk the system plugin folders here
     b = _q_plugin_scan(s, {}, "human")["builtin"]
     assert "builtin:foundry" in b["instruments"] and "builtin:bitcrush" in b["effects"]
+
+
+def test_vst_preset_params_apply_first():
+    from plaindaw.plugins.host import _ordered
+    got = _ordered({"macro_dread": 0.8, "program": "Rust Works", "hall_size": 0.9})
+    assert got[0] == ("program", "Rust Works")
+    assert [k for k, _ in got[1:]] == ["macro_dread", "hall_size"]
+
+
+def test_listen_bare_tracks_flag(proj):
+    from plaindaw.session import _q_listen
+    s = proj
+    s.call("track.add", {"name": "Bell", "id": "bell", "plugin": "builtin:bell"})
+    calls = []
+    s.listen = lambda **kw: calls.append(kw) or {}
+    _q_listen(s, {"tracks": True}, None)
+    _q_listen(s, {"tracks": "Bell"}, None)
+    assert calls[0]["tracks"] is None and calls[1]["tracks"] == ["bell"]

@@ -590,8 +590,13 @@ def _q_analyze(s, p, author):
 
 def _q_listen(s, p, author):
     tr = p.get("tracks")
+    if tr is True or tr is False or tr in ("all", "*"):
+        tr = None                      # bare `listen --tracks` = every track
     if isinstance(tr, str):
         tr = [x for x in tr.replace(",", " ").split() if x]
+    if tr:                             # accept track names as well as ids
+        by_name = {t["name"].lower(): t["id"] for t in s.doc["tracks"]}
+        tr = [by_name.get(str(x).lower(), x) for x in tr]
     start, end = p.get("start"), p.get("end")
     if p.get("bars") is not None:
         from .musical import bar_range

@@ -1,0 +1,25 @@
+# iteration 1, after `clash report` / `listen` / `analyze`: far too subby (sub -1.6 dB, presence -29.5 dB,
+# centroid 112 Hz), the motor drone masks the bell (clash 18.7) and the bass pulse fights the anvil at 250-500 Hz.
+# Let the metal read, pull the sub back a touch, carve the drone around the bell.
+fix clash motor bell
+mix set kick --gain -5
+mix set bass --gain -9
+plugin set_params bass bass_eq --params "lowCutHz=30 highCutHz=900"
+mix set metal --gain -5
+mix set piston --gain -6
+mix set gears --gain -10
+mix set grind --gain -13
+mix set bell --gain -10
+mix set choir --gain -14
+mix set organ --gain -17
+plugin set_params motor motor_eq --params "lowCutHz=70 highCutHz=2500 peak1Hz=180 peak1Db=-4 peak2Hz=1200 peak2Db=2"
+plugin set_params master master_eq --params "lowCutHz=28 peak1Hz=320 peak1Db=-1.5 peak1Q=0.8 lowShelfHz=90 lowShelfDb=-2 highShelfHz=3500 highShelfDb=3"
+clash report
+listen
+# iteration 2: much better balance (centroid 112 -> 241 Hz, presence -29.5 -> -22.7 dB), but the bell's hum and the
+# motor's E2 now sit on each other at 60-120 Hz (27.8). Let AIDAW carve it, thin the bell's hum, and push the level up.
+fix clash bell motor
+plugin set_params bell bell_eq --params "lowCutHz=150"
+plugin set_params master master_limiter --params "ceilingDb=-1 gainDb=5.5"
+clash report
+listen

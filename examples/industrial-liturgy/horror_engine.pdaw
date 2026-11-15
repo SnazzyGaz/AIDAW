@@ -1,0 +1,9 @@
+# AIDAW Industrial Liturgy: Horror Engine VST3 layer (run after build_industrial.pdaw, on the PC where the plugin lives)
+track add "Horror Engine" --id horror --plugin "vst3:Horror Engine" --role drone --params '{"program": "Rust Works", "macro_dread": 0.8, "macro_distance": 0.35, "macro_material": 0.3, "hurdy_gurdy_level_db": -5.0, "hurdy_gurdy_root_hz": 41.2, "hurdy_gurdy_dog_buzz": 0.45, "hurdy_gurdy_crank_rev_s": 1.4285714285714286, "bowed_metal_object": "Rod", "bowed_metal_level_db": -6.0, "struck_metal_object": "Bell", "struck_metal_level_db": -12.0, "aura_darkness": 0.85, "aura_shimmer": 0.0, "aura_breathe": 0.6, "glass_mute": true, "superball_mute": true, "junk_tray_level_db": -14.0, "hall_size": 0.9, "hall_decay_s": 10.0, "master_tilt": -0.3, "master_volume_db": -4.0}'
+mix set horror --gain -12 --pan 0
+pattern add horror_p --lengthBeats 32 --notes "E2@0.0:15.8:96 E2@16.0:11.8:96 F2@28.0:3.7:100"
+clip add_pattern horror horror_p 1.1.1
+plugin add horror builtin:eq --id horror_eq --params "lowCutHz=90 highCutHz=9000 peak1Hz=400 peak1Db=-2"
+plugin add horror builtin:saturator --id horror_sat --params "driveDb=6 bias=0.1 outputDb=-4 mix=0.4"
+send add horror cathedral --level -10
+listen

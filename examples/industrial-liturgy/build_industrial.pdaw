@@ -1,0 +1,87 @@
+# AIDAW Industrial Liturgy: heavy machinery groove, E Phrygian, 84 BPM, 8 bars, loop on. All sounds synthesised.
+project set --title "Industrial Liturgy" --author "Garyck Arntzen"
+tempo set --bpm 84
+keysig set --key "E phrygian"
+loop set 1.1.1 9.1.1
+# --- machine groove (built-in foundry kit, swung 16ths with mechanical jitter)
+track add "Sub Kick" --id kick --plugin builtin:foundry --role kick --params "kickPitch=41.2 kickDecay=0.75 drive=9 gainDb=-2"
+mix set kick --gain -3
+pattern add kick_p --lengthBeats 32 --notes "C2@0.0:0.5:124 C2@2.4999:0.5:108 C2@4.0013:0.5:124 C2@5.8248:0.5:108 C2@6.4965:0.5:108 C2@7.9945:0.5:124 C2@10.5047:0.5:108 C2@11.9972:0.5:124 C2@13.8199:0.5:108 C2@14.5026:0.5:108 C2@15.3229:0.5:108 C2@15.995:0.5:124 C2@18.4969:0.5:108 C2@20.0022:0.5:124 C2@21.8295:0.5:108 C2@22.4953:0.5:108 C2@24.0011:0.5:124 C2@26.5039:0.5:108 C2@27.9962:0.5:124 C2@28.8203:0.5:108 C2@30.4988:0.5:108"
+clip add_pattern kick kick_p 1.1.1
+plugin add kick builtin:eq --id kick_eq --params "lowCutHz=28 peak1Hz=300 peak1Db=-3"
+track add "Pistons" --id piston --plugin builtin:foundry --role perc --params "drive=7 size=1.1 gainDb=-4"
+mix set piston --gain -8 --pan -0.15
+pattern add piston_p --lengthBeats 32 --notes "C#2@0.4962:0.3:89 C#2@1.5089:0.3:104 C#2@3.5033:0.3:92 C#2@4.5004:0.3:95 C#2@5.5079:0.3:104 E2@6.8254:1.2:84 C#2@7.4974:0.3:86 C#2@8.4883:0.3:88 C#2@9.5062:0.3:104 C#2@11.4941:0.3:95 C#2@12.5097:0.3:93 C#2@13.4962:0.3:104 E2@14.8257:1.2:84 C#2@15.4968:0.3:93 C#2@16.4931:0.3:90 C#2@17.5049:0.3:104 C#2@19.5021:0.3:87 C#2@20.4931:0.3:94 C#2@21.501:0.3:104 E2@22.8145:1.2:84 C#2@23.4996:0.3:86 C#2@24.5087:0.3:89 C#2@25.5026:0.3:104 C#2@27.5034:0.3:95 C#2@28.5056:0.3:96 C#2@29.5068:0.3:104 E2@30.8176:1.2:84 G#2@31.0052:1.0:96"
+clip add_pattern piston piston_p 1.1.1
+plugin add piston builtin:eq --id piston_eq --params "lowCutHz=70"
+track add "Anvil" --id metal --plugin builtin:foundry --role clap --params "drive=5 size=0.9 tune=-0.9 gainDb=-4"
+mix set metal --gain -9 --pan 0.1
+pattern add metal_p --lengthBeats 32 --notes "D#2@1.9966:0.5:120 D2@2.0017:0.5:100 D#2@5.9985:0.5:120 D2@5.9993:0.5:100 D2@7.8321:0.3:64 D2@9.9968:0.5:100 D#2@9.9993:0.5:120 D#2@14.0011:0.5:120 D2@14.0032:0.5:100 A#2@14.9932:1.0:90 D2@15.8281:0.3:64 D#2@17.9981:0.5:120 D2@17.9994:0.5:100 D2@22.0018:0.5:100 D#2@22.0026:0.5:120 D2@23.825:0.3:64 D2@25.9965:0.5:100 D#2@25.9978:0.5:120 D#2@29.9985:0.5:120 D2@30.0009:0.5:100 A#2@31.0112:1.0:90 D2@31.8293:0.3:64"
+clip add_pattern metal metal_p 1.1.1
+plugin add metal builtin:eq --id metal_eq --params "lowCutHz=150 peak1Hz=3500 peak1Db=-2"
+track add "Gears" --id gears --plugin builtin:foundry --role hat --params "ratchetClicks=10 ratchetGap=0.024 chainLinks=26 gainDb=-6"
+mix set gears --gain -15 --pan 0.3
+pattern add gears_p --lengthBeats 32 --notes "F#2@0.0:0.1:93 F#2@0.3328:0.1:68 F#2@0.5086:0.1:64 F#2@0.8214:0.1:94 F#2@1.0057:0.1:64 F2@1.3255:0.4:92 F#2@1.3292:0.1:56 F#2@1.5062:0.1:99 F#2@1.8342:0.1:63 F#2@2.0002:0.1:60 F#2@2.3201:0.1:102 F#2@2.5097:0.1:63 F#2@2.835:0.1:67 F#2@2.9938:0.1:104 F#2@3.3215:0.1:68 F#2@3.5097:0.1:68 F#2@3.818:0.1:104 F#2@3.9993:0.1:58 F#2@4.3305:0.1:55 F#2@4.4998:0.1:94 F#2@4.8292:0.1:58 F#2@5.0023:0.1:63 F#2@5.3194:0.1:94 F#2@5.507:0.1:66 F#2@5.8325:0.1:65 F#2@6.0036:0.1:103 F#2@6.3196:0.1:53 F#2@6.5075:0.1:60 F#2@6.8255:0.1:90 F#2@6.9906:0.1:61 F#2@7.3333:0.1:55 F#2@7.5072:0.1:101 F#2@7.832:0.1:53 F#2@8.0053:0.1:63 F#2@8.334:0.1:91 F#2@8.4955:0.1:61 F#2@8.8292:0.1:53 F#2@8.9966:0.1:104 F#2@9.3201:0.1:61 F2@9.3312:0.4:92 F#2@9.4963:0.1:65 F#2@9.8282:0.1:101 F#2@10.0069:0.1:65 F#2@10.3314:0.1:66 F#2@10.5053:0.1:91 F#2@10.8176:0.1:61 F#2@11.0087:0.1:60 F#2@11.3301:0.1:92 F#2@11.4981:0.1:52 F#2@11.8219:0.1:52 F#2@11.9921:0.1:99 F#2@12.3179:0.1:68 F#2@12.5091:0.1:58 F#2@12.8214:0.1:91 F#2@12.9921:0.1:62 G2@13.0054:0.8:88 F#2@13.3325:0.1:57 F#2@13.5081:0.1:88 F#2@13.819:0.1:53 F#2@13.9924:0.1:57 F#2@14.3171:0.1:88 F#2@14.5037:0.1:65 F#2@14.8301:0.1:61 F#2@14.9996:0.1:88 F#2@15.3335:0.1:52 F#2@15.491:0.1:54 F#2@15.8343:0.1:93 F#2@15.9909:0.1:54 F#2@16.3203:0.1:53 F#2@16.493:0.1:102 F#2@16.8203:0.1:55 F#2@16.9991:0.1:58 F#2@17.3238:0.1:88 F2@17.3251:0.4:92 F#2@17.4991:0.1:55 F#2@17.8154:0.1:56 F#2@18.0017:0.1:104 F#2@18.3289:0.1:61 F#2@18.5089:0.1:67 F#2@18.8334:0.1:102 F#2@18.9998:0.1:68 F#2@19.3296:0.1:64 F#2@19.4965:0.1:93 F#2@19.8172:0.1:53 F#2@20.0049:0.1:62 F#2@20.3152:0.1:100 F#2@20.492:0.1:54 F#2@20.8258:0.1:59 F#2@20.9996:0.1:97 F#2@21.3202:0.1:58 F#2@21.4978:0.1:52 F#2@21.8275:0.1:102 F#2@21.9994:0.1:52 F#2@22.3312:0.1:58 F#2@22.5005:0.1:104 F#2@22.8226:0.1:56 F#2@22.99:0.1:55 F#2@23.3153:0.1:95 F#2@23.4984:0.1:61 F#2@23.8349:0.1:61 F#2@24.0075:0.1:101 F#2@24.3213:0.1:58 F#2@24.5:0.1:56 F#2@24.8293:0.1:98 F#2@25.0019:0.1:52 F2@25.3151:0.4:92 F#2@25.3316:0.1:55 F#2@25.505:0.1:94 F#2@25.8326:0.1:61 F#2@26.0066:0.1:64 F#2@26.3192:0.1:98 F#2@26.4997:0.1:54 F#2@26.8263:0.1:52 F#2@26.9975:0.1:94 F#2@27.333:0.1:59 F#2@27.4969:0.1:61 F#2@27.8302:0.1:100 F#2@27.9938:0.1:58 F#2@28.3219:0.1:55 F#2@28.4986:0.1:88 F#2@28.831:0.1:55 G2@29.0007:0.8:88 F#2@29.01:0.1:60 F#2@29.3328:0.1:95 F#2@29.5024:0.1:59 F#2@29.8331:0.1:65 F#2@30.0099:0.1:100 F#2@30.335:0.1:60 F#2@30.4948:0.1:53 F#2@30.8339:0.1:102 F#2@30.9989:0.1:55 F#2@31.3289:0.1:65 F#2@31.4965:0.1:96 F#2@31.8338:0.1:61"
+clip add_pattern gears gears_p 1.1.1
+plugin add gears builtin:eq --id gears_eq --params "lowCutHz=900 highCutHz=11000"
+plugin add gears builtin:bitcrush --id gears_crush --params "bits=7 downsample=3 mix=0.45"
+track add "Grinder" --id grind --plugin builtin:foundry --role fx --params "drive=8 size=1.3 gainDb=-6"
+mix set grind --gain -18 --pan -0.35
+pattern add grind_p --lengthBeats 32 --notes "A2@3.9931:3.0:82 A2@14.0075:2.0:70 A2@19.9955:3.0:82 A2@30.0099:2.0:70"
+clip add_pattern grind grind_p 1.1.1
+plugin add grind builtin:eq --id grind_eq --params "lowCutHz=200 highCutHz=7000"
+# --- low end: saturated bass pulse locked to the machine, motor drone that turns twice a bar
+track add "Bass Pulse" --id bass --plugin builtin:synth --role bass --params "wave=square voices=1 cutoff=320 resonance=0.25 envAmount=1.5 filterDecay=0.12 attack=0.002 decay=0.25 sustain=0.5 release=0.08 sub=0.6 mono=true gainDb=-4 width=0"
+mix set bass --gain -7
+pattern add bass_p --lengthBeats 32 --notes "E1@0.0:0.45:118 E1@0.4993:0.22:96 E1@1.5011:0.22:96 E1@2.5028:0.45:118 E1@3.4971:0.22:96 E1@3.9972:0.45:118 E1@4.5039:0.22:96 E1@5.5013:0.22:96 E1@5.8269:0.45:118 E1@6.4978:0.45:118 E2@7.4964:0.22:96 E1@8.0006:0.45:118 E1@8.5027:0.22:96 E1@9.4966:0.22:96 E1@10.4964:0.45:118 E1@11.5025:0.22:96 E1@12.0021:0.45:118 E1@12.5025:0.22:96 E1@13.5027:0.22:96 E1@13.8228:0.45:118 E1@14.4989:0.45:118 F1@15.3267:0.45:118 F1@15.4981:0.22:96 E1@15.997:0.45:118 E1@16.4962:0.22:96 E1@17.5014:0.22:96 E1@18.5016:0.45:118 E1@19.4962:0.22:96 E1@20.0039:0.45:118 E1@20.5026:0.22:96 E1@21.5019:0.22:96 E1@21.8237:0.45:118 E1@22.4965:0.45:118 E2@23.5028:0.22:96 E1@24.001:0.45:118 E1@24.5027:0.22:96 E1@25.499:0.22:96 E1@26.4988:0.45:118 E1@27.5005:0.22:96 E1@27.999:0.45:118 E1@28.5029:0.22:96 E1@28.829:0.45:118 F1@29.5021:0.22:96 F1@30.4962:0.45:118"
+clip add_pattern bass bass_p 1.1.1
+plugin add bass builtin:saturator --id bass_sat --params "driveDb=12 bias=0.2 toneHz=900 outputDb=-6 mix=0.8"
+plugin add bass builtin:eq --id bass_eq --params "lowCutHz=30 highCutHz=2500"
+plugin add bass builtin:utility --id bass_mono --params "bassMonoHz=160"
+track add "Motor Drone" --id motor --plugin builtin:synth --role drone --params "wave=saw voices=3 detune=9 cutoff=380 resonance=0.35 attack=1.5 sustain=1 release=1.5 lfoRate=0.700 lfoPitch=0.18 lfoCutoff=1.4 lfoAmp=0.35 noise=0.18 drift=7 gainDb=-8 width=0.7"
+mix set motor --gain -15
+pattern add motor_p --lengthBeats 32 --notes "E1@0.0:31.95:100 E2@0.0:31.95:80"
+clip add_pattern motor motor_p 1.1.1
+plugin add motor builtin:distortion --id motor_dist --params "driveDb=10 outputDb=-8 mix=0.5"
+plugin add motor builtin:bitcrush --id motor_crush --params "bits=9 downsample=2 mix=0.25"
+plugin add motor builtin:eq --id motor_eq --params "lowCutHz=65 highCutHz=3000 peak1Hz=250 peak1Db=-3"
+# --- semi-liturgical: choir 'ahh' drone, tolling bell, sparse organ fifths
+track add "Choir Ahh" --id choir --plugin builtin:synth --role pad --params "wave=saw voices=7 detune=16 cutoff=2200 attack=2.5 sustain=1 release=2.5 formant=a formantMix=0.85 lfoRate=0.21 lfoAmp=0.15 drift=5 gainDb=-12 width=1.0"
+mix set choir --gain -17
+pattern add choir_p --lengthBeats 32 --notes "E3@0.0:28.0:80 B3@0.0:31.9:70 F3@28.0:3.9:76"
+clip add_pattern choir choir_p 1.1.1
+plugin add choir builtin:eq --id choir_eq --params "lowCutHz=180 highCutHz=6000"
+track add "Toll Bell" --id bell --plugin builtin:bell --role bell --params "decay=7 brightness=0.35 beat=0.8 strike=0.4 octave=0 gainDb=-6"
+mix set bell --gain -13 --pan 0.05
+pattern add bell_p --lengthBeats 32 --notes "E3@0.0:3.0:110 E3@8.0:3.0:110 E3@16.0:3.0:110 E3@24.0:3.0:110 F3@30.0:2.0:92"
+clip add_pattern bell bell_p 1.1.1
+plugin add bell builtin:eq --id bell_eq --params "lowCutHz=120"
+track add "Organ Fifths" --id organ --plugin builtin:synth --role chords --params "wave=triangle voices=2 detune=3 cutoff=1600 attack=0.25 sustain=1 release=1.2 sub=0.2 gainDb=-10 width=0.6"
+mix set organ --gain -19
+pattern add organ_p --lengthBeats 32 --notes "E2@8.0:6.0:80 B2@8.0:6.0:74 F2@24.0:3.5:80 C3@24.0:3.5:74 E2@28.0:3.9:78 B2@28.0:3.9:72"
+clip add_pattern organ organ_p 1.1.1
+plugin add organ builtin:eq --id organ_eq --params "lowCutHz=110"
+# --- returns: a huge dark cathedral, and a short iron room for the metal
+track add Cathedral --id cathedral --type return
+plugin add cathedral builtin:reverb --id cath_rv --params "size=0.97 damping=0.75 width=1.0 mix=1.0 lowCutHz=220 predelayMs=45"
+plugin add cathedral builtin:eq --id cath_eq --params "highCutHz=5000"
+track add "Iron Room" --id ironroom --type return
+plugin add ironroom builtin:reverb --id iron_rv --params "size=0.45 damping=0.3 mix=1.0 lowCutHz=300 predelayMs=8"
+plugin add ironroom builtin:bitcrush --id iron_crush --params "bits=10 downsample=2 mix=0.3"
+send add choir cathedral --level -4
+send add bell cathedral --level -6
+send add organ cathedral --level -6
+send add metal cathedral --level -16
+send add metal ironroom --level -8
+send add piston ironroom --level -12
+send add gears ironroom --level -14
+send add grind cathedral --level -12
+# --- master: tight low end, glue, saturation, limiter
+plugin add master builtin:eq --id master_eq --params "lowCutHz=26 peak1Hz=320 peak1Db=-1.5 peak1Q=0.8"
+plugin add master builtin:compressor --id master_comp --params "thresholdDb=-14 ratio=2.5 attack=0.015 release=0.18 kneeDb=8"
+plugin add master builtin:saturator --id master_sat --params "driveDb=3 bias=0.05 outputDb=-2 mix=0.5"
+plugin add master builtin:limiter --id master_limiter --params "ceilingDb=-1 gainDb=3"
+# the sub kick and the bass pulse share the low end: let AIDAW make room
+clash report
+fix clash kick bass
+listen
