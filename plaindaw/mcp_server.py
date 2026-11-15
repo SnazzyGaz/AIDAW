@@ -27,7 +27,14 @@ true peak, band balance, per-section and per-track numbers, masking hints, warni
 Use batch for multi-step changes so they undo as one step. Every change is in history with
 author 'ai'; the person can undo it. Locked tracks/patterns refuse your edits: ask the person.
 Built-ins: instruments builtin:synth|drums|sampler; effects builtin:eq|filter|compressor|limiter|
-gate|reverb|delay|chorus|distortion|utility|volumeshaper. External: clap:<id>, vst3:<name> (see list_plugins)."""
+gate|reverb|delay|chorus|distortion|utility|volumeshaper. External: clap:<id>, vst3:<name> (see list_plugins),
+sfz:<kit set|file.sfz>. Kit (after kit_install): Surge XT and sfizz, used by name (instrument_add surge|sfizz).
+Listening: `listen` gives key, chords per bar, tempo/beat grid, timing tightness, transients, per-track
+timbre tags, section energy and (with reference=file) plain-English differences from a reference.
+Musical commands compile to ordinary ops as ONE undo step with a logged reason: compose (bass, chords,
+pad, lead, arp, drums, song), arrange (form), fix_clash (before/after numbers), variations (try N,
+score by a metric, keep the best), humanize, preview (quick render of bars/tracks). Pass `reason`
+to edit/batch so the person can see why you changed something."""
 
 
 def _obj(props: dict, required=()):
@@ -44,14 +51,15 @@ TOOLS = [
      _obj({}), lambda s, a: s.summary()),
     ("get_project", "The full project JSON (large). Prefer project_overview / get_pattern.", _obj({}), lambda s, a: s.doc),
     ("list_ops", "Every edit op with its arguments and which are destructive.", _obj({}), lambda s, a: op_catalog()),
-    ("edit", "Apply one edit op, e.g. op='mix.set' args={'track':'bass','gainDb':-3}. dryRun previews changes.",
-     _obj({"op": S, "args": {"type": "object"}, "dryRun": B, "confirm": B}, ["op"]),
+    ("edit", "Apply one edit op, e.g. op='mix.set' args={'track':'bass','gainDb':-3}. dryRun previews changes. "
+             "reason is stored in the history.",
+     _obj({"op": S, "args": {"type": "object"}, "dryRun": B, "confirm": B, "reason": S}, ["op"]),
      lambda s, a: s.apply(a["op"], dict(a.get("args") or {}), author="ai", dry_run=bool(a.get("dryRun")),
-                          confirm=bool(a.get("confirm")))),
-    ("batch", "Apply several ops as ONE undo step: ops=[{op, args}, ...].",
-     _obj({"ops": {"type": "array", "items": {"type": "object"}}, "dryRun": B, "confirm": B}, ["ops"]),
+                          confirm=bool(a.get("confirm")), reason=a.get("reason"))),
+    ("batch", "Apply several ops as ONE undo step: ops=[{op, args}, ...]. reason is stored in the history.",
+     _obj({"ops": {"type": "array", "items": {"type": "object"}}, "dryRun": B, "confirm": B, "reason": S}, ["ops"]),
      lambda s, a: s.apply("batch", {"ops": a["ops"]}, author="ai", dry_run=bool(a.get("dryRun")),
-                          confirm=bool(a.get("confirm")))),
+                          confirm=bool(a.get("confirm")), reason=a.get("reason"))),
     ("get_pattern", "Notes of a pattern with note names.", _obj({"pattern": S}, ["pattern"]),
      lambda s, a: s.pattern_text(a["pattern"])),
     ("render", "Render the song (or start..end) to audio files in renders/ and return the analysis. "
@@ -74,7 +82,63 @@ TOOLS = [
      _obj({"plugin": S, "track": S, "insert": S}), lambda s, a: s.call("plugin.params", dict(a))),
     ("export_midi", "Write the instrument tracks to a .mid file (for FL Studio etc.).", _obj({"out": S}),
      lambda s, a: s.call("export.midi", dict(a))),
+    ("listen", "Listen to the mix (or start..end, or some tracks): key + runner-up, chords per bar, tempo and beat grid, "
+               "timing vs the 1/16 grid, transient strength, timbre tags per track (bright, muddy, harsh, wide...), "
+               "energy per bar and per section, summary lines. reference='file.wav' adds plain-English differences.",
+     _obj({"start": S, "end": S, "reference": S, "tracks": {"type": "array", "items": S}}),
+     lambda s, a: _slim(s.call("listen", dict(a), author="ai"))),
+    ("compose", "Write a part as one undo step. part: bass|chords|pad|lead|arp|drums|song. key ('F minor'), chords "
+                "('i VI III VII' or 'Fm Db Ab Eb'), bars, genre (bigroom, house, techno, dnb, trap, hiphop, lofi, ambient, "
+                "horror), style (part style e.g. offbeat, reese, 808, stabs, keys, pluck, anthem, bell), seed, at, track, "
+                "engine auto|builtin|surge|sfz, preset. part=song also sets tempo/key, mixes and arranges (form).",
+     _obj({"part": S, "key": S, "chords": S, "bars": I, "genre": S, "style": S, "seed": I, "at": S, "track": S,
+           "engine": S, "preset": S, "form": S, "bpm": N, "swing": N, "dryRun": B}, ["part"]),
+     lambda s, a: s.call("compose", dict(a), author="ai")),
+    ("arrange", "Lay composed parts out into a form 'intro:8,build:8,drop:16,break:8,drop:16,outro:8' with markers, "
+                "snare rolls, risers and crashes (fx=false to skip).", _obj({"form": S, "fx": B, "dryRun": B}),
+     lambda s, a: s.call("arrange", dict(a), author="ai")),
+    ("fix_clash", "Measure how two tracks mask each other (clash index per band), apply sidechain and/or EQ, re-measure, "
+                  "and keep it only if it helped. mode auto|sidechain|eq. Range defaults to the loop.",
+     _obj({"a": S, "b": S, "mode": S, "start": S, "end": S, "bars": S, "amount": N, "dryRun": B, "force": B}, ["a", "b"]),
+     lambda s, a: s.call("fix.clash", dict(a), author="ai")),
+    ("clash_report", "Read-only clash index for each pair of the loudest stems.", _obj({"start": S, "end": S, "top": I}),
+     lambda s, a: s.call("clash.report", dict(a), author="ai")),
+    ("variations", "Try n versions of a command on scratch copies (seeds, or vary='name=lo..hi'), render a short range, "
+                   "score by target (loudness, punch, brightness, darkness, width, clarity, keyfit, energy, contrast, "
+                   "tightness; 'loudness=-9' aims at a value), keep the best (keep=best) or just list (keep=list).",
+     _obj({"n": I, "command": S, "target": S, "vary": S, "keep": S, "start": S, "end": S}, ["command"]),
+     lambda s, a: s.call("variations", dict(a), author="ai")),
+    ("humanize", "Loosen a track's timing/velocity (feel tight|natural|loose|swing|drunk, amount, swing, seed).",
+     _obj({"track": S, "pattern": S, "feel": S, "amount": N, "swing": N, "seed": I, "dryRun": B}),
+     lambda s, a: s.call("humanize", dict(a), author="ai")),
+    ("preview", "Quick render of bars ('9-12' or a section name) and/or soloed tracks to renders/preview.wav with a short "
+                "listen summary.", _obj({"bars": S, "start": S, "end": S, "tracks": {"type": "array", "items": S}, "sr": I}),
+     lambda s, a: s.call("preview", dict(a), author="ai")),
+    ("instrument_add", "Add an instrument track by name: surge (Surge XT, optional preset), sfizz (sfz=piano|strings|file), "
+                       "synth, drums, sampler, or a clap:/vst3: ref.",
+     _obj({"plugin": S, "name": S, "preset": S, "sfz": S, "role": S}, ["plugin"]),
+     lambda s, a: s.call("instrument.add", dict(a), author="ai")),
+    ("lib_search", "Search the sound library (presets, SFZ, auto-tagged samples): query words, kind, engine, key, bpm.",
+     _obj({"query": S, "kind": S, "engine": S, "key": S, "bpm": N, "limit": I}),
+     lambda s, a: s.call("lib.search", dict(a), author="ai")),
+    ("lib_scan", "Index folders of presets/samples (auto-tags samples by type, key, tempo, brightness).",
+     _obj({"paths": {"type": "array", "items": S}, "tag": B}), lambda s, a: s.call("lib.scan", dict(a), author="ai")),
+    ("lib_audition", "Render a short phrase through a preset (or trim a sample) to a wav and say what it sounds like.",
+     _obj({"id": S, "note": S}, ["id"]), lambda s, a: s.call("lib.audition", dict(a), author="ai")),
+    ("lib_use", "Put a library item on a new track (as=audio|sampler for samples).",
+     _obj({"id": S, "track": S, "at": S, "as": S}, ["id"]), lambda s, a: s.call("lib.use", dict(a), author="ai")),
+    ("kit_status", "Which kit instruments (Surge XT, sfizz, SFZ sets) are installed.", _obj({}),
+     lambda s, a: s.call("kit.status", {}, author="ai")),
 ]
+
+
+def _slim(rep):
+    """Listen reports are big; keep what an assistant needs."""
+    if isinstance(rep, dict):
+        rep = {k: v for k, v in rep.items() if k not in ("beatGrid",)}
+        if isinstance(rep.get("timbre"), dict):
+            rep["timbre"] = {k: {"tags": v.get("tags"), "centroidHz": v.get("centroidHz")} for k, v in rep["timbre"].items()}
+    return rep
 TOOL_MAP = {t[0]: t for t in TOOLS}
 
 

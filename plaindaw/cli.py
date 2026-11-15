@@ -186,6 +186,27 @@ def build_call(words: list[str]):
             params[k] = v
     if q in ("render", "analyze") and "formats" in params and isinstance(params["formats"], str):
         params["formats"] = params["formats"]
+    from .session import QUERY_POSITIONAL
+    if rest and q in QUERY_POSITIONAL:
+        names = QUERY_POSITIONAL[q]
+        if names and names[-1].endswith("*"):  # trailing list argument
+            star = names[-1][:-1]
+            fixed = names[:-1]
+            for nm, v in zip(fixed, rest):
+                params[nm] = v
+            if len(rest) > len(fixed):
+                params[star] = rest[len(fixed):]
+            rest = []
+        for i, v in enumerate(rest):
+            if i >= len(names):
+                raise OpError(f"{q}: too many positional values {rest}; order: {names}")
+            if names[i] in params:
+                raise OpError(f"{q}: '{names[i]}' given twice")
+            try:
+                params[names[i]] = json.loads(v) if names[i] in ("n",) else v
+            except ValueError:
+                params[names[i]] = v
+        rest = []
     if rest:
         key = {"history.revert": "n", "pattern.get": "pattern", "import.midi": "path", "import.stems": "paths",
                "plugin.params": "plugin", "history.list": "limit", "diff": "since"}.get(q)
@@ -195,7 +216,49 @@ def build_call(words: list[str]):
     return q, params, flags
 
 
+MUSICAL_SHOW = ("key", "chords", "bars", "tracks", "sounds", "sections", "actions", "before", "after", "applied", "note",
+                 "metric", "target", "results", "best", "beforeMs", "afterMs", "path", "durationSec", "renderSec", "listen",
+                 "instrument", "track", "range", "pairs", "hint")
+
+
+def _fmt_musical(method, res) -> str:
+    head = f"#{res['n']} {res.get('op', method)}" if res.get("n") else (
+        f"(dry run) {method}" if res.get("dryRun") else method)
+    lines = [head]
+    if res.get("reason"):
+        lines.append(f"  why: {res['reason']}")
+    for k in MUSICAL_SHOW:
+        if k not in res or res[k] in (None, [], {}):
+            continue
+        v = res[k]
+        if k == "sections":
+            v = ", ".join(f"{x['name']}@{x['bar']}({x['bars']})" for x in v)
+        elif k == "pairs":
+            v = "; ".join(f"{r['a']}+{r['b']} {r['index']} (worst {r['worstBand']} Hz)" for r in v[:6])
+        elif k == "results":
+            v = "; ".join(f"{r['label']}: {r.get('value', r.get('error'))}" for r in v)
+        elif k in ("before", "after"):
+            v = f"clash index {v['index']} (worst {v['worstBand']} Hz {v['worstPct']}%)"
+        elif k == "listen":
+            v = " | ".join(v.get("summary") or []) or json.dumps(v)
+        elif isinstance(v, (dict, list)):
+            v = json.dumps(v, ensure_ascii=False)
+        lines.append(f"  {k}: {v}")
+    for c in (res.get("changes") or [])[:8]:
+        lines.append("  " + c)
+    if res.get("arrange"):
+        lines.append(_fmt_musical("arrange", res["arrange"]))
+    return "\n".join(lines)
+
+
 def fmt_result(method, res) -> str:
+    from .musical import QUERIES as MQ
+    if method.startswith(("lib.", "kit.")) and method != "lib.use":
+        return fmt_global(method, res)
+    if (method in MQ or method in ("listen", "lib.use")) and isinstance(res, dict):
+        if method == "listen" and res.get("text"):
+            return res["text"]
+        return _fmt_musical(method, res)
     if isinstance(res, dict) and "changes" in res and res.get("ok"):
         head = f"#{res['n']} {method}" if res.get("n") else ("(dry run) " + method if res.get("dryRun") else f"{method} (no change)")
         extra = {k: v for k, v in res.items() if k not in ("ok", "n", "op", "changes", "dryRun", "changed")}
@@ -212,6 +275,8 @@ def fmt_result(method, res) -> str:
         for e in res:
             mark = {"undone": " (undone)", "applied": ""}.get(e["state"], "")
             out.append(f"#{e['n']:<4} {e['author']:<6} {e['op']:<20} {'; '.join(e['summary'][:2])}{mark}")
+            if e.get("reason"):
+                out.append(f"      why: {e['reason']}")
         return "\n".join(out) or "(no history)"
     if method == "ops.list":
         return "\n".join(f"{o['op']:<22} {o['summary']}" + ("  [destructive]" if o["destructive"] else "") for o in res)
@@ -221,7 +286,30 @@ def fmt_result(method, res) -> str:
             out.append(fmt_analysis(res["analysis"]))
         return "\n".join(out)
     if method == "analyze":
-        return fmt_analysis(res)
+        return fmt_analysis(res) + (("\n\n" + res["listen"]["text"]) if res.get("listen", {}).get("text") else "")
+    return json.dumps(res, indent=2, ensure_ascii=False)
+
+
+def fmt_global(method, res) -> str:
+    if method in ("lib.search", "lib.list"):
+        if not res:
+            return "(no matches)"
+        return "\n".join(f"{r['id']}  {r['kind']:<10} {r['name'][:36]:<36} {', '.join(r.get('tags', [])[:6]):<40}"
+                         + (f" key {r['key']}" if r.get("key") else "") + (f" {r['bpm']} bpm" if r.get("bpm") else "")
+                         for r in res)
+    if method == "lib.audition":
+        return "\n".join([f"audition {res['name']} -> {res['path']} ({res['seconds']} s, rendered in {res['renderSec']} s)"]
+                         + [f"  heard: {h}" for h in res.get("heard", [])] + [f"  warning: {w}" for w in res.get("warnings", [])])
+    if method == "lib.scan":
+        return (f"indexed {res['total']} items ({', '.join(f'{v} {k}' for k, v in res['byKind'].items())}); "
+                f"{res['added']} new, {res['updated']} updated, {res['unchanged']} unchanged, {res['errors']} errors "
+                f"in {res['seconds']} s -> {res['index']}")
+    if method == "kit.install":
+        st = res["status"]
+        lines = [f"kit: {res['kitDir']}", f"  Surge XT: {'ok' if st['surge'] else 'missing'}",
+                 f"  sfizz: {'ok' if st['sfizz'] else 'missing'}", f"  SFZ sets: {', '.join(st['sfz']) or 'none'}"]
+        lines += [f"  failed {k}: {v}" for k, v in res.get("failed", {}).items()]
+        return "\n".join(lines)
     return json.dumps(res, indent=2, ensure_ascii=False)
 
 
@@ -302,7 +390,21 @@ def main(argv=None) -> int:
             pos, kw, flags = parse_tokens(argv[1:])
             print(json.dumps(_scan(kw), indent=2))
             return 0
-        from .session import Session
+        from .session import Session, GLOBAL_QUERIES
+        if argv[0] in ("kit", "lib"):
+            try:
+                pdir = find_project(proj)
+            except OpError:
+                pdir = None
+            method, params, flags = build_call(argv)
+            if method in GLOBAL_QUERIES or pdir is None:
+                from .session import QUERIES
+                if method == "kit.install" and not flags["json"]:
+                    params["_cli"] = True
+                sess = Session(pdir, author=author, mode=mode) if pdir is not None else None
+                res = QUERIES[method](sess, params, author)
+                print(json.dumps(res, ensure_ascii=False) if flags["json"] else fmt_global(method, res))
+                return 0
         if argv[0] == "mcp":
             from .mcp_server import main as mcp_main
             return mcp_main(find_project(proj), mode=mode if mode != "allow" else os.environ.get("PLAINDAW_MODE", "allow"))
@@ -336,7 +438,7 @@ def main(argv=None) -> int:
                     return 1
             return 0
         return run_line(session, argv, author, sys.stdout)
-    except (OpError, ModelError, FileNotFoundError) as e:
+    except (OpError, ModelError, FileNotFoundError, ValueError) as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
     except KeyError as e:

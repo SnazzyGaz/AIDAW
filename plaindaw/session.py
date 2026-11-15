@@ -7,6 +7,7 @@ from __future__ import annotations
 import copy
 import datetime as _dt
 import json
+import re
 import os
 import threading
 import time
@@ -189,9 +190,10 @@ class Session:
 
     # ---------------------------------------------------------------- ops
     def apply(self, name: str, args: dict | None = None, author: str | None = None, dry_run: bool = False,
-              confirm: bool = False) -> dict:
+              confirm: bool = False, reason: str | None = None, label: str | None = None) -> dict:
         author = author or self.author
         args = dict(args or {})
+        reason = args.pop("reason", None) or reason
         dry_run = bool(args.pop("dryRun", dry_run))
         confirm = bool(args.pop("confirm", confirm))
         with self.lock:
@@ -218,10 +220,13 @@ class Session:
             inv = P.invert(before, fwd)
             self.doc = after
             self._save()
-            e = self._append({"kind": "op", "author": author, "op": name, "args": args, "forward": fwd,
-                              "inverse": inv, "summary": summary[:3]})
-            self._notify({"type": "op", "n": e["n"], "op": name, "author": author})
-            return {"ok": True, "n": e["n"], "op": name, "changes": summary, **res}
+            entry = {"kind": "op", "author": author, "op": label or name, "args": args, "forward": fwd,
+                     "inverse": inv, "summary": summary[:3]}
+            if reason:
+                entry["reason"] = str(reason)[:500]
+            e = self._append(entry)
+            self._notify({"type": "op", "n": e["n"], "op": label or name, "author": author})
+            return {"ok": True, "n": e["n"], "op": label or name, "changes": summary, **res}
 
     def _entry(self, n):
         for e in self.entries:
@@ -303,7 +308,7 @@ class Session:
             st = ("applied" if e["n"] in applied else "undone" if e["n"] in undone else "") if e.get("kind") in ("op", "revert") else ""
             out.append({"n": e["n"], "time": e.get("time"), "author": e.get("author"), "op": e.get("op"),
                         "kind": e.get("kind", "op"), "state": st, "summary": e.get("summary", []),
-                        **({"of": e["of"]} if "of" in e else {})})
+                        **({"of": e["of"]} if "of" in e else {}), **({"reason": e["reason"]} if e.get("reason") else {})})
         return out
 
     # ---------------------------------------------------------------- queries
@@ -398,6 +403,36 @@ class Session:
                       no_masking={t["id"] for t in self.doc["tracks"] if t["type"] in ("return", "bus")})
         if res.warnings:
             rep["renderWarnings"] = list(res.warnings)
+        return rep
+
+    def listen(self, res=None, start=None, end=None, reference=None, tracks=None) -> dict:
+        """Musical listening report (key, chords, tempo, timing, transients, timbre, energy)."""
+        from .listen import compare_reference, listen, report_text
+        res = res or self.render(start, end, stems=True)
+        tm = TimeMap(self.doc["transport"])
+        q0 = tm.qn(start) if start is not None else 0.0
+        bpm = tm.bpm_at(q0)
+        sig = tm._sig_for_qn(q0)
+        bar_sec = sig.qn_per_bar * 60.0 / bpm
+        names = {t["id"]: t["name"] for t in self.doc["tracks"]}
+        stems = {k: v for k, v in res.stems.items() if k != "master" and (not tracks or k in tracks)}
+        # first beat: the next bar line at or after the render start
+        fb = 0.0
+        rep = listen(res.mix, res.sr, bpm_hint=bpm, bar_sec=bar_sec, stems=stems, names=names,
+                     sections=self.sections(res.start_sec, res.duration), first_beat_sec=fb)
+        rep["projectTempo"] = bpm
+        if self.doc["transport"].get("keySig"):
+            rep["projectKey"] = self.doc["transport"]["keySig"]
+        if reference:
+            import soundfile as sf
+            from .media import decode
+            rp = Path(reference)
+            if not rp.is_absolute() and (self.dir / rp).exists():
+                rp = self.dir / rp
+            ref = decode(rp, res.sr)
+            rep["reference"] = compare_reference(res.mix, np.array(ref), res.sr, res.sr, bpm_hint=bpm)
+            rep["reference"]["file"] = str(rp)
+        rep["text"] = report_text(rep)
         return rep
 
     def export(self, out: str | None = None, formats=("wav",), bits="24", bitrate="320k", start=None, end=None,
@@ -546,7 +581,22 @@ def _q_render_or_export(s, p, author):
 
 
 def _q_analyze(s, p, author):
-    return s.analyze(target=p.get("target"), start=p.get("start"), end=p.get("end"))
+    res = s.render(p.get("start"), p.get("end"), stems=True)
+    rep = s.analyze(res, target=p.get("target"))
+    if p.get("reference") or p.get("listen"):
+        rep["listen"] = s.listen(res, p.get("start"), p.get("end"), reference=p.get("reference"))
+    return rep
+
+
+def _q_listen(s, p, author):
+    tr = p.get("tracks")
+    if isinstance(tr, str):
+        tr = [x for x in tr.replace(",", " ").split() if x]
+    start, end = p.get("start"), p.get("end")
+    if p.get("bars") is not None:
+        from .musical import bar_range
+        start, end = bar_range(s.doc, p["bars"])
+    return s.listen(start=start, end=end, reference=p.get("reference"), tracks=tr)
 
 
 def _q_plugin_scan(s, p, author):
@@ -626,6 +676,7 @@ QUERIES = {
     "render": _q_render_or_export,
     "export.audio": _q_render_or_export,
     "analyze": _q_analyze,
+    "listen": _q_listen,
     "export.midi": lambda s, p, a: __import__("plaindaw.midi", fromlist=["x"]).export_midi(
         s.doc, Path(p.get("out") or s.dir / "renders" / "song.mid"), p.get("tracks")),
     "import.midi": lambda s, p, a: s.import_midi(p["path"], p.get("prefix", ""), p.get("plugin", "builtin:synth"),
@@ -674,4 +725,102 @@ METHODS_DOC = {
     "export.midi": "Write a .mid {out, tracks?}", "import.midi": "Import a .mid as instrument tracks {path, plugin?}",
     "import.stems": "Import audio files as tracks {paths}", "diff": "Musical diff {since: n | file}",
     "media.gc": "Delete unused media {dryRun}",
+    "listen": "Musical listening report {start, end, reference: file.wav, tracks}",
 }
+
+# ---- musical commands (compose, arrange, fix clash, variations, humanize, preview, instrument add)
+from . import musical as _musical  # noqa: E402
+
+for _k, _fn in _musical.QUERIES.items():
+    QUERIES[_k] = (lambda f: (lambda s, p, a: f(s, p, a)))(_fn)
+METHODS_DOC.update(_musical.HELP)
+METHODS_DOC["analyze"] = "Render and measure {target: club|streaming|podcast|film, start, end, listen: true, reference: file.wav}"
+QUERY_POSITIONAL = dict(_musical.POSITIONAL)
+
+
+# ---- sound library + instrument kit (work without a project, except lib.use)
+def _lib_paths(p):
+    v = p.get("paths") or p.get("path") or []
+    return [v] if isinstance(v, str) else list(v)
+
+
+def _q_lib_use(s, p, author):
+    from . import library
+    if s is None:
+        raise OpError("lib use needs a project (-p <folder>)")
+    ops, reason = library.use_ops(s, p["id"], p.get("track"), p.get("at", "1.1.1"), p.get("as"))
+    res = s.apply("batch", {"ops": ops}, author=author, reason=reason, label="lib.use")
+    res.pop("results", None)
+    return {**res, "reason": reason}
+
+
+def _q_kit_install(s, p, author):
+    from . import kit
+    comps = p.get("components") or p.get("component")
+    if isinstance(comps, str):
+        comps = [c for c in re.split(r"[,\s]+", comps) if c]
+    logs = []
+    rep = kit.install(comps, log=(print if p.get("_cli") else logs.append), force=bool(p.get("force")))
+    if logs:
+        rep["log"] = logs
+    return rep
+
+
+GLOBAL_QUERIES = {
+    "lib.scan": lambda s, p, a: __import__("plaindaw.library", fromlist=["x"]).scan(
+        _lib_paths(p), tag=str(p.get("tag", True)).lower() not in ("false", "0", "no")),
+    "lib.search": lambda s, p, a: __import__("plaindaw.library", fromlist=["x"]).search(
+        " ".join(p["query"]) if isinstance(p.get("query"), list) else str(p.get("query", "")),
+        p.get("kind"), p.get("engine"), p.get("key"), float(p["bpm"]) if p.get("bpm") else None, int(p.get("limit", 20))),
+    "lib.list": lambda s, p, a: __import__("plaindaw.library", fromlist=["x"]).search(
+        "", p.get("kind"), p.get("engine"), None, None, int(p.get("limit", 50))),
+    "lib.info": lambda s, p, a: __import__("plaindaw.library", fromlist=["x"]).get(p["id"]),
+    "lib.audition": lambda s, p, a: __import__("plaindaw.library", fromlist=["x"]).audition(
+        p["id"], p.get("out"), p.get("note"), float(p["seconds"]) if p.get("seconds") else None),
+    "kit.install": _q_kit_install,
+    "kit.status": lambda s, p, a: __import__("plaindaw.kit", fromlist=["x"]).status(),
+    "kit.list": lambda s, p, a: __import__("plaindaw.kit", fromlist=["x"]).status(),
+    "kit.path": lambda s, p, a: {"kitDir": str(__import__("plaindaw.kit", fromlist=["x"]).kit_dir())},
+    "kit.clean": lambda s, p, a: __import__("plaindaw.kit", fromlist=["x"]).clean(),
+}
+QUERIES.update(GLOBAL_QUERIES)
+QUERIES["lib.use"] = _q_lib_use
+QUERY_POSITIONAL.update({"lib.scan": ["paths*"], "lib.search": ["query*"], "lib.audition": ["id"], "lib.use": ["id"],
+                         "lib.info": ["id"], "kit.install": ["components*"]})
+METHODS_DOC.update({
+    "lib.scan": "Index preset and sample folders (Surge .fxp, .vstpreset, .sfz, audio auto-tagged) {paths, tag}",
+    "lib.search": "Search the sound library {query, kind sample|preset|instrument, engine, key, bpm, limit}",
+    "lib.list": "List library items {kind, engine, limit}", "lib.info": "One library item {id}",
+    "lib.audition": "Render a short preview of a preset or sample to a wav {id, note, out}",
+    "lib.use": "Put a library item on a new track {id, track, at, as: audio|sampler}",
+    "kit.install": "Download + verify the default kit: Surge XT, sfizz, CC0 piano/strings SFZ {components}",
+    "kit.status": "What the instrument kit has installed", "kit.path": "Where the kit lives",
+})
+
+
+def _q_cli_exec(s, p, author):
+    """Run one CLI command line against this project (used by the GUI's AI panel)."""
+    import shlex
+    from .cli import build_call, fmt_result
+    line = str(p.get("line") or "").strip()
+    words = shlex.split(line)
+    if words and words[0] == "plaindaw":
+        words = words[1:]
+    if not words:
+        raise OpError("type a command, e.g. `compose bass --bars 4`")
+    if words[0] in ("new", "mcp", "rpc", "serve", "gui", "run", "plugins") or words[0].startswith("-"):
+        raise OpError(f"{words[0]!r} is not available from the command box")
+    method, params, flags = build_call(words)
+    if method == "cli.exec":
+        raise OpError("nested cli.exec")
+    if flags["dry_run"]:
+        params["dryRun"] = True
+    if flags["confirm"]:
+        params["confirm"] = True
+    params.pop("_cli", None)
+    res = s.call(method, params, author=author)
+    return {"ok": True, "method": method, "text": fmt_result(method, res), "result": res}
+
+
+QUERIES["cli.exec"] = _q_cli_exec
+QUERY_POSITIONAL["cli.exec"] = ["line"]

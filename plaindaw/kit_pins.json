@@ -1,0 +1,258 @@
+{
+ "surge_patches": {
+  "Basses/Bass 1": {
+   "git_sha1": "9ecb275f1becfaf24d8bf07e572f2c968032b9fd",
+   "size": 27370
+  },
+  "Basses/FM Bass 1": {
+   "git_sha1": "eed9604dacd5e7d2afffbd5ca9d9dc7061061c6f",
+   "size": 35333
+  },
+  "Basses/Mellow": {
+   "git_sha1": "fd28d0e2f7bc82d6f7baacb40c8dc4239dd83190",
+   "size": 31372
+  },
+  "Basses/Rumble": {
+   "git_sha1": "d36c6fc22198e37b6bfae6902c02fb7d2a99acdb",
+   "size": 23761
+  },
+  "Basses/Square Bass": {
+   "git_sha1": "311d8926005896db75e23f345cf395e9296862eb",
+   "size": 25780
+  },
+  "Basses/Sub 1": {
+   "git_sha1": "545a3b563188f2d66e29e77d56ed69db82bdbeda",
+   "size": 25142
+  },
+  "Basses/Sub 2": {
+   "git_sha1": "1ca27670d59b1bdd22d3397c3fbe8b305aa67afd",
+   "size": 31086
+  },
+  "Basses/Wide Bassline": {
+   "git_sha1": "e5985dddc8d793b8da4b1d423d77b2b9f4864f3c",
+   "size": 31103
+  },
+  "Keys/EP 1": {
+   "git_sha1": "8bc188101e2fdec89e119405f0d92953d718ca26",
+   "size": 25798
+  },
+  "Keys/Organ 1": {
+   "git_sha1": "2ba158887ba4ab609a882ec546699e0c20f56eeb",
+   "size": 28818
+  },
+  "Leads/Classic Lead 1": {
+   "git_sha1": "d72e83c6a03db7a534a4395ed37d0e56b8dc0a13",
+   "size": 30393
+  },
+  "Leads/Saw Octaves": {
+   "git_sha1": "02d2aadb50142cf19d6d071187a3215fed22dd3c",
+   "size": 32296
+  },
+  "Leads/Sine Lead": {
+   "git_sha1": "91136090c3d4e77af715e91a0286a0ff956ba16f",
+   "size": 30933
+  },
+  "Leads/Sync Lead": {
+   "git_sha1": "14fbd8f889f216d0bd33855fb4162d7982054038",
+   "size": 31520
+  },
+  "Pads/Bright": {
+   "git_sha1": "324ca3c139922f05d62c3c8c1ea5baa42356bb9d",
+   "size": 25175
+  },
+  "Pads/MKS-70 Warm Pad": {
+   "git_sha1": "83ce5d5f7dc0985b5500d2fd3e663b3ef1b80774",
+   "size": 25135
+  },
+  "Pads/Pad 1": {
+   "git_sha1": "33f38e9a7ae73184ec08871435907f28649ae0c3",
+   "size": 30681
+  },
+  "Pads/Pad 3": {
+   "git_sha1": "de77d292d0e0852a67cefa586bb52ff70c1ef022",
+   "size": 24712
+  },
+  "Plucks/Bell 1": {
+   "git_sha1": "4fd929e53b99d0d05053822c5c3996e291934045",
+   "size": 56097
+  },
+  "Plucks/FM Pluck": {
+   "git_sha1": "924876c13ccaff00c469bbd051379d01e0699136",
+   "size": 24428
+  },
+  "Plucks/Nice Pluck 1": {
+   "git_sha1": "ef519e0fc8cf5dad17e319d9645fd3ea7df0bbe0",
+   "size": 24839
+  },
+  "Plucks/Saw Pluck": {
+   "git_sha1": "231dc1b1536d489c2171740d6771967d6b9d6fd7",
+   "size": 25053
+  },
+  "Polysynths/Anthemish 1": {
+   "git_sha1": "4584a344a25778081ba109bbb8f0da61ca518762",
+   "size": 25643
+  },
+  "Polysynths/Juno-60 Strings": {
+   "git_sha1": "5324bd16ad15a8ede8b6beee2c342dc9610e11df",
+   "size": 31841
+  },
+  "Polysynths/Smooth Stabs": {
+   "git_sha1": "5acaa57ea01ac614ff3ddcfb519f2d6d2821cc68",
+   "size": 24963
+  },
+  "Polysynths/Super Jupiter": {
+   "git_sha1": "9f6ea787f20c313413e565275818d3407ab857d6",
+   "size": 24946
+  }
+ },
+ "vsco": {
+  "Keys/Upright Piano/Player_dyn1_rr1_000.wav": {
+   "git_sha1": "3b4e10ccdd8a06971564b1d936f2516a761e7f6f",
+   "size": 4105066
+  },
+  "Keys/Upright Piano/Player_dyn1_rr1_004.wav": {
+   "git_sha1": "7cb8841df46d247a0ed9a33976277902595359a6",
+   "size": 4128814
+  },
+  "Keys/Upright Piano/Player_dyn1_rr1_008.wav": {
+   "git_sha1": "cb2e89a7749fc4b979512aa5da883059cd3f6ad7",
+   "size": 5470924
+  },
+  "Keys/Upright Piano/Player_dyn1_rr1_012.wav": {
+   "git_sha1": "5942615eb10199382e44c0e052ebb7885b167f53",
+   "size": 3870382
+  },
+  "Keys/Upright Piano/Player_dyn1_rr1_016.wav": {
+   "git_sha1": "480e9d56f8cfaefde9be4a7f9bde2b01ac3d100f",
+   "size": 3546940
+  },
+  "Keys/Upright Piano/Player_dyn1_rr1_020.wav": {
+   "git_sha1": "084b3f131592beecd311b309e6c5f42190653f4f",
+   "size": 3134164
+  },
+  "Keys/Upright Piano/Player_dyn1_rr1_024.wav": {
+   "git_sha1": "6350b1cf0a614fe0920ad212e807d4575fcf71bd",
+   "size": 2222998
+  },
+  "Keys/Upright Piano/Player_dyn1_rr1_028.wav": {
+   "git_sha1": "c371f48ff5e5a675a0d91d0e7060e79322adfc2e",
+   "size": 1935304
+  },
+  "Keys/Upright Piano/Player_dyn1_rr1_032.wav": {
+   "git_sha1": "8ac49b49803f59cf0a712261a9e06a54edd2e6eb",
+   "size": 1746142
+  },
+  "Keys/Upright Piano/Player_dyn1_rr1_036.wav": {
+   "git_sha1": "ba909286b3eefe713c484953a12bb4b2b201d4ad",
+   "size": 1304218
+  },
+  "Keys/Upright Piano/Player_dyn1_rr1_040.wav": {
+   "git_sha1": "a11b447a61033b762cf757a0c3001ca99dfb1ecb",
+   "size": 642772
+  },
+  "Keys/Upright Piano/Player_dyn1_rr1_044.wav": {
+   "git_sha1": "b38476be1ca8cf4571d7ae71b2c562692ddc37d3",
+   "size": 377608
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_000.wav": {
+   "git_sha1": "27d53546a018acfdfd0c178bf44f0d6656d029a8",
+   "size": 6918652
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_004.wav": {
+   "git_sha1": "d996ff2f2dca27156d735ff799564caabb742027",
+   "size": 6156106
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_008.wav": {
+   "git_sha1": "83838d0d84e6d96598b75f443ed221ec3cb3bbb0",
+   "size": 7063150
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_012.wav": {
+   "git_sha1": "e0c5fec5cc73ee8c2532c34e3385c0f5a5a3c4e0",
+   "size": 6153220
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_016.wav": {
+   "git_sha1": "48282e602945bd593f5c7d59b7ae7d1c98ca3b73",
+   "size": 5759260
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_020.wav": {
+   "git_sha1": "ce3179aa6ec23de9ecd80dc5cffe2a2519ed916b",
+   "size": 5212972
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_024.wav": {
+   "git_sha1": "f223d77b03f9ea0874ccdf9fd5d75349e0d76391",
+   "size": 4721116
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_028.wav": {
+   "git_sha1": "cf1c463a5bcd85150d3ffd737a8a544d0c70c5a8",
+   "size": 2854090
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_032.wav": {
+   "git_sha1": "df159dfb166f8c52f3765fd1803c773f37f658df",
+   "size": 3372646
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_036.wav": {
+   "git_sha1": "3eb2377f6868155b5161eab2fc013d626440e7e4",
+   "size": 1487410
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_040.wav": {
+   "git_sha1": "0b836190186e816eca5c9b0bbc3cdbd3a7fd416e",
+   "size": 725854
+  },
+  "Keys/Upright Piano/Player_dyn3_rr1_044.wav": {
+   "git_sha1": "8941d2933abd39db561777213c47eeb393d6c0ab",
+   "size": 615094
+  },
+  "Strings/Violin Section/susVib/VlnEns_susVib_G2_v2.wav": {
+   "git_sha1": "b7693eb5c9d104fc01e130ee2552dac546ee85f7",
+   "size": 2681324
+  },
+  "Strings/Violin Section/susVib/VlnEns_susVib_A2_v2.wav": {
+   "git_sha1": "5960b46c4678a146834594031d0bba1048855102",
+   "size": 2231504
+  },
+  "Strings/Violin Section/susVib/VlnEns_susVib_B2_v2.wav": {
+   "git_sha1": "4f54ea9180f4c11ec3d0e92f556003be59cb0f0c",
+   "size": 2373380
+  },
+  "Strings/Violin Section/susVib/VlnEns_susVib_D3_v2.wav": {
+   "git_sha1": "31143ae1a31ddd57baa38b3e79a4415b108a0007",
+   "size": 2457908
+  },
+  "Strings/Violin Section/susVib/VlnEns_susVib_F#3_v2.wav": {
+   "git_sha1": "33a19df9d89a5dbb174b9f72e6ae79a07327b2b6",
+   "size": 1720800
+  },
+  "Strings/Violin Section/susVib/VlnEns_susVib_A3_v2.wav": {
+   "git_sha1": "401653718e521b65712da594a53d22184f4a207a",
+   "size": 1671704
+  },
+  "Strings/Violin Section/susVib/VlnEns_susVib_C4_v2.wav": {
+   "git_sha1": "1c8e05059b270f870342a03e19b93882d6dd1e1b",
+   "size": 2017512
+  },
+  "Strings/Violin Section/susVib/VlnEns_susVib_E4_v2.wav": {
+   "git_sha1": "2c33cc296b9b3654fd08fc9e9887042eabee738d",
+   "size": 1702620
+  },
+  "Strings/Violin Section/susVib/VlnEns_susVib_G4_v2.wav": {
+   "git_sha1": "c36674326c6d0b6ae8bf5d20b52b6ddd005719bb",
+   "size": 2150136
+  },
+  "Strings/Violin Section/susVib/VlnEns_susVib_B4_v2.wav": {
+   "git_sha1": "598c11bd6fb25e33c599836428e03336ad5a5031",
+   "size": 1923744
+  },
+  "Strings/Violin Section/susVib/VlnEns_susVib_D5_v2.wav": {
+   "git_sha1": "804a72a49c07eed754e377b354f8e54a4805476d",
+   "size": 1976276
+  },
+  "LICENSE": {
+   "git_sha1": "670154e3538863b2d9891fd5483160fbdfc89164",
+   "size": 6555
+  },
+  "Keys/Upright Piano/Info.txt": {
+   "git_sha1": "088d6fa7eaf935e2fce9ecd8b59aa08b3011e109",
+   "size": 220
+  }
+ }
+}

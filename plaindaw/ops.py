@@ -208,7 +208,9 @@ def _marker_remove(doc, a, ctx):
 @op("track.add", "Add a track (audio, instrument, bus, return)",
     {"name": A("string", True), "type": A("string"), "id": A("string"), "output": A("string"),
      "plugin": A("string", desc="instrument plugin, e.g. builtin:synth, clap:<id>, vst3:<name>"),
-     "params": A("object"), "path": A("string"), "color": A("string"), "index": A("integer")},
+     "params": A("object"), "path": A("string"), "color": A("string"), "index": A("integer"),
+     "role": A("string", desc="musical role (kick, bass, chords, lead, pad, fx...) used by arrange"),
+     "state": A("string", desc="instrument state file inside the project (states/...)")},
     positional=["name"])
 def _track_add(doc, a, ctx):
     typ = a.get("type", "instrument" if a.get("plugin") else "audio")
@@ -223,12 +225,16 @@ def _track_add(doc, a, ctx):
     t = {"id": tid, "type": typ, "name": a["name"]}
     if a.get("color"):
         t["color"] = a["color"]
+    if a.get("role"):
+        t["role"] = str(a["role"]).lower()
     if typ == "instrument":
         inst = {"plugin": a.get("plugin", "builtin:synth")}
         if a.get("params"):
             inst["params"] = dict(a["params"])
         if a.get("path"):
             inst["path"] = a["path"]
+        if a.get("state"):
+            inst["state"] = _state_ref(ctx, a["state"])
         _check_plugin_ref(inst["plugin"], instrument=True)
         t["instrument"] = inst
     if typ in ("audio", "instrument"):
@@ -263,11 +269,17 @@ def _track_rename(doc, a, ctx):
     find_track(doc, a["track"])["name"] = str(a["name"])
 
 
-@op("track.set", "Set track colour", {"track": A("string", True), "color": A("string")}, positional=["track"])
+@op("track.set", "Set track colour or musical role", {"track": A("string", True), "color": A("string"),
+    "role": A("string")}, positional=["track"])
 def _track_set(doc, a, ctx):
     t = find_track(doc, a["track"])
     if "color" in a:
         t["color"] = a["color"]
+    if "role" in a:
+        if a["role"]:
+            t["role"] = str(a["role"]).lower()
+        else:
+            t.pop("role", None)
 
 
 @op("track.route", "Route a track's output to a bus/return/master", {"track": A("string", True), "to": A("string", True)},
@@ -375,8 +387,13 @@ def _check_plugin_ref(ref: str, instrument: bool):
             choices = dsp.INSTRUMENTS if instrument else tuple(dsp.FX)
             raise OpError(f"unknown built-in {'instrument' if instrument else 'effect'} {name!r} "
                           f"(choose {', '.join(choices)})")
+    elif fmt == "sfz":
+        if not instrument:
+            raise OpError("sfz:<set> is an instrument, not an effect")
+        if not name:
+            raise OpError("sfz needs a kit set name or a .sfz path, e.g. sfz:piano")
     elif fmt not in ("clap", "vst3"):
-        raise OpError(f"plugin ref must be builtin:<name>, clap:<id> or vst3:<name>, got {ref!r}")
+        raise OpError(f"plugin ref must be builtin:<name>, sfz:<set|file.sfz>, clap:<id> or vst3:<name>, got {ref!r}")
 
 
 def _check_params(ref, params):
@@ -472,8 +489,17 @@ def _sidechain(doc, a, ctx):
     order(doc)
 
 
+def _state_ref(ctx, ref):
+    ref = str(ref)
+    if Path(ref).is_absolute() or ".." in Path(ref).parts:
+        raise OpError("state must be a file inside the project (e.g. states/x.bin)")
+    if not (Path(ctx.project_dir) / ref).exists():
+        raise OpError(f"state file not found: {ref}")
+    return ref
+
+
 @op("instrument.set", "Replace a track's instrument", {"track": A("string", True), "plugin": A("string", True),
-    "params": A("object"), "path": A("string")}, positional=["track", "plugin"])
+    "params": A("object"), "path": A("string"), "state": A("string")}, positional=["track", "plugin"])
 def _instrument_set(doc, a, ctx):
     t = find_track(doc, a["track"])
     if t["type"] != "instrument":
@@ -485,6 +511,8 @@ def _instrument_set(doc, a, ctx):
         inst["params"] = dict(a["params"])
     if a.get("path"):
         inst["path"] = a["path"]
+    if a.get("state"):
+        inst["state"] = _state_ref(ctx, a["state"])
     t["instrument"] = inst
 
 
@@ -670,6 +698,22 @@ def _pattern_human(doc, a, ctx):
         n["t"] = round(max(0.0, n["t"] + float(rng.uniform(-tj, tj))), 6)
         n["vel"] = int(np.clip(round(n["vel"] + float(rng.uniform(-vj, vj))), 1, 127))
     _sort_notes(p)
+
+
+@op("pattern.swing", "Swing: delay off-beat notes on a grid (0.25 = 16ths) by amount x grid (0.33 = triplet feel)",
+    {"pattern": A("string", True), "amount": A("number", True), "grid": A("number")}, positional=["pattern", "amount"])
+def _pattern_swing(doc, a, ctx):
+    p = find_pattern(doc, a["pattern"])
+    amt = _num(a["amount"], "amount", 0, 0.75)
+    g = _num(a.get("grid", 0.25), "grid", 1 / 64, 4)
+    moved = 0
+    for n in p["notes"]:
+        k = n["t"] / g
+        if abs(k - round(k)) < 1e-6 and int(round(k)) % 2 == 1:
+            n["t"] = round(n["t"] + amt * g, 6)
+            moved += 1
+    _sort_notes(p)
+    return {"moved": moved}
 
 
 @op("pattern.ramp_velocity", "Ramp velocities from->to across the pattern (snare rolls, builds)",

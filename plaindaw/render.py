@@ -208,6 +208,13 @@ class Renderer:
         notes = self.notes_for(t)
         if fmt in ("clap", "vst3"):
             return self.plugin_job(inst["plugin"], inst, n, None, notes, curves, "instrument/")
+        if fmt == "sfz":
+            from .sfz import SfzError, render_notes
+            try:
+                return render_notes(name, notes, n, self.sr, self.dir, inst.get("params"), self.warnings)
+            except SfzError as e:
+                self.warnings.append(f"{t['id']}: {e}; rendered silence")
+                return np.zeros((2, n))
         if fmt != "builtin" or name not in dsp.INSTRUMENTS:
             raise ModelError(f"unknown instrument {inst.get('plugin')!r}")
         params = dict(dsp.PARAMS[name]); params.update(inst.get("params") or {})

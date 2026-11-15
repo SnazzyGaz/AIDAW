@@ -46,7 +46,11 @@ def _vst3(job: dict) -> dict:
     import pedalboard
     pl = pedalboard.load_plugin(job["path"])
     if job.get("state"):
-        pl.raw_state = job["state"]
+        st = bytes(job["state"])
+        if st[:4] == b"VST3":      # a .vstpreset file (from the sound library)
+            pl.preset_data = st
+        else:
+            pl.raw_state = st
     for k, v in (job.get("params") or {}).items():
         setattr(pl, k, v)
     sr, n, B = job["sample_rate"], job["n_frames"], job["block"]

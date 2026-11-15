@@ -29,7 +29,12 @@ def default_dirs() -> list[Path]:
     else:
         sys_dirs = [home / ".vst3", home / ".clap", Path("/usr/lib/vst3"), Path("/usr/local/lib/vst3"),
                     Path("/usr/lib/clap"), Path("/usr/local/lib/clap")]
-    return env + sys_dirs
+    try:
+        from ..kit import plugin_dirs
+        kit_dirs = plugin_dirs()
+    except Exception:
+        kit_dirs = []
+    return env + kit_dirs + sys_dirs
 
 
 def _iter_bundles(d: Path):
@@ -84,6 +89,13 @@ def resolve(ref: str, path_hint: str | None = None) -> tuple[str, str, str | Non
         raise ValueError(f"not an external plugin ref: {ref}")
     if path_hint and Path(path_hint).exists():
         return fmt, path_hint, ident if fmt == "clap" else None
+    try:
+        from ..kit import resolve_ref
+        kp = resolve_ref(ref)
+    except Exception:
+        kp = None
+    if kp:
+        return fmt, kp, ident if fmt == "clap" else None
     if _cache is None:
         _cache = {d["ref"]: d for d in scan() if d.get("ref")}
     d = _cache.get(ref)

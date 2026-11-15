@@ -47,6 +47,7 @@
         "id": {"$ref": "#/$defs/id"},
         "type": {"enum": ["audio", "instrument", "bus", "return", "master"]},
         "name": {"type": "string"}, "color": {"type": "string"},
+        "role": {"type": "string", "description": "musical role used by arrange/compose: kick, clap, snare, hat, bass, chords, pad, lead, arp, fx, roll, riser, crash..."},
         "instrument": {"$ref": "#/$defs/plugin"},
         "clips": {"type": "array", "items": {"$ref": "#/$defs/clip"}},
         "inserts": {"type": "array", "items": {"$ref": "#/$defs/plugin"}},

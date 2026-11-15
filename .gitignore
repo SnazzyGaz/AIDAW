@@ -9,3 +9,4 @@ plaindaw/_native/
 renders/
 *.wav
 !examples/**/*.wav
+kit/

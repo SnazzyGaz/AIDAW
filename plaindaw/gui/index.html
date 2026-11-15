@@ -37,6 +37,23 @@
     </div>
     <div id="rollwrap" class="rollwrap"><canvas id="rollcanvas" height="360"></canvas></div>
   </section>
+  <section id="ai" class="panel">
+    <div class="panel-head">AI · Listen <span class="hint">same commands as the CLI · every change is one undo step with a reason</span></div>
+    <div class="ai-body">
+      <div class="ai-left">
+        <form id="aiform" class="aiform">
+          <input id="aicmd" autocomplete="off" spellcheck="false" placeholder="e.g. compose song --genre house --seed 3 · fix clash kick bass · variations 4 compose lead --target keyfit">
+          <button type="submit" class="primary" id="airun">Run</button>
+        </form>
+        <div class="ai-quick" id="aiquick"></div>
+        <pre id="aiout" class="aiout">Listen reports key, chords, tempo, timing, timbre and section energy. Type a command or use a button.</pre>
+      </div>
+      <div class="ai-right">
+        <div class="ai-sub">Listening report</div>
+        <pre id="listen" class="aiout listen">Press Listen to hear the loop (or the whole song).</pre>
+      </div>
+    </div>
+  </section>
   <section id="mixer" class="panel">
     <div class="panel-head">Mixer</div>
     <div id="strips" class="strips"></div>

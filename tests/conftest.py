@@ -7,6 +7,24 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 THIRD = Path(os.environ.get("PLAINDAW_THIRDPARTY", "/workspace/plaindaw-thirdparty"))
+REAL_KIT = Path(os.environ.get("PLAINDAW_REAL_KIT", ROOT / "kit"))
+# Tests never touch the user's kit or library: an empty kit (so compose uses the deterministic
+# built-ins) and a scratch library index. Kit tests opt in with the `real_kit` fixture.
+import tempfile as _tf
+_scratch = Path(_tf.mkdtemp(prefix="pd-test-"))
+os.environ["PLAINDAW_KIT"] = str(_scratch / "kit")
+os.environ["PLAINDAW_LIBRARY"] = str(_scratch / "library.json")
+
+
+@pytest.fixture
+def real_kit(monkeypatch):
+    if not (REAL_KIT / "kit.json").exists():
+        pytest.skip("kit not installed (plaindaw kit install)")
+    monkeypatch.setenv("PLAINDAW_KIT", str(REAL_KIT))
+    from plaindaw.plugins import scan
+    scan.reset_cache()
+    yield REAL_KIT
+    scan.reset_cache()
 
 
 @pytest.fixture

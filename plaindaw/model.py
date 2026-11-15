@@ -12,7 +12,7 @@ from . import FORMAT
 from .timebase import TimeMap, note_number
 
 KEY_ORDER = ["format", "meta", "settings", "transport", "patterns", "tracks", "markers", "locks",
-             "id", "type", "name", "title", "author", "color", "plugin", "path", "params", "state",
+             "id", "type", "name", "title", "author", "color", "role", "plugin", "path", "params", "state",
              "instrument", "clips", "inserts", "mix", "sends", "output", "automation",
              "pattern", "file", "at", "lengthBeats", "repeat", "transpose", "velocity", "offsetSec",
              "gainDb", "pan", "mute", "solo", "fadeIn", "fadeOut", "reverse", "pitch", "stretch", "loop",

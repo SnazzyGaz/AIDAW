@@ -183,6 +183,7 @@ function drawHistory() {
     const li = el("li", e.state === "undone" ? "undone" : "");
     const who = el("span", "who" + (e.author === "ai" ? " ai" : ""), e.author);
     li.appendChild(who); li.appendChild(document.createTextNode(` #${e.n} ${e.op}`));
+    if (e.reason) li.appendChild(el("span", "why", "why: " + e.reason));
     li.appendChild(el("span", "sum", (e.summary || []).join("; ")));
     if (e.kind === "op" && e.state === "applied") {
       li.title = "click to revert this edit";
@@ -223,6 +224,36 @@ window.addEventListener("keydown", ev => {
   if (ev.key === "z" && !ev.shiftKey) { ev.preventDefault(); document.getElementById("undo").click(); }
   if (ev.key === "y" || (ev.key === "z" && ev.shiftKey)) { ev.preventDefault(); document.getElementById("redo").click(); }
 });
+
+// ---------------------------------------------------------------- AI / listen panel
+const QUICK = [
+  ["Listen", "listen"], ["Clash report", "clash report"], ["Fix kick/bass", "fix clash kick bass"],
+  ["Compose song", "compose song --genre house --seed 1"], ["New lead ×4", "variations 4 compose lead --target keyfit"],
+  ["Humanize hats", "humanize hats --feel natural"], ["Preview loop", "preview"], ["Kit status", "kit status"],
+];
+async function runCli(line) {
+  const out = document.getElementById("aiout"), btn = document.getElementById("airun");
+  out.classList.remove("err"); out.textContent = `> ${line}\n…`; btn.disabled = true; status("working…");
+  try {
+    const r = await rpc("cli.exec", { line, _as: "human" });
+    out.textContent = `> ${line}\n${r.text}`;
+    if (r.method === "listen") document.getElementById("listen").textContent = r.text;
+    if (r.method === "preview" && r.result?.path) {
+      const p = document.getElementById("player"); p.src = "/renders/" + r.result.path.split("/renders/").pop() + "?t=" + Date.now(); p.play().catch(() => {});
+    }
+    status(`ran ${r.method}`);
+  } catch (e) { out.classList.add("err"); out.textContent = `> ${line}\n${e.message}`; }
+  btn.disabled = false;
+  refresh();
+}
+document.getElementById("aiform").addEventListener("submit", ev => {
+  ev.preventDefault(); const v = document.getElementById("aicmd").value.trim(); if (v) runCli(v);
+});
+for (const [label, line] of QUICK) {
+  const b = el("button", "", label); b.title = line; b.type = "button";
+  b.onclick = () => { document.getElementById("aicmd").value = line; runCli(line); };
+  document.getElementById("aiquick").appendChild(b);
+}
 
 // live updates: edits from the CLI, the AI (MCP) or a text editor show up here
 let pending = null;

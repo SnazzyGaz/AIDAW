@@ -59,3 +59,20 @@ def test_gui_edits_go_through_op_layer(gui):
     page.wait_for_function("document.getElementById('analysis').textContent.includes('LUFS')", timeout=60000)
     assert "gui-render.mp3" in page.get_attribute("#player", "src")
     assert errors == []
+
+
+def test_gui_ai_panel(gui):
+    s, page, errors = gui
+    assert page.locator("#aiquick button").count() >= 6
+    page.fill("#aicmd", "compose lead --bars 2 --seed 3")
+    page.click("#airun")
+    page.wait_for_function("document.getElementById('aiout').textContent.includes('compose.lead')", timeout=30000)
+    s.reload_if_changed()
+    assert s.history(1)[-1]["op"] == "compose.lead"
+    page.wait_for_selector("#history li .why")
+    page.locator("#aiquick button", has_text="Listen").click()
+    page.wait_for_function("document.getElementById('listen').textContent.includes('BPM')", timeout=60000)
+    page.fill("#aicmd", "nonsense words")
+    page.click("#airun")
+    page.wait_for_selector("#aiout.err")
+    assert not errors
