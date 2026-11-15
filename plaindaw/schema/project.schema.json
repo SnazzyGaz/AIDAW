@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/plaindaw/plaindaw/schema/project.schema.json",
+  "title": "PlainDAW project (plaindaw/0.1)",
+  "type": "object",
+  "required": ["format", "meta", "settings", "transport", "patterns", "tracks"],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.-]{0,63}$"},
+    "position": {"oneOf": [{"type": "string", "pattern": "^\\s*\\d+(\\.\\d+){0,3}\\s*$"}, {"type": "number", "minimum": 0}]},
+    "params": {"type": "object"},
+    "plugin": {
+      "type": "object", "required": ["plugin"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "plugin": {"type": "string", "pattern": "^(builtin|clap|vst3):.+$"},
+        "params": {"$ref": "#/$defs/params"},
+        "path": {"type": "string"},
+        "state": {"type": "string"},
+        "bypass": {"type": "boolean"},
+        "sidechain": {"$ref": "#/$defs/id"}
+      }
+    },
+    "note": {
+      "type": "object", "required": ["t", "len", "key"],
+      "properties": {
+        "t": {"type": "number", "minimum": 0}, "len": {"type": "number", "exclusiveMinimum": 0},
+        "key": {"type": "integer", "minimum": 0, "maximum": 127}, "vel": {"type": "number", "minimum": 0, "maximum": 127}
+      }
+    },
+    "clip": {
+      "type": "object", "required": ["at"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"}, "at": {"$ref": "#/$defs/position"},
+        "pattern": {"type": "string"}, "repeat": {"type": "integer", "minimum": 1},
+        "transpose": {"type": "integer"}, "velocity": {"type": "number"},
+        "file": {"type": "string"}, "offsetSec": {"type": "number", "minimum": 0},
+        "lengthBeats": {"type": "number", "exclusiveMinimum": 0}, "gainDb": {"type": "number"},
+        "fadeIn": {"type": "number", "minimum": 0}, "fadeOut": {"type": "number", "minimum": 0},
+        "pitch": {"type": "number"}, "reverse": {"type": "boolean"}, "loop": {"type": "boolean"}, "mute": {"type": "boolean"},
+        "stretch": {"type": "object", "properties": {"mode": {"enum": ["off", "tempo", "ratio", "varispeed"]},
+                                                       "sourceBpm": {"type": "number"}, "ratio": {"type": "number"}}}
+      }
+    },
+    "track": {
+      "type": "object", "required": ["id", "type", "name"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "type": {"enum": ["audio", "instrument", "bus", "return", "master"]},
+        "name": {"type": "string"}, "color": {"type": "string"},
+        "instrument": {"$ref": "#/$defs/plugin"},
+        "clips": {"type": "array", "items": {"$ref": "#/$defs/clip"}},
+        "inserts": {"type": "array", "items": {"$ref": "#/$defs/plugin"}},
+        "mix": {"type": "object", "properties": {"gainDb": {"type": "number"}, "pan": {"type": "number", "minimum": -1, "maximum": 1},
+                                                  "mute": {"type": "boolean"}, "solo": {"type": "boolean"}}},
+        "sends": {"type": "array", "items": {"type": "object", "required": ["to"],
+                  "properties": {"to": {"$ref": "#/$defs/id"}, "levelDb": {"type": "number"}, "pre": {"type": "boolean"}}}},
+        "output": {"$ref": "#/$defs/id"},
+        "automation": {"type": "array", "items": {"type": "object", "required": ["target", "points"],
+                       "properties": {"target": {"type": "string"}, "curve": {"enum": ["linear", "hold"]},
+                                      "points": {"type": "array", "items": {"type": "array", "minItems": 2, "maxItems": 2}}}}}
+      }
+    }
+  },
+  "properties": {
+    "format": {"type": "string", "pattern": "^plaindaw/"},
+    "meta": {"type": "object", "properties": {"title": {"type": "string"}, "author": {"type": "string"}}},
+    "settings": {"type": "object", "properties": {
+      "sampleRate": {"type": "integer"}, "seed": {"type": "integer"}, "block": {"type": "integer"},
+      "tailSec": {"type": "number", "minimum": 0}, "pluginSandbox": {"type": "boolean"}}},
+    "transport": {"type": "object", "required": ["tempo"], "properties": {
+      "tempo": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["bpm"],
+                "properties": {"at": {"$ref": "#/$defs/position"}, "bpm": {"type": "number", "minimum": 10, "maximum": 999}}}},
+      "timeSig": {"type": "array", "items": {"type": "object", "required": ["num", "den"],
+                  "properties": {"at": {"$ref": "#/$defs/position"}, "num": {"type": "integer"}, "den": {"type": "integer"}}}},
+      "keySig": {"type": "string"},
+      "loop": {"type": "object", "properties": {"start": {"$ref": "#/$defs/position"}, "end": {"$ref": "#/$defs/position"}}}}},
+    "patterns": {"type": "object", "additionalProperties": {"type": "object", "required": ["lengthBeats", "notes"], "properties": {
+      "name": {"type": "string"}, "lengthBeats": {"type": "number", "exclusiveMinimum": 0},
+      "notes": {"type": "array", "items": {"$ref": "#/$defs/note"}}, "cc": {"type": "object"}}}},
+    "tracks": {"type": "array", "items": {"$ref": "#/$defs/track"}},
+    "markers": {"type": "array", "items": {"type": "object", "required": ["at", "name"],
+                "properties": {"at": {"$ref": "#/$defs/position"}, "name": {"type": "string"}}}},
+    "locks": {"type": "array", "items": {"type": "object", "required": ["target", "against"]}}
+  }
+}

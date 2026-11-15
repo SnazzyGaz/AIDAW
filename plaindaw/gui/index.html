@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PlainDAW</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="brand">PlainDAW</div>
+  <div id="title" class="title"></div>
+  <div id="transport" class="transport"></div>
+  <div class="spacer"></div>
+  <button id="undo" title="Undo (Ctrl+Z)">Undo</button>
+  <button id="redo" title="Redo (Ctrl+Y)">Redo</button>
+  <button id="render" class="primary" title="Render WAV + MP3 and analyse">Render</button>
+  <audio id="player" controls></audio>
+  <span id="status" class="status"></span>
+</header>
+<main>
+  <section id="arrange" class="panel">
+    <div class="panel-head">Arrangement <span class="hint">drag clips to move (snaps to beats) · click a pattern clip to edit notes</span></div>
+    <div id="timeline" class="timeline"></div>
+  </section>
+  <aside id="side" class="panel">
+    <div class="panel-head">History <span class="hint">click an edit to revert it</span></div>
+    <ol id="history" class="history"></ol>
+    <div class="panel-head">Analysis</div>
+    <pre id="analysis" class="analysis">Render to measure loudness, peaks and balance.</pre>
+  </aside>
+  <section id="roll" class="panel">
+    <div class="panel-head">Piano roll <span id="rollname"></span>
+      <span class="hint">click empty grid = add note · click note = delete</span>
+      <label>grid <select id="grid"><option value="0.25" selected>1/16</option><option value="0.5">1/8</option><option value="1">1/4</option><option value="0.125">1/32</option></select></label>
+      <label>length <select id="nlen"><option value="0.25" selected>1/16</option><option value="0.5">1/8</option><option value="1">1/4</option><option value="2">1/2</option><option value="4">1 bar</option></select></label>
+    </div>
+    <div id="rollwrap" class="rollwrap"><canvas id="rollcanvas" height="360"></canvas></div>
+  </section>
+  <section id="mixer" class="panel">
+    <div class="panel-head">Mixer</div>
+    <div id="strips" class="strips"></div>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

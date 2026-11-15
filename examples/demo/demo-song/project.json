@@ -1,0 +1,601 @@
+{
+  "format": "plaindaw/0.1",
+  "meta": {"title": "PlainDAW Demo", "author": "PlainDAW"},
+  "settings": {"sampleRate": 48000, "seed": 1, "block": 512, "tailSec": 2.0, "pluginSandbox": true},
+  "transport": {
+    "tempo": [{"at": "1.1.1", "bpm": 126.0}],
+    "timeSig": [{"at": "1.1.1", "num": 4, "den": 4}],
+    "keySig": "F minor",
+    "loop": {"start": "9.1.1", "end": "17.1.1"}
+  },
+  "patterns": {
+    "bassline": {
+      "lengthBeats": 16.0,
+      "notes": [
+        {"t": 0.5, "len": 0.4, "key": 41, "vel": 100},
+        {"t": 1.5, "len": 0.4, "key": 41, "vel": 100},
+        {"t": 2.5, "len": 0.4, "key": 41, "vel": 100},
+        {"t": 3.5, "len": 0.4, "key": 41, "vel": 100},
+        {"t": 4.5, "len": 0.4, "key": 37, "vel": 100},
+        {"t": 5.5, "len": 0.4, "key": 37, "vel": 100},
+        {"t": 6.5, "len": 0.4, "key": 37, "vel": 100},
+        {"t": 7.5, "len": 0.4, "key": 37, "vel": 100},
+        {"t": 8.5, "len": 0.4, "key": 32, "vel": 100},
+        {"t": 9.5, "len": 0.4, "key": 32, "vel": 100},
+        {"t": 10.5, "len": 0.4, "key": 32, "vel": 100},
+        {"t": 11.5, "len": 0.4, "key": 32, "vel": 100},
+        {"t": 12.5, "len": 0.4, "key": 39, "vel": 100},
+        {"t": 13.5, "len": 0.4, "key": 39, "vel": 100},
+        {"t": 14.5, "len": 0.4, "key": 39, "vel": 100},
+        {"t": 15.5, "len": 0.4, "key": 39, "vel": 100}
+      ]
+    },
+    "chords": {
+      "lengthBeats": 16.0,
+      "notes": [
+        {"t": 0.0, "len": 3.5, "key": 53, "vel": 100},
+        {"t": 0.0, "len": 3.5, "key": 56, "vel": 100},
+        {"t": 0.0, "len": 3.5, "key": 60, "vel": 100},
+        {"t": 0.0, "len": 3.5, "key": 65, "vel": 100},
+        {"t": 4.0, "len": 3.5, "key": 53, "vel": 100},
+        {"t": 4.0, "len": 3.5, "key": 56, "vel": 100},
+        {"t": 4.0, "len": 3.5, "key": 61, "vel": 100},
+        {"t": 4.0, "len": 3.5, "key": 65, "vel": 100},
+        {"t": 8.0, "len": 3.5, "key": 51, "vel": 100},
+        {"t": 8.0, "len": 3.5, "key": 56, "vel": 100},
+        {"t": 8.0, "len": 3.5, "key": 60, "vel": 100},
+        {"t": 8.0, "len": 3.5, "key": 63, "vel": 100},
+        {"t": 12.0, "len": 3.5, "key": 51, "vel": 100},
+        {"t": 12.0, "len": 3.5, "key": 55, "vel": 100},
+        {"t": 12.0, "len": 3.5, "key": 58, "vel": 100},
+        {"t": 12.0, "len": 3.5, "key": 63, "vel": 100}
+      ]
+    },
+    "clap": {
+      "lengthBeats": 4.0,
+      "notes": [
+        {"t": 1.0, "len": 0.25, "key": 39, "vel": 110},
+        {"t": 3.0, "len": 0.25, "key": 39, "vel": 115}
+      ]
+    },
+    "crash_notes": {
+      "name": "Crash notes",
+      "lengthBeats": 4.0,
+      "notes": [{"t": 0.0, "len": 1.0, "key": 49, "vel": 110}]
+    },
+    "crash_notes_2": {
+      "name": "Crash notes",
+      "lengthBeats": 4.0,
+      "notes": [{"t": 0.0, "len": 1.0, "key": 49, "vel": 90}]
+    },
+    "hats": {
+      "lengthBeats": 4.0,
+      "notes": [
+        {"t": 0.001501, "len": 0.125, "key": 42, "vel": 76},
+        {"t": 0.503308, "len": 0.125, "key": 42, "vel": 96},
+        {"t": 0.997602, "len": 0.125, "key": 42, "vel": 76},
+        {"t": 1.494063, "len": 0.125, "key": 42, "vel": 105},
+        {"t": 2.003565, "len": 0.125, "key": 42, "vel": 69},
+        {"t": 2.497636, "len": 0.125, "key": 42, "vel": 96},
+        {"t": 2.997058, "len": 0.125, "key": 42, "vel": 69},
+        {"t": 3.500055, "len": 0.125, "key": 42, "vel": 101}
+      ]
+    },
+    "hook": {
+      "lengthBeats": 16.0,
+      "notes": [
+        {"t": 0.0, "len": 0.5, "key": 72, "vel": 100},
+        {"t": 0.75, "len": 0.5, "key": 72, "vel": 100},
+        {"t": 1.5, "len": 0.5, "key": 68, "vel": 100},
+        {"t": 2.0, "len": 0.75, "key": 65, "vel": 100},
+        {"t": 3.0, "len": 0.5, "key": 67, "vel": 100},
+        {"t": 3.5, "len": 0.5, "key": 68, "vel": 100},
+        {"t": 4.0, "len": 0.5, "key": 65, "vel": 100},
+        {"t": 4.75, "len": 0.5, "key": 65, "vel": 100},
+        {"t": 5.5, "len": 0.5, "key": 68, "vel": 100},
+        {"t": 6.0, "len": 1.0, "key": 73, "vel": 100},
+        {"t": 7.0, "len": 0.5, "key": 72, "vel": 100},
+        {"t": 7.5, "len": 0.5, "key": 68, "vel": 100},
+        {"t": 8.0, "len": 0.5, "key": 75, "vel": 100},
+        {"t": 8.75, "len": 0.5, "key": 75, "vel": 100},
+        {"t": 9.5, "len": 0.5, "key": 72, "vel": 100},
+        {"t": 10.0, "len": 0.75, "key": 68, "vel": 100},
+        {"t": 11.0, "len": 0.5, "key": 70, "vel": 100},
+        {"t": 11.5, "len": 0.5, "key": 72, "vel": 100},
+        {"t": 12.0, "len": 0.5, "key": 70, "vel": 100},
+        {"t": 12.75, "len": 0.5, "key": 67, "vel": 100},
+        {"t": 13.5, "len": 0.5, "key": 63, "vel": 100},
+        {"t": 14.0, "len": 1.5, "key": 67, "vel": 100},
+        {"t": 15.5, "len": 0.5, "key": 65, "vel": 100}
+      ]
+    },
+    "kick4": {
+      "lengthBeats": 4.0,
+      "notes": [
+        {"t": 0.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 1.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 2.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 3.0, "len": 0.25, "key": 36, "vel": 120}
+      ]
+    },
+    "openhats": {
+      "lengthBeats": 4.0,
+      "notes": [
+        {"t": 0.5, "len": 0.25, "key": 46, "vel": 85},
+        {"t": 1.5, "len": 0.25, "key": 46, "vel": 85},
+        {"t": 2.5, "len": 0.25, "key": 46, "vel": 85},
+        {"t": 3.5, "len": 0.25, "key": 46, "vel": 85}
+      ]
+    },
+    "riser_notes": {
+      "name": "Riser notes",
+      "lengthBeats": 16.0,
+      "notes": [{"t": 0.0, "len": 16.0, "key": 60, "vel": 100}]
+    },
+    "roll": {
+      "lengthBeats": 16.0,
+      "notes": [
+        {"t": 0.0, "len": 0.25, "key": 38, "vel": 40},
+        {"t": 1.0, "len": 0.25, "key": 38, "vel": 45},
+        {"t": 2.0, "len": 0.25, "key": 38, "vel": 51},
+        {"t": 3.0, "len": 0.25, "key": 38, "vel": 56},
+        {"t": 4.0, "len": 0.25, "key": 38, "vel": 62},
+        {"t": 5.0, "len": 0.25, "key": 38, "vel": 67},
+        {"t": 6.0, "len": 0.25, "key": 38, "vel": 73},
+        {"t": 7.0, "len": 0.25, "key": 38, "vel": 78},
+        {"t": 8.0, "len": 0.2, "key": 38, "vel": 84},
+        {"t": 8.5, "len": 0.2, "key": 38, "vel": 86},
+        {"t": 9.0, "len": 0.2, "key": 38, "vel": 89},
+        {"t": 9.5, "len": 0.2, "key": 38, "vel": 92},
+        {"t": 10.0, "len": 0.2, "key": 38, "vel": 94},
+        {"t": 10.5, "len": 0.2, "key": 38, "vel": 97},
+        {"t": 11.0, "len": 0.2, "key": 38, "vel": 100},
+        {"t": 11.5, "len": 0.2, "key": 38, "vel": 103},
+        {"t": 12.0, "len": 0.12, "key": 38, "vel": 105},
+        {"t": 12.25, "len": 0.12, "key": 38, "vel": 107},
+        {"t": 12.5, "len": 0.12, "key": 38, "vel": 108},
+        {"t": 12.75, "len": 0.12, "key": 38, "vel": 109},
+        {"t": 13.0, "len": 0.12, "key": 38, "vel": 111},
+        {"t": 13.25, "len": 0.12, "key": 38, "vel": 112},
+        {"t": 13.5, "len": 0.12, "key": 38, "vel": 113},
+        {"t": 13.75, "len": 0.12, "key": 38, "vel": 115},
+        {"t": 14.0, "len": 0.12, "key": 38, "vel": 116},
+        {"t": 14.25, "len": 0.12, "key": 38, "vel": 117},
+        {"t": 14.5, "len": 0.12, "key": 38, "vel": 119},
+        {"t": 14.75, "len": 0.12, "key": 38, "vel": 120},
+        {"t": 15.0, "len": 0.1, "key": 38, "vel": 122},
+        {"t": 15.125, "len": 0.1, "key": 38, "vel": 122},
+        {"t": 15.25, "len": 0.1, "key": 38, "vel": 123},
+        {"t": 15.375, "len": 0.1, "key": 38, "vel": 124},
+        {"t": 15.5, "len": 0.1, "key": 38, "vel": 124},
+        {"t": 15.625, "len": 0.1, "key": 38, "vel": 125},
+        {"t": 15.75, "len": 0.1, "key": 38, "vel": 126},
+        {"t": 15.875, "len": 0.1, "key": 38, "vel": 126}
+      ]
+    }
+  },
+  "tracks": [
+    {
+      "id": "verb",
+      "type": "return",
+      "name": "Verb",
+      "inserts": [
+        {
+          "id": "verb_reverb",
+          "plugin": "builtin:reverb",
+          "params": {"mix": 1.0, "damping": 0.4, "lowCutHz": 250, "predelayMs": 20, "size": 0.85}
+        }
+      ],
+      "mix": {"gainDb": 0.0, "pan": 0.0},
+      "sends": [],
+      "output": "master"
+    },
+    {
+      "id": "echo",
+      "type": "return",
+      "name": "Echo",
+      "inserts": [
+        {
+          "id": "echo_delay",
+          "plugin": "builtin:delay",
+          "params": {
+            "mix": 1.0,
+            "feedback": 0.38,
+            "highCutHz": 6000,
+            "lowCutHz": 400,
+            "pingpong": true,
+            "timeBeats": 0.75
+          }
+        }
+      ],
+      "mix": {"gainDb": 0.0, "pan": 0.0},
+      "sends": [],
+      "output": "master"
+    },
+    {
+      "id": "kick",
+      "type": "instrument",
+      "name": "Kick",
+      "instrument": {
+        "plugin": "builtin:drums",
+        "params": {"gainDb": -1, "kickDecay": 0.42, "kickPitch": 48}
+      },
+      "clips": [
+        {"id": "kick_c1", "pattern": "kick4", "at": "1.1.1", "repeat": 4},
+        {"id": "kick_c2", "pattern": "kick4", "at": "9.1.1", "repeat": 8}
+      ],
+      "inserts": [],
+      "mix": {"gainDb": -2.0, "pan": 0.0},
+      "sends": [],
+      "output": "master"
+    },
+    {
+      "id": "clap",
+      "type": "instrument",
+      "name": "Clap",
+      "instrument": {
+        "plugin": "builtin:drums",
+        "params": {"gainDb": -6}
+      },
+      "clips": [{"id": "clap_c1", "pattern": "clap", "at": "9.1.1", "repeat": 8}],
+      "inserts": [],
+      "mix": {"gainDb": 0.0, "pan": 0.0},
+      "sends": [{"to": "verb", "levelDb": -14.0, "pre": false}],
+      "output": "master"
+    },
+    {
+      "id": "hats",
+      "type": "instrument",
+      "name": "Hats",
+      "instrument": {
+        "plugin": "builtin:drums",
+        "params": {"gainDb": -11, "hatDecay": 0.045, "openHatDecay": 0.22}
+      },
+      "clips": [
+        {"id": "hats_c1", "pattern": "hats", "at": "1.1.1", "repeat": 8},
+        {"id": "hats_c2", "pattern": "openhats", "at": "9.1.1", "repeat": 8}
+      ],
+      "inserts": [
+        {
+          "id": "hats_eq",
+          "plugin": "builtin:eq",
+          "params": {"highShelfDb": 2, "lowCutHz": 500}
+        }
+      ],
+      "mix": {"gainDb": 0.0, "pan": 0.15},
+      "sends": [],
+      "output": "master"
+    },
+    {
+      "id": "roll",
+      "type": "instrument",
+      "name": "Snare Roll",
+      "instrument": {
+        "plugin": "builtin:drums",
+        "params": {"gainDb": -8, "snareDecay": 0.15}
+      },
+      "clips": [{"id": "roll_c1", "pattern": "roll", "at": "5.1.1"}],
+      "inserts": [],
+      "mix": {"gainDb": 0.0, "pan": 0.0},
+      "sends": [{"to": "verb", "levelDb": -10.0, "pre": false}],
+      "output": "master"
+    },
+    {
+      "id": "crash",
+      "type": "instrument",
+      "name": "Crash",
+      "instrument": {
+        "plugin": "builtin:drums",
+        "params": {"gainDb": -9, "crashDecay": 2.2}
+      },
+      "clips": [
+        {"id": "crash_c1", "pattern": "crash_notes", "at": "9.1.1"},
+        {"id": "crash_c2", "pattern": "crash_notes_2", "at": "17.1.1"}
+      ],
+      "inserts": [],
+      "mix": {"gainDb": 0.0, "pan": 0.0},
+      "sends": [],
+      "output": "master"
+    },
+    {
+      "id": "bass",
+      "type": "instrument",
+      "name": "Bass",
+      "instrument": {
+        "plugin": "builtin:synth",
+        "params": {
+          "gainDb": -4,
+          "attack": 0.002,
+          "cutoff": 420,
+          "decay": 0.15,
+          "detune": 8,
+          "envAmount": 2.2,
+          "filterDecay": 0.12,
+          "release": 0.06,
+          "resonance": 0.15,
+          "sub": 0.6,
+          "sustain": 0.6,
+          "voices": 2,
+          "wave": "saw",
+          "width": 0.2
+        }
+      },
+      "clips": [{"id": "bass_c1", "pattern": "bassline", "at": "9.1.1", "repeat": 2}],
+      "inserts": [
+        {
+          "id": "bass_compressor",
+          "plugin": "builtin:compressor",
+          "params": {"ratio": 4, "attack": 0.002, "release": 0.11, "thresholdDb": -20},
+          "sidechain": "kick"
+        },
+        {
+          "id": "bass_utility",
+          "plugin": "builtin:utility",
+          "params": {"bassMonoHz": 150}
+        },
+        {
+          "id": "bass_eq",
+          "plugin": "builtin:eq",
+          "params": {"highCutHz": 2500, "peak3Db": -3, "peak3Hz": 320}
+        }
+      ],
+      "mix": {"gainDb": 2.0, "pan": 0.0},
+      "sends": [],
+      "output": "master"
+    },
+    {
+      "id": "chords",
+      "type": "instrument",
+      "name": "Chords",
+      "instrument": {
+        "plugin": "builtin:synth",
+        "params": {
+          "gainDb": -14,
+          "attack": 0.01,
+          "cutoff": 5200,
+          "decay": 0.3,
+          "detune": 28,
+          "release": 0.25,
+          "resonance": 0.1,
+          "sustain": 0.8,
+          "voices": 7,
+          "wave": "saw",
+          "width": 1.0
+        }
+      },
+      "clips": [{"id": "chords_c1", "pattern": "chords", "at": "9.1.1", "repeat": 2}],
+      "inserts": [
+        {
+          "id": "chords_volumeshaper",
+          "plugin": "builtin:volumeshaper",
+          "params": {"depthDb": 14, "hold": 0.04, "rateBeats": 1, "recover": 0.5}
+        },
+        {
+          "id": "chords_eq",
+          "plugin": "builtin:eq",
+          "params": {"lowCutHz": 180, "peak1Db": -2, "peak1Hz": 400}
+        }
+      ],
+      "mix": {"gainDb": 2.0, "pan": 0.0},
+      "sends": [{"to": "verb", "levelDb": -15.0, "pre": false}],
+      "output": "master"
+    },
+    {
+      "id": "pad",
+      "type": "instrument",
+      "name": "Pad",
+      "instrument": {
+        "plugin": "builtin:synth",
+        "params": {
+          "gainDb": -17,
+          "attack": 0.6,
+          "cutoff": 1800,
+          "decay": 0.5,
+          "detune": 18,
+          "release": 1.5,
+          "sustain": 0.9,
+          "voices": 5,
+          "wave": "saw",
+          "width": 1.0
+        }
+      },
+      "clips": [
+        {"id": "pad_c1", "pattern": "chords", "at": "1.1.1", "repeat": 2},
+        {"id": "pad_c2", "pattern": "chords", "at": "17.1.1"}
+      ],
+      "inserts": [
+        {
+          "id": "pad_filter",
+          "plugin": "builtin:filter",
+          "params": {"type": "lowpass", "cutoff": 600, "resonance": 0.2}
+        },
+        {
+          "id": "pad_eq",
+          "plugin": "builtin:eq",
+          "params": {"lowCutHz": 150}
+        }
+      ],
+      "mix": {"gainDb": -7.0, "pan": 0.0},
+      "sends": [{"to": "verb", "levelDb": -15.0, "pre": false}],
+      "output": "master",
+      "automation": [
+        {
+          "target": "inserts/pad_filter/cutoff",
+          "points": [
+            ["1.1.1", 500.0],
+            ["5.1.1", 900.0],
+            ["9.1.1", 7000.0],
+            ["17.1.1", 1200.0],
+            ["19.1.1", 600.0]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lead",
+      "type": "instrument",
+      "name": "Lead",
+      "instrument": {
+        "plugin": "builtin:synth",
+        "params": {
+          "gainDb": -15,
+          "attack": 0.004,
+          "cutoff": 3800,
+          "decay": 0.25,
+          "detune": 10,
+          "envAmount": 1.2,
+          "filterDecay": 0.2,
+          "release": 0.18,
+          "resonance": 0.15,
+          "sustain": 0.55,
+          "voices": 3,
+          "wave": "square",
+          "width": 0.6
+        }
+      },
+      "clips": [{"id": "lead_c1", "pattern": "hook", "at": "9.1.1", "repeat": 2}],
+      "inserts": [
+        {
+          "id": "lead_eq",
+          "plugin": "builtin:eq",
+          "params": {"lowCutHz": 250, "peak2Db": 1.5, "peak2Hz": 3000}
+        }
+      ],
+      "mix": {"gainDb": 0.0, "pan": 0.0},
+      "sends": [
+        {"to": "echo", "levelDb": -11.0, "pre": false},
+        {"to": "verb", "levelDb": -15.0, "pre": false}
+      ],
+      "output": "master"
+    },
+    {
+      "id": "riser",
+      "type": "instrument",
+      "name": "Riser",
+      "instrument": {
+        "plugin": "builtin:synth",
+        "params": {
+          "gainDb": -14,
+          "attack": 3,
+          "decay": 0.1,
+          "release": 0.3,
+          "sustain": 1,
+          "wave": "noise",
+          "width": 1
+        }
+      },
+      "clips": [{"id": "riser_c1", "pattern": "riser_notes", "at": "5.1.1"}],
+      "inserts": [
+        {
+          "id": "riser_filter",
+          "plugin": "builtin:filter",
+          "params": {"type": "bandpass", "cutoff": 400, "resonance": 0.4}
+        }
+      ],
+      "mix": {"gainDb": -3.0, "pan": 0.0},
+      "sends": [{"to": "verb", "levelDb": -6.0, "pre": false}],
+      "output": "master",
+      "automation": [
+        {
+          "target": "inserts/riser_filter/cutoff",
+          "points": [
+            [16.0, 300.0],
+            [16.25, 300.033188],
+            [16.5, 300.265503],
+            [16.75, 300.896072],
+            [17.0, 302.124023],
+            [17.25, 304.148483],
+            [17.5, 307.168579],
+            [17.75, 311.383438],
+            [18.0, 316.992188],
+            [18.25, 324.193954],
+            [18.5, 333.187866],
+            [18.75, 344.17305],
+            [19.0, 357.348633],
+            [19.25, 372.913742],
+            [19.5, 391.067505],
+            [19.75, 412.009048],
+            [20.0, 435.9375],
+            [20.25, 463.051987],
+            [20.5, 493.551636],
+            [20.75, 527.635574],
+            [21.0, 565.50293],
+            [21.25, 607.352829],
+            [21.5, 653.384399],
+            [21.75, 703.796768],
+            [22.0, 758.789062],
+            [22.25, 818.56041],
+            [22.5, 883.309937],
+            [22.75, 953.236771],
+            [23.0, 1028.540039],
+            [23.25, 1109.418869],
+            [23.5, 1196.072388],
+            [23.75, 1288.699722],
+            [24.0, 1387.5],
+            [24.25, 1492.672348],
+            [24.5, 1604.415894],
+            [24.75, 1722.929764],
+            [25.0, 1848.413086],
+            [25.25, 1981.064987],
+            [25.5, 2121.084595],
+            [25.75, 2268.671036],
+            [26.0, 2424.023438],
+            [26.25, 2587.340927],
+            [26.5, 2758.822632],
+            [26.75, 2938.667679],
+            [27.0, 3127.075195],
+            [27.25, 3324.244308],
+            [27.5, 3530.374146],
+            [27.75, 3745.663834],
+            [28.0, 3970.3125],
+            [28.25, 4204.519272],
+            [28.5, 4448.483276],
+            [28.75, 4702.403641],
+            [29.0, 4966.479492],
+            [29.25, 5240.909958],
+            [29.5, 5525.894165],
+            [29.75, 5821.631241],
+            [30.0, 6128.320312],
+            [30.25, 6446.160507],
+            [30.5, 6775.350952],
+            [30.75, 7116.090775],
+            [31.0, 7468.579102],
+            [31.25, 7833.01506],
+            [31.5, 8209.597778],
+            [31.75, 8598.526382],
+            [32.0, 9000.0]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "master",
+      "type": "master",
+      "name": "Master",
+      "inserts": [
+        {
+          "id": "master_eq",
+          "plugin": "builtin:eq",
+          "params": {"highShelfDb": 1, "highShelfHz": 10000, "lowCutHz": 28}
+        },
+        {
+          "id": "master_compressor",
+          "plugin": "builtin:compressor",
+          "params": {"ratio": 2, "attack": 0.02, "kneeDb": 8, "release": 0.2, "thresholdDb": -14}
+        },
+        {
+          "id": "master_limiter",
+          "plugin": "builtin:limiter",
+          "params": {"gainDb": 7, "ceilingDb": -1}
+        }
+      ],
+      "mix": {"gainDb": 0.0, "pan": 0.0}
+    }
+  ],
+  "markers": [
+    {"name": "Intro", "at": "1.1.1"},
+    {"name": "Build", "at": "5.1.1"},
+    {"name": "Drop", "at": "9.1.1"},
+    {"name": "Outro", "at": "17.1.1"}
+  ]
+}

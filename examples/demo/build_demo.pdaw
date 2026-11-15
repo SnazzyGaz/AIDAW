@@ -1,0 +1,119 @@
+# PlainDAW demo track, built only from commands.
+#   plaindaw new demo-song --bpm 126 --title "PlainDAW Demo"
+#   plaindaw -p demo-song run build_demo.pdaw
+# Original music: F minor, i-VI-III-VII (Fm Db Ab Eb), 18 bars.
+
+project set --author "PlainDAW"
+keysig set "F minor"
+marker add Intro 1.1.1
+marker add Build 5.1.1
+marker add Drop 9.1.1
+marker add Outro 17.1.1
+loop set 9.1.1 17.1.1
+
+# ---- returns
+track add Verb --type return
+plugin add verb builtin:reverb --params "size=0.85 damping=0.4 mix=1.0 lowCutHz=250 predelayMs=20"
+track add Echo --type return
+plugin add echo builtin:delay --params "timeBeats=0.75 feedback=0.38 pingpong=true lowCutHz=400 highCutHz=6000 mix=1.0"
+
+# ---- drums
+track add Kick --plugin builtin:drums --params "kickPitch=48 kickDecay=0.42 gainDb=-1"
+pattern add kick4 --lengthBeats 4
+pattern fill kick4 C2 1 --len 0.25 --vel 120
+clip add_pattern kick kick4 1.1.1 --repeat 4
+clip add_pattern kick kick4 9.1.1 --repeat 8
+
+track add Clap --plugin builtin:drums --params "gainDb=-6"
+pattern add clap --lengthBeats 4 --notes "39@1:0.25:110 39@3:0.25:115"
+clip add_pattern clap clap 9.1.1 --repeat 8
+send add clap verb --level -14
+
+track add Hats --plugin builtin:drums --params "gainDb=-11 hatDecay=0.045 openHatDecay=0.22"
+pattern add hats --lengthBeats 4
+pattern fill hats 42 0.5 --offset 0 --len 0.125 --vel 70
+pattern edit_notes hats --filter "tMin=0.4 tMax=0.6" --set "vel=100"
+pattern edit_notes hats --filter "tMin=1.4 tMax=1.6" --set "vel=100"
+pattern edit_notes hats --filter "tMin=2.4 tMax=2.6" --set "vel=100"
+pattern edit_notes hats --filter "tMin=3.4 tMax=3.6" --set "vel=100"
+pattern humanize hats --timing 0.006 --velocity 8 --seed 7
+clip add_pattern hats hats 1.1.1 --repeat 8
+pattern add openhats --lengthBeats 4
+pattern fill openhats 46 1 --offset 0.5 --len 0.25 --vel 85
+clip add_pattern hats openhats 9.1.1 --repeat 8
+plugin add hats builtin:eq --params "lowCutHz=500 highShelfDb=2"
+mix set hats --pan 0.15
+
+track add "Snare Roll" --id roll --plugin builtin:drums --params "gainDb=-8 snareDecay=0.15"
+pattern add roll --lengthBeats 16
+pattern fill roll 38 1 --end 8 --len 0.25
+pattern fill roll 38 0.5 --start 8 --end 12 --len 0.2
+pattern fill roll 38 0.25 --start 12 --end 15 --len 0.12
+pattern fill roll 38 0.125 --start 15 --end 16 --len 0.1
+pattern ramp_velocity roll 40 127
+clip add_pattern roll roll 5.1.1
+send add roll verb --level -10
+
+track add Crash --plugin builtin:drums --params "gainDb=-9 crashDecay=2.2"
+clip add_notes crash 9.1.1 --notes "49@0:1:110" --lengthBeats 4
+clip add_notes crash 17.1.1 --notes "49@0:1:90" --lengthBeats 4
+
+# ---- bass: offbeat, sidechained to the kick
+track add Bass --plugin builtin:synth --params "wave=saw voices=2 detune=8 cutoff=420 resonance=0.15 envAmount=2.2 filterDecay=0.12 attack=0.002 decay=0.15 sustain=0.6 release=0.06 sub=0.6 gainDb=-4 width=0.2"
+pattern add bassline --lengthBeats 16
+pattern add_notes bassline --notes "F2@0.5:0.4 F2@1.5:0.4 F2@2.5:0.4 F2@3.5:0.4 C#2@4.5:0.4 C#2@5.5:0.4 C#2@6.5:0.4 C#2@7.5:0.4 G#1@8.5:0.4 G#1@9.5:0.4 G#1@10.5:0.4 G#1@11.5:0.4 D#2@12.5:0.4 D#2@13.5:0.4 D#2@14.5:0.4 D#2@15.5:0.4"
+clip add_pattern bass bassline 9.1.1 --repeat 2
+plugin add bass builtin:compressor --params "thresholdDb=-26 ratio=6 attack=0.002 release=0.11" --sidechain kick
+plugin add bass builtin:utility --params "bassMonoHz=150"
+
+# ---- chords: supersaw, pumping
+track add Chords --plugin builtin:synth --params "wave=saw voices=7 detune=28 cutoff=5200 resonance=0.1 attack=0.01 decay=0.3 sustain=0.8 release=0.25 gainDb=-14 width=1.0"
+pattern add chords --lengthBeats 16
+pattern add_notes chords --notes "F3@0:3.5 G#3@0:3.5 C4@0:3.5 F4@0:3.5 F3@4:3.5 G#3@4:3.5 C#4@4:3.5 F4@4:3.5 D#3@8:3.5 G#3@8:3.5 C4@8:3.5 D#4@8:3.5 D#3@12:3.5 G3@12:3.5 A#3@12:3.5 D#4@12:3.5"
+clip add_pattern chords chords 9.1.1 --repeat 2
+plugin add chords builtin:volumeshaper --params "rateBeats=1 depthDb=14 hold=0.04 recover=0.5"
+plugin add chords builtin:eq --params "lowCutHz=180 peak1Hz=400 peak1Db=-2"
+send add chords verb --level -12
+
+# ---- pad: intro, build (filter opening), outro
+track add Pad --plugin builtin:synth --params "wave=saw voices=5 detune=18 cutoff=1800 attack=0.6 decay=0.5 sustain=0.9 release=1.5 gainDb=-17 width=1.0"
+clip add_pattern pad chords 1.1.1 --repeat 2
+clip add_pattern pad chords 17.1.1
+plugin add pad builtin:filter --params "type=lowpass cutoff=600 resonance=0.2"
+plugin add pad builtin:eq --params "lowCutHz=150"
+auto set pad inserts/pad_filter/cutoff --points "1.1.1=500 5.1.1=900 9.1.1=7000 17.1.1=1200 19.1.1=600"
+send add pad verb --level -8
+
+# ---- lead hook (drop), with ping-pong echo
+track add Lead --plugin builtin:synth --params "wave=square voices=3 detune=10 cutoff=3800 resonance=0.15 envAmount=1.2 filterDecay=0.2 attack=0.004 decay=0.25 sustain=0.55 release=0.18 gainDb=-15 width=0.6"
+pattern add hook --lengthBeats 16
+pattern add_notes hook --notes "C5@0:0.5 C5@0.75:0.5 G#4@1.5:0.5 F4@2:0.75 G4@3:0.5 G#4@3.5:0.5 F4@4:0.5 F4@4.75:0.5 G#4@5.5:0.5 C#5@6:1 C5@7:0.5 G#4@7.5:0.5 D#5@8:0.5 D#5@8.75:0.5 C5@9.5:0.5 G#4@10:0.75 A#4@11:0.5 C5@11.5:0.5 A#4@12:0.5 G4@12.75:0.5 D#4@13.5:0.5 G4@14:1.5 F4@15.5:0.5"
+clip add_pattern lead hook 9.1.1 --repeat 2
+plugin add lead builtin:eq --params "lowCutHz=250 peak2Hz=3000 peak2Db=1.5"
+send add lead echo --level -11
+send add lead verb --level -15
+
+# ---- riser: filtered noise across the build
+track add Riser --plugin builtin:synth --params "wave=noise attack=3 decay=0.1 sustain=1 release=0.3 gainDb=-14 width=1"
+clip add_notes riser 5.1.1 --notes "C4@0:16" --lengthBeats 16
+plugin add riser builtin:filter --params "type=bandpass cutoff=400 resonance=0.4"
+auto shape riser inserts/riser_filter/cutoff --start 5.1.1 --end 9.1.1 --from 300 --to 9000 --shape exp
+send add riser verb --level -6
+
+# ---- master
+plugin add master builtin:eq --params "lowCutHz=28 highShelfHz=10000 highShelfDb=1"
+plugin add master builtin:compressor --params "thresholdDb=-14 ratio=2 attack=0.02 release=0.2 kneeDb=8"
+plugin add master builtin:limiter --params "ceilingDb=-1 gainDb=6"
+
+# ---- mix pass (made after reading `plaindaw analyze`: pad + reverb too loud in the
+#      intro/build, so the drop had no lift; bass buried by the sidechain)
+mix set pad --gain -7
+send set pad verb --level -15
+send set chords verb --level -15
+mix set chords --gain 2
+mix set bass --gain 2
+plugin set_params bass bass_compressor --params "thresholdDb=-20 ratio=4"
+mix set kick --gain -2
+mix set riser --gain -3
+plugin set_params master master_limiter --params "gainDb=7"
+plugin add bass builtin:eq --params "highCutHz=2500 peak3Hz=320 peak3Db=-3"

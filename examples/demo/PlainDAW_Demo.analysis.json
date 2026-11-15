@@ -1,0 +1,172 @@
+{
+  "_note": "measured from this render",
+  "sampleRate": 48000,
+  "durationSec": 40.095,
+  "master": {
+    "integratedLufs": -11.08,
+    "momentaryMaxLufs": -8.6,
+    "shortTermMaxLufs": -9.14,
+    "lra": 6.8,
+    "samplePeakDbfs": -1.01,
+    "truePeakDbtp": -1.0,
+    "rmsDbfs": -12.86,
+    "crestDb": 11.85,
+    "stereoCorrelation": 0.86,
+    "stereoWidth": 0.274,
+    "monoLossDb": -0.31,
+    "dcOffset": 0.00041,
+    "clippedSamples": 0,
+    "leadingSilenceSec": 0.0,
+    "trailingSilenceSec": 0.0,
+    "lowEndCorrelation": 0.994,
+    "plrDb": 10.08
+  },
+  "bandsDbRel": {
+    "sub_20_60": -5.1,
+    "low_60_250": -4.3,
+    "lowmid_250_500": -9.8,
+    "mid_500_2000": -9.3,
+    "highmid_2000_4000": -16.8,
+    "presence_4000_8000": -17.6,
+    "air_8000_20000": -20.3
+  },
+  "spectralCentroidHz": 527.0,
+  "sections": [
+    {
+      "name": "Intro",
+      "startSec": 0.0,
+      "endSec": 7.619,
+      "integratedLufs": -11.1,
+      "shortTermMaxLufs": -10.86,
+      "peakDbfs": -1.01
+    },
+    {
+      "name": "Build",
+      "startSec": 7.619,
+      "endSec": 15.238,
+      "integratedLufs": -12.63,
+      "shortTermMaxLufs": -11.04,
+      "peakDbfs": -1.01
+    },
+    {
+      "name": "Drop",
+      "startSec": 15.238,
+      "endSec": 30.476,
+      "integratedLufs": -9.38,
+      "shortTermMaxLufs": -9.13,
+      "peakDbfs": -1.01
+    },
+    {
+      "name": "Outro",
+      "startSec": 30.476,
+      "endSec": 40.095,
+      "integratedLufs": -15.78,
+      "shortTermMaxLufs": -14.76,
+      "peakDbfs": -3.27
+    }
+  ],
+  "dropContrastLu": 3.25,
+  "tracks": {
+    "chords": {
+      "peakDbfs": -3.06,
+      "rmsDbfs": -25.84,
+      "integratedLufs": -18.43
+    },
+    "clap": {
+      "peakDbfs": -5.99,
+      "rmsDbfs": -33.99,
+      "integratedLufs": -22.51
+    },
+    "lead": {
+      "peakDbfs": -5.04,
+      "rmsDbfs": -26.83,
+      "integratedLufs": -19.35
+    },
+    "pad": {
+      "peakDbfs": -10.59,
+      "rmsDbfs": -29.19,
+      "integratedLufs": -24.08
+    },
+    "riser": {
+      "peakDbfs": -16.37,
+      "rmsDbfs": -41.93,
+      "integratedLufs": -26.56
+    },
+    "roll": {
+      "peakDbfs": -6.05,
+      "rmsDbfs": -36.21,
+      "integratedLufs": -24.51
+    },
+    "verb": {
+      "peakDbfs": -7.74,
+      "rmsDbfs": -26.05,
+      "integratedLufs": -22.01
+    },
+    "echo": {
+      "peakDbfs": -18.54,
+      "rmsDbfs": -38.71,
+      "integratedLufs": -31.07
+    },
+    "kick": {
+      "peakDbfs": -4.74,
+      "rmsDbfs": -16.07,
+      "integratedLufs": -13.25
+    },
+    "hats": {
+      "peakDbfs": -13.46,
+      "rmsDbfs": -39.45,
+      "integratedLufs": -31.82
+    },
+    "crash": {
+      "peakDbfs": -14.08,
+      "rmsDbfs": -43.2,
+      "integratedLufs": -25.0
+    },
+    "bass": {
+      "peakDbfs": -2.29,
+      "rmsDbfs": -22.12,
+      "integratedLufs": -18.49
+    }
+  },
+  "maskingHints": [
+    {
+      "tracks": [
+        "bass",
+        "kick"
+      ],
+      "band": "20-60 Hz",
+      "severity": 1.1
+    },
+    {
+      "tracks": [
+        "chords",
+        "lead"
+      ],
+      "band": "2000-4000 Hz",
+      "severity": 0.3
+    }
+  ],
+  "target": {
+    "profile": "club",
+    "checks": [
+      {
+        "check": "integratedLufs",
+        "ok": false,
+        "value": -11.08,
+        "target": -9.0,
+        "detail": "-11.1 LUFS vs -9.0 \u00b11.5"
+      },
+      {
+        "check": "truePeak",
+        "ok": true,
+        "value": -1.0,
+        "target": -1.0
+      }
+    ],
+    "pass": false
+  },
+  "warnings": [
+    "Bass and Kick compete in 20-60 Hz",
+    "Chords and Lead compete in 2000-4000 Hz"
+  ]
+}
