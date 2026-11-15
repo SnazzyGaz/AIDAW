@@ -130,6 +130,16 @@ def plugin_dirs() -> list[Path]:
     return [d] if d.exists() else []
 
 
+def surge_portable_dirs(plugin_dir: Path) -> None:
+    """Surge XT portable mode: SurgeXTData / SurgeXTUserData folders beside the plugins.
+    On Windows this is what makes the plugins-only build start (it otherwise looks for an
+    installed data folder) and it keeps Surge's user folder inside the kit instead of Documents."""
+    if sys.platform != "win32":
+        return
+    for nm in ("SurgeXTData", "SurgeXTUserData"):
+        (Path(plugin_dir) / nm).mkdir(parents=True, exist_ok=True)
+
+
 def surge_ref() -> str:
     """Plugin ref for Surge XT: CLAP when the CLAP host can run here, else the VST3 (same patch states)."""
     from .native_build import clap_host_available
@@ -144,6 +154,8 @@ def surge_ref() -> str:
 def resolve_ref(ref: str) -> str | None:
     """Fast path for kit plugins: plugin ref -> bundle path."""
     s = registry().get("surge") or {}
+    if s.get("clap") and "surge" in ref.lower():
+        surge_portable_dirs(_abs(s["clap"]).parent)
     if ref == f"clap:{SURGE_ID}" and s.get("clap") and _abs(s["clap"]).exists():
         return str(_abs(s["clap"]))
     if ref.lower() == "vst3:surge xt" and s.get("vst3") and _abs(s["vst3"]).exists():
@@ -261,6 +273,7 @@ def install_surge(osn: str, log) -> dict:
     vst3 = next(iter(sorted(out.rglob("Surge XT.vst3"))), None)
     if clap is None:
         raise KitError("Surge XT.clap not found in the release archive")
+    surge_portable_dirs(clap.parent)
     pins = _pins()["surge_patches"]
     presets = {}
     for name, pin in pins.items():
