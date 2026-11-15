@@ -26,6 +26,8 @@ python -m venv .venv && . .venv/bin/activate      # Windows: .venv\Scripts\activ
 pip install -e .            # add [test] for the test suite
 ```
 
+Environment overrides: `PLAINDAW_FFMPEG` (full path to ffmpeg.exe instead of PATH), `PLAINDAW_HOME` (library index and auditions, default `~/.plaindaw`), `PLAINDAW_LIBRARY` (index file), `PLAINDAW_KIT` (kit folder), `PLAINDAW_PLUGIN_PATH` (extra plugin folders).
+
 CLAP hosting compiles a small C library the first time it's used. That needs `gcc`/`clang` (on Windows, MinGW-w64 gcc or MSVC `cl`). VST3 and the built-ins work without a compiler.
 
 ## 60-second tour

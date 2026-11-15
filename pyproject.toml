@@ -36,3 +36,4 @@ plaindaw = ["gui/*", "kit_pins.json", "native/src/*.c", "native/third_party/clap
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = ["slow: long end-to-end runs (deselect with -m \"not slow\")"]

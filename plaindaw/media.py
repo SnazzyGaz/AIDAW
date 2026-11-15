@@ -56,9 +56,11 @@ def import_file(project_dir: Path, src: Path) -> str:
 
 
 def _ffmpeg_decode(path: Path) -> tuple[np.ndarray, int]:
-    if not shutil.which("ffmpeg"):
-        raise MediaError(f"ffmpeg needed to read {path.suffix} files")
-    p = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-f", "wav", "-acodec", "pcm_f32le", "-"],
+    from . import ffmpeg_exe
+    exe = ffmpeg_exe()
+    if not exe:
+        raise MediaError(f"ffmpeg needed to read {path.suffix} files (put it on PATH or set PLAINDAW_FFMPEG)")
+    p = subprocess.run([exe, "-v", "error", "-i", str(path), "-f", "wav", "-acodec", "pcm_f32le", "-"],
                        capture_output=True)
     if p.returncode != 0:
         raise MediaError(f"ffmpeg could not decode {path}: {p.stderr.decode(errors='replace')[-300:]}")

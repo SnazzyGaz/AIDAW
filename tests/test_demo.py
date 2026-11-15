@@ -1,6 +1,8 @@
 """The demo song builds from its command script and the drop is louder than the build."""
 from pathlib import Path
 
+import pytest
+
 from plaindaw.cli import main
 
 SCRIPT = Path(__file__).resolve().parents[1] / "examples" / "demo" / "build_demo.pdaw"
@@ -24,6 +26,7 @@ def test_demo_builds_and_sounds_sane(tmp_path, capsys):
 AI_SCRIPT = SCRIPT.parent / "build_demo_ai.pdaw"
 
 
+@pytest.mark.slow
 def test_ai_demo_builds_with_reasons(tmp_path, capsys):
     """The AI demo (compose/arrange/fix/variations/humanize) with the deterministic built-ins."""
     p = str(tmp_path / "demo-ai")

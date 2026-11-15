@@ -49,12 +49,14 @@ def write_audio(path: Path, x: np.ndarray, sr: int, *, bits: str = "24", bitrate
         sf.write(path, y.T, sr, format=NATIVE[fmt], subtype=sub)
         return {"path": str(path), "format": fmt, "bits": bits, "sampleRate": sr, "seconds": round(y.shape[1] / sr, 3)}
     if fmt in FFMPEG:
-        if not shutil.which("ffmpeg"):
-            raise ExportError(f"exporting .{fmt} needs ffmpeg on PATH (WAV/FLAC work without it)")
+        from . import ffmpeg_exe
+        exe = ffmpeg_exe()
+        if not exe:
+            raise ExportError(f"exporting .{fmt} needs ffmpeg on PATH or PLAINDAW_FFMPEG (WAV/FLAC work without it)")
         with tempfile.TemporaryDirectory() as td:
             tmp = Path(td) / "in.wav"
             sf.write(tmp, np.clip(y, -1, 1).T, sr, subtype="FLOAT")
-            cmd = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(tmp), *FFMPEG[fmt]]
+            cmd = [exe, "-hide_banner", "-loglevel", "error", "-y", "-i", str(tmp), *FFMPEG[fmt]]
             if fmt != "flac":
                 cmd += ["-b:a", bitrate]
             for k, v in (tags or {}).items():

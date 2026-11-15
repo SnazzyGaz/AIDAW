@@ -5,7 +5,7 @@ Indexed: Surge XT patches (.fxp, name/category/author from the patch XML), VST3 
 (.vstpreset, plugin class id from the header), SFZ instruments (.sfz), other synth presets
 (.fxp/.fxb VST2 chunks, .vital, .h2p, .nmsv - indexed by name and folder only), and audio
 samples (.wav .flac .aif .aiff .ogg .mp3), which get type / key / tempo / brightness tags.
-Index file: $PLAINDAW_LIBRARY or ~/.plaindaw/library.json.
+Index file: $PLAINDAW_LIBRARY or $PLAINDAW_HOME/library.json (default ~/.plaindaw).
 """
 from __future__ import annotations
 
@@ -42,7 +42,8 @@ NOTE_RE = re.compile(r"(?<![a-z])([a-g])(#|b|sharp|flat)?\s?(maj|min|m|minor|maj
 
 
 def index_path() -> Path:
-    return Path(os.environ.get("PLAINDAW_LIBRARY") or Path.home() / ".plaindaw" / "library.json")
+    from . import data_home
+    return Path(os.environ.get("PLAINDAW_LIBRARY") or data_home() / "library.json")
 
 
 def load() -> dict:
