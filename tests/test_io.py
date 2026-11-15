@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pytest
 import soundfile as sf
@@ -9,7 +11,7 @@ from plaindaw.midi import export_midi, read_midi
 def test_export_formats(small_song, tmp_path):
     s = small_song
     r = s.export(out=str(tmp_path / "out"), formats="wav,flac,mp3,ogg", bits="16", stems=True, target="streaming")
-    paths = {f["path"].rsplit(".", 1)[-1]: f["path"] for f in r["files"] if "/stems/" not in f["path"]}
+    paths = {f["path"].rsplit(".", 1)[-1]: f["path"] for f in r["files"] if "stems" not in Path(f["path"]).parts}
     assert set(paths) == {"wav", "flac", "mp3", "ogg"}
     info = sf.info(paths["wav"])
     assert info.subtype == "PCM_16" and info.samplerate == 48000 and info.channels == 2
@@ -19,7 +21,7 @@ def test_export_formats(small_song, tmp_path):
                         capture_output=True, text=True)
     meta = json.loads(pr.stdout)["format"]
     assert meta["format_name"] == "mp3" and float(meta["duration"]) == pytest.approx(info.duration, abs=0.1)
-    assert any("/stems/" in f["path"] for f in r["files"])
+    assert any("stems" in Path(f["path"]).parts for f in r["files"])
     assert (tmp_path / "out" / "Test.analysis.json").exists()
     assert r["analysis"]["target"]["profile"] == "streaming"
 

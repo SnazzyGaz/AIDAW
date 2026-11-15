@@ -212,7 +212,7 @@ document.getElementById("render").onclick = async () => {
     const r = await rpc("render", { formats: "wav,mp3", name: "gui-render" });
     status(`rendered ${r.seconds}s`);
     const mp3 = r.files.find(f => f.path.endsWith(".mp3")) || r.files[0];
-    const p = document.getElementById("player"); p.src = "/renders/" + mp3.path.split("/renders/").pop() + "?t=" + Date.now();
+    const p = document.getElementById("player"); p.src = "/renders/" + mp3.path.replace(/\\/g, "/").split("/renders/").pop() + "?t=" + Date.now();
     document.getElementById("analysis").textContent = fmtAnalysis(r.analysis);
   } catch (_) {}
   b.disabled = false;
@@ -239,7 +239,7 @@ async function runCli(line) {
     out.textContent = `> ${line}\n${r.text}`;
     if (r.method === "listen") document.getElementById("listen").textContent = r.text;
     if (r.method === "preview" && r.result?.path) {
-      const p = document.getElementById("player"); p.src = "/renders/" + r.result.path.split("/renders/").pop() + "?t=" + Date.now(); p.play().catch(() => {});
+      const p = document.getElementById("player"); p.src = "/renders/" + r.result.path.replace(/\\/g, "/").split("/renders/").pop() + "?t=" + Date.now(); p.play().catch(() => {});
     }
     status(`ran ${r.method}`);
   } catch (e) { out.classList.add("err"); out.textContent = `> ${line}\n${e.message}`; }

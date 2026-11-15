@@ -354,7 +354,26 @@ def run_line(session, words, as_author, out, force_json=False) -> int:
     return 0
 
 
+def _utf8_streams(argv) -> None:
+    """Windows consoles default to cp1252: never crash on characters like '→'. Pipes (MCP, RPC,
+    scripts) get UTF-8; an interactive console keeps its encoding and replaces what it can't show."""
+    machine = "mcp" in argv or "rpc" in argv
+    for name in ("stdout", "stderr", "stdin"):
+        st = getattr(sys, name, None)
+        if st is None or not hasattr(st, "reconfigure") or (st.encoding or "").lower().replace("-", "") == "utf8":
+            continue
+        try:
+            if machine or not st.isatty():
+                st.reconfigure(encoding="utf-8", errors="replace" if name != "stdin" else "strict")
+            elif name != "stdin":
+                st.reconfigure(errors="replace")
+        except (ValueError, OSError):
+            pass
+
+
 def main(argv=None) -> int:
+    if argv is None:
+        _utf8_streams(sys.argv[1:])
     argv = list(sys.argv[1:] if argv is None else argv)
     if not argv or argv[0] in ("-h", "--help", "help"):
         print(__doc__)

@@ -2,11 +2,15 @@ import numpy as np
 import pytest
 
 from conftest import THIRD, surge
+from plaindaw.native_build import clap_host_available
 from plaindaw.native_build import test_plugin_path as plugin_path
 from plaindaw.plugins.clap import ClapPlugin, list_plugins
 from plaindaw.plugins.sandbox import PluginCrashed, run_job
 
+needs_cc = pytest.mark.skipif(not clap_host_available(), reason="no C compiler: CLAP host and test plugins can't be built")
 
+
+@needs_cc
 def test_clap_host_with_test_plugins():
     p = plugin_path()
     ids = {d["id"] for d in list_plugins(p)}
@@ -23,6 +27,7 @@ def test_clap_host_with_test_plugins():
         syn.close()
 
 
+@needs_cc
 def test_clap_effect_param_changes_gain():
     p = str(plugin_path())
     x = np.ones((2, 1000)) * 0.25
@@ -32,6 +37,7 @@ def test_clap_effect_param_changes_gain():
     assert np.allclose(out[:, 10:], 0.125, atol=1e-4)
 
 
+@needs_cc
 def test_sandbox_survives_crash():
     p = str(plugin_path())
     job = {"format": "clap", "path": p, "plugin_id": "org.plaindaw.testgain", "sample_rate": 48000, "block": 256,
@@ -40,6 +46,7 @@ def test_sandbox_survives_crash():
         run_job(job, sandbox=True)
 
 
+@needs_cc
 def test_crashing_insert_in_project_is_bypassed(small_song):
     s = small_song
     clean = s.render(stems=True).stems["bass"]
@@ -49,6 +56,7 @@ def test_crashing_insert_in_project_is_bypassed(small_song):
     assert np.allclose(r.stems["bass"], clean)
 
 
+@needs_cc
 def test_clap_instrument_track_renders(proj):
     s = proj
     s.apply("track.add", {"name": "T", "plugin": "clap:org.plaindaw.testsynth"})
