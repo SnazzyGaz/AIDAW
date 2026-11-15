@@ -1,23 +1,27 @@
-# PlainDAW
+# AIDAW
 
-A small, free, open-source DAW that a person and an AI can both drive, with or without a screen.
+An AI-specialist DAW: a small, free, open-source DAW that a person and an AI can both drive, with or without a screen. It listens to its own renders, takes musical commands, searches a sound library, and ships a free synth and sampler kit. (The Python package and CLI are still called `plaindaw`; `aidaw` is the same command.)
 
 - **Plain-text projects.** A song is a folder with a readable `project.json` (tempo map, patterns, tracks, clips, plugins, sends, automation, markers). Diff it, put it in git, edit it by hand.
 - **One op layer.** Every change goes through the same named operations (`track.add`, `mix.set`, `pattern.add_notes`, `auto.shape`, …). The CLI, JSON-RPC, the MCP server and the browser GUI all call these same ops.
-- **Shared undo history.** Every edit is logged in `history/ops.jsonl` with who made it (`human`, `ai`, or `external` for hand edits). Undo, redo, or revert one specific older edit. Lock tracks or patterns so the AI can't touch them.
-- **Deterministic offline render.** Render the same project twice and you get the same samples. Exports WAV (16/24/32-bit float), FLAC and AIFF built in; MP3, OGG, Opus and M4A through ffmpeg.
-- **The AI "hears" through numbers.** Each render can return an analysis: integrated/short-term/momentary LUFS, true peak, LRA, crest, stereo correlation and width, low-end mono check, band balance, spectral centroid, loudness per section (from markers) and per track, masking hints, plus targets (club, streaming, podcast, film).
-- **Plugins.** Built-in synth, drums and sampler; built-in EQ, filter, compressor (with sidechain), limiter, gate, reverb, delay, chorus, distortion, utility and volume shaper. External **VST3** (through Spotify's pedalboard) and **CLAP** (our own small C host). Each external plugin runs in its own process, so a crashing plugin is bypassed with a warning and doesn't take the session down.
+- **Shared undo history with reasons.** Every edit is logged in `history/ops.jsonl` with who made it (`human`, `ai`, or `external`) and, for musical commands, why. Undo, redo, or revert one specific older edit. Lock tracks or patterns so the AI can't touch them.
+- **Listening.** `listen` reports key and chords, tempo and beat grid, timing tightness, transients, a timbre description per track, and section energy, in plain English plus JSON. `--reference song.wav` compares the mix with a track you like.
+- **Musical commands.** `compose`, `arrange`, `fix clash`, `variations`, `humanize` and `preview` compile to ordinary ops: one undo step each, with the reason logged.
+- **Sound library.** `lib scan` indexes presets (Surge `.fxp`, `.vstpreset`, `.sfz`, and others) and samples, auto-tags samples by listening to them (kick, loop, 120 bpm, C minor, bright…), then `lib search` / `lib audition` / `lib use`.
+- **Bundled kit.** `kit install` fetches Surge XT (synth) and sfizz (sampler) plus a small CC0 piano and strings set, verifies checksums and registers them, so `compose` uses Surge XT sounds by name. Without the kit everything falls back to the deterministic built-ins.
+- **Deterministic offline render** with the built-ins. Exports WAV (16/24/32-bit float), FLAC and AIFF built in; MP3, OGG, Opus and M4A through ffmpeg.
+- **The AI "hears" through numbers.** Each render can also return LUFS (integrated/short-term/momentary), true peak, LRA, crest, stereo width, low-end mono check, band balance, loudness per section and per track, masking hints and targets.
+- **Plugins.** Built-in synth, drums, sampler and SFZ player; 11 built-in effects. External **VST3** (through pedalboard) and **CLAP** (own small C host), each in its own process so a crash can't take the session down.
 - **Gets along with other DAWs.** MIDI import/export (FL Studio, Ableton and others), stem import, stem export.
 
-![PlainDAW GUI](docs/gui.png)
+![AIDAW GUI with the AI / Listen panel](docs/gui-ai.png)
 
 ## Install
 
 Requires Python 3.10+. ffmpeg on PATH is needed only for MP3/OGG export and for importing MP3/M4A files.
 
 ```bash
-git clone <this repo> plaindaw && cd plaindaw
+git clone https://github.com/SnazzyGaz/AIDAW && cd AIDAW
 python -m venv .venv && . .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -e .            # add [test] for the test suite
 ```
@@ -50,7 +54,61 @@ Positions are `bar.beat.16th` (1-based: `1.1.1` is the start, `9.1.1` is bar 9) 
 
 `plaindaw ops` lists every op with its arguments; `--json` gives machine-readable output; `--dry-run` previews a change; `plaindaw run script.pdaw` runs one command per line.
 
-## Demo song
+## AI tour
+
+```bash
+plaindaw kit install                                   # optional: Surge XT + sfizz + piano/strings (about 260 MB)
+plaindaw new song --bpm 128 && cd song
+
+plaindaw compose song --genre bigroom --key "F minor" --chords "i VI III VII" --seed 11
+plaindaw listen                                        # key, chords, tempo, timing, timbre, section energy
+plaindaw listen --bars 17-24 --reference ../ref.wav    # compare a section with a reference track
+plaindaw clash report                                  # which pairs fight, in which band
+plaindaw fix clash kick bass                           # sidechain/EQ, shows before -> after, keeps it only if it helped
+plaindaw variations 4 compose lead --target keyfit     # try 4 leads, keep the best (or --keep list)
+plaindaw variations 5 mix set pad --vary gainDb=-12..0 --target clarity
+plaindaw humanize hats --feel natural
+plaindaw preview --bars 17-20 --tracks kick,bass       # quick solo render to renders/preview.wav
+plaindaw history                                       # every step with its "why:"
+```
+
+- `compose <part>`: `bass`, `chords`, `pad`, `lead`, `arp`, `drums` or `song`, with `--genre` (bigroom, house, techno, dnb, trap, hiphop, lofi, ambient, …), `--key`, `--chords` (roman numerals or chord names), `--bars`, `--style` (e.g. offbeat, reese, 808, supersaw, pluck, anthem), `--seed`, `--engine auto|builtin|surge|sfz`. Same seed, same notes. Recomposing an arranged part swaps its pattern in every section.
+- `arrange --form "intro:8,build:8,drop:16,break:8,build:8,drop:16,outro:8"` lays out the composed parts, adds markers, snare rolls, risers with filter sweeps, crashes and per-section levels.
+- `variations` metrics: loudness, punch, brightness, darkness, width, clarity, keyfit, energy, contrast, tightness; `--target metric=value` aims at a number.
+- `instrument add surge --preset "Bass 1"`, `instrument add sfizz --sfz piano`, or any `vst3:`/`clap:` plugin.
+- Listening uses NumPy/SciPy only. Extra listeners (e.g. an embedding model) plug in with `PLAINDAW_LISTENERS=module:function`; their output lands under `extra` in the report.
+
+## Sound library
+
+```bash
+plaindaw lib scan ~/Samples "D:/BotWorkshop/Presets"   # incremental; no paths = the kit
+plaindaw lib search "dark bass" --engine surge
+plaindaw lib search loop --bpm 124 --key "F minor"
+plaindaw lib audition <id>                             # renders a short phrase or the sample
+plaindaw lib use <id> --track Bass                     # puts it on a track (one undo step)
+```
+
+Index: `~/.plaindaw/library.json` (or `PLAINDAW_LIBRARY`). Surge `.fxp`, `.vstpreset` (needs the matching VST3 installed to audition), `.sfz` and audio are playable; other preset files (`.vital`, `.h2p`, `.nmsv`, VST2 `.fxp`) are indexed by name and folder only.
+
+## The kit (Surge XT + sfizz)
+
+```bash
+plaindaw kit install            # or: kit install surge sfizz sfz
+plaindaw kit status
+plaindaw kit clean              # delete the downloaded archives
+```
+
+It downloads the official release builds for your OS (Linux, Windows, macOS), checks each file against pinned md5/sha256 or git hashes, and writes `kit/kit.json`. The kit lives in the app folder (`<AIDAW>/kit`, always so on Windows and never under `C:\Program Files`), otherwise `~/.local/share/plaindaw/kit`, or wherever `PLAINDAW_KIT` points. On Linux sfizz is built from its official source release (needs cmake and a C++ compiler, about a minute). Licences and checksums: `THIRD_PARTY.md`. Renders that use Surge XT are not bit-identical run to run; the built-ins are.
+
+## Demo songs
+
+`examples/demo/build_demo_ai.pdaw` writes a whole big-room track with the musical commands (compose, listen, fix clash, variations, humanize); `examples/demo/AIDAW_AI_Demo.mp3` is its render with the kit installed (Surge XT sounds).
+
+```bash
+plaindaw new demo-ai --bpm 126 --title "AIDAW AI Demo"
+plaindaw -p demo-ai run examples/demo/build_demo_ai.pdaw
+plaindaw -p demo-ai render --formats wav,mp3
+```
 
 `examples/demo/build_demo.pdaw` builds a short original track (F minor, 126 BPM, 18 bars: intro, build with snare roll and riser, drop, outro) using only commands, then runs a mix pass based on what the analysis reported. `examples/demo/PlainDAW_Demo.mp3` is the render.
 
@@ -72,7 +130,7 @@ Example client config (Claude Desktop, Cursor and others):
 { "mcpServers": { "plaindaw": { "command": "plaindaw", "args": ["-p", "/path/to/mysong", "mcp"] } } }
 ```
 
-Tools: `project_overview`, `get_project`, `list_ops`, `edit`, `batch`, `get_pattern`, `render`, `analyze`, `undo`, `redo`, `revert`, `history`, `diff`, `list_plugins`, `plugin_params`, `export_midi`. Edits are tagged `ai` in history. `plaindaw --mode read-only -p mysong mcp` lets the AI look without editing. `--mode ask` makes it confirm destructive ops first.
+Tools: `project_overview`, `get_project`, `list_ops`, `edit`, `batch`, `get_pattern`, `render`, `analyze`, `listen`, `compose`, `arrange`, `fix_clash`, `clash_report`, `variations`, `humanize`, `preview`, `instrument_add`, `lib_search`, `lib_scan`, `lib_audition`, `lib_use`, `kit_status`, `undo`, `redo`, `revert`, `history`, `diff`, `list_plugins`, `plugin_params`, `export_midi`. `edit` and `batch` take an optional `reason`. Edits are tagged `ai` in history. `plaindaw --mode read-only -p mysong mcp` lets the AI look without editing. `--mode ask` makes it confirm destructive ops first.
 
 ## JSON-RPC and HTTP
 
@@ -81,7 +139,7 @@ plaindaw -p mysong rpc            # JSON-RPC 2.0, one request per line on stdin/
 plaindaw -p mysong serve          # http://127.0.0.1:8765 : GUI, POST /rpc, GET /events (live changes)
 ```
 
-Methods are the op names plus queries (`project.summary`, `render`, `analyze`, `history.undo`, …); `rpc.discover` lists them all. Add `"_as": "ai"` to params to tag the author.
+Methods are the op names plus queries (`project.summary`, `render`, `analyze`, `history.undo`, …); `rpc.discover` lists them all, including `listen`, `compose`, `fix.clash`, `lib.search` and `cli.exec` (runs one CLI command line; the GUI's AI panel uses it). Add `"_as": "ai"` to params to tag the author.
 
 ## Plugins
 
@@ -117,14 +175,14 @@ pip install -e .[test]
 pytest
 ```
 
-The suite covers the timebase, patch/undo properties, the ops and history (locks, permissions, revert conflicts), render determinism and mixing math, sidechain, audio-clip timing and stretch, loudness against pyloudnorm and the EBU reference, export formats, MIDI round trip, CLAP and VST3 hosting, crash isolation, the CLI, JSON-RPC (stdio and HTTP + SSE), MCP with the official client SDK, the browser GUI in headless Chrome, and the demo song. Surge XT tests run when Surge XT is installed (`PLAINDAW_THIRDPARTY`).
+The suite covers the timebase, patch/undo properties, the ops and history (locks, permissions, revert conflicts), render determinism and mixing math, sidechain, audio-clip timing and stretch, loudness against pyloudnorm and the EBU reference, export formats, MIDI round trip, CLAP and VST3 hosting, crash isolation, the CLI, JSON-RPC (stdio and HTTP + SSE), MCP with the official client SDK, the browser GUI in headless Chrome (including the AI panel), the demo songs, and the AI parts: theory, listening (tempo, timing, key, chords, timbre, reference comparison, listener plugins), compose determinism and undo, arrange, fix clash, variations, humanize and swing, preview, locks, the SFZ player, library scan/tag/search/audition/use, the kit (mapping, pins, fallback, and real Surge XT + sfizz renders when the kit is installed). Surge XT tests run when Surge XT is installed (`PLAINDAW_THIRDPARTY`).
 
 ## Status
 
-Version 0.1. Tested on Linux. Windows and macOS paths are in place (plugin folders, CLAP loader, compiler detection) but not tested yet. Not real-time: there is no live playback engine or audio-device recording. Playback means rendering and then playing the file (the GUI does this for you).
+Version 0.2 (AI features + kit). Tested on Linux, including the kit install and Surge XT / sfizz renders. Windows and macOS kit downloads are wired up with pinned checksums but not tested yet. Known weak spots: chord detection can mistake a chord for its relative (Db heard as Fm); `fix clash` on a whole song is slow, so it defaults to the loop. Version 0.1 notes: tested on Linux. Windows and macOS paths are in place (plugin folders, CLAP loader, compiler detection) but not tested yet. Not real-time: there is no live playback engine or audio-device recording. Playback means rendering and then playing the file (the GUI does this for you).
 
 ## Credits and licence
 
 Created by **Garyck Arntzen** ([@_mintydoge](https://x.com/_mintydoge)).
 
-GPL-3.0-or-later (see `LICENSE`). Uses pedalboard (GPLv3), NumPy, SciPy, soundfile, mido, and the CLAP headers (MIT, included under `plaindaw/native/third_party/clap-include`).
+GPL-3.0-or-later (see `LICENSE`). Third-party software and sounds the kit downloads are listed with their licences in `THIRD_PARTY.md` (Surge XT GPL-3.0, sfizz BSD-2-Clause, VSCO 2 CE samples CC0). Uses pedalboard (GPLv3), NumPy, SciPy, soundfile, mido, and the CLAP headers (MIT, included under `plaindaw/native/third_party/clap-include`).

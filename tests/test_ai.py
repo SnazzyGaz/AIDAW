@@ -358,3 +358,15 @@ def test_recompose_arranged_part_swaps_every_clip(proj):
     lead = next(t for t in s.doc["tracks"] if t.get("role") == "lead")
     assert [c["at"] for c in lead["clips"]] == ats
     assert len({c["pattern"] for c in lead["clips"]}) == 1 and "pluck" in lead["clips"][0]["pattern"]
+
+
+def test_variations_forwards_flags_to_the_command(proj):
+    from plaindaw.cli import build_call
+    m, params, _ = build_call(["variations", "2", "compose", "lead", "--style", "pluck", "--bars", "2", "--target", "keyfit",
+                               "--keep", "list"])
+    r = proj.call(m, params)
+    assert len(r["results"]) == 2
+    r2 = proj.call(m, {**params, "keep": "best"})
+    lead = next(t for t in proj.doc["tracks"] if t.get("role") == "lead")
+    pat = proj.doc["patterns"][lead["clips"][0]["pattern"]]
+    assert "pluck" in lead["clips"][0]["pattern"] and pat["lengthBeats"] == 8

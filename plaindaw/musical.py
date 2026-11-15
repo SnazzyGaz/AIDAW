@@ -1066,6 +1066,11 @@ def variations(s, p, author=None):
         import shlex
         cmd = " ".join(shlex.quote(str(w)) for w in cmd)
     method, base = _parse_command(cmd)
+    own = {"n", "count", "command", "cmd", "target", "vary", "keep", "start", "end", "sr", "previewBars",
+           "reason", "dryRun", "confirm", "_cli"}
+    for k, v in p.items():                       # `variations 4 compose lead --style pluck`: extra flags go to the command
+        if k not in own and k not in base:
+            base[k] = v
     cands = []
     if p.get("vary"):
         name, _, span = str(p["vary"]).partition("=")
