@@ -1,0 +1,51 @@
+# AIDAW 808 beat: trap loop, F minor, 144 BPM (half-time feel), 8 bars, loop on
+project set --title "808 Beat" --author "Garyck Arntzen"
+tempo set --bpm 144
+keysig set --key "F minor"
+loop set 1.1.1 9.1.1
+# drums
+track add "Kick" --id kick --plugin builtin:drums --role kick --params "kickPitch=46 kickDecay=0.32 gainDb=-1"
+mix set kick --gain -2
+pattern add kick_p --lengthBeats 32 --notes "C2@0.0:0.25:122 C2@1.75:0.25:112 C2@2.5:0.25:112 C2@4.0:0.25:122 C2@4.75:0.25:112 C2@5.5:0.25:112 C2@6.75:0.25:112 C2@7.5:0.25:112 C2@8.0:0.25:122 C2@9.75:0.25:112 C2@10.5:0.25:112 C2@12.0:0.25:122 C2@12.75:0.25:112 C2@13.5:0.25:112 C2@14.75:0.25:112 C2@15.5:0.25:112 C2@16.0:0.25:122 C2@17.75:0.25:112 C2@18.5:0.25:112 C2@20.0:0.25:122 C2@20.75:0.25:112 C2@21.5:0.25:112 C2@22.75:0.25:112 C2@23.5:0.25:112 C2@24.0:0.25:122 C2@25.75:0.25:112 C2@26.5:0.25:112 C2@28.0:0.25:122 C2@28.75:0.25:112 C2@29.5:0.25:112"
+clip add_pattern kick kick_p 1.1.1
+track add "Clap" --id clap --plugin builtin:drums --role clap --params "gainDb=-5 snareDecay=0.18"
+mix set clap --gain -6
+pattern add clap_p --lengthBeats 32 --notes "D#2@2.0:0.25:118 D2@2.0:0.25:92 D#2@6.0:0.25:118 D2@6.0:0.25:92 D#2@10.0:0.25:118 D2@10.0:0.25:92 D#2@14.0:0.25:118 D2@14.0:0.25:92 D2@15.75:0.2:70 D#2@18.0:0.25:118 D2@18.0:0.25:92 D#2@22.0:0.25:118 D2@22.0:0.25:92 D#2@26.0:0.25:118 D2@26.0:0.25:92 D#2@30.0:0.25:118 D2@30.0:0.25:92 D2@31.75:0.2:70"
+clip add_pattern clap clap_p 1.1.1
+track add "Hats" --id hats --plugin builtin:drums --role hat --params "gainDb=-10 hatDecay=0.04 openHatDecay=0.3"
+mix set hats --gain -9 --pan 0.12
+pattern add hats_p --lengthBeats 32 --notes "F#2@0.0:0.1:103 F#2@0.5:0.1:84 F#2@1.0:0.1:101 F#2@1.5:0.1:74 F#2@1.75:0.08:67 F#2@2.0:0.1:99 F#2@2.5:0.1:81 F#2@3.0:0.1:104 A#2@3.5:0.4:88 F#2@4.0:0.1:99 F#2@4.5:0.1:75 F#2@5.0:0.1:92 F#2@5.5:0.1:78 F#2@6.0:0.1:94 F#2@6.5:0.1:81 F#2@7.0:0.08:60 F#2@7.1667:0.08:68 F#2@7.3333:0.08:77 F#2@7.5:0.08:89 F#2@7.6667:0.08:92 F#2@7.8333:0.08:96 F#2@8.0:0.1:108 F#2@8.5:0.1:71 F#2@8.75:0.08:60 F#2@9.0:0.1:97 F#2@9.5:0.1:77 F#2@10.0:0.1:108 F#2@10.5:0.1:74 F#2@10.6667:0.06:58 F#2@10.8333:0.06:64 F#2@11.0:0.06:70 F#2@11.0:0.1:107 A#2@11.5:0.4:88 F#2@12.0:0.1:99 F#2@12.5:0.1:74 F#2@13.0:0.1:104 F#2@13.5:0.1:86 F#2@14.0:0.1:95 F#2@14.5:0.1:75 F#2@15.0:0.08:68 F#2@15.1667:0.08:72 F#2@15.3333:0.08:80 F#2@15.5:0.08:82 F#2@15.6667:0.08:90 F#2@15.8333:0.08:103 F#2@16.0:0.1:105 F#2@16.5:0.1:86 F#2@17.0:0.1:98 F#2@17.5:0.1:86 F#2@17.75:0.08:69 F#2@18.0:0.1:102 F#2@18.5:0.1:70 F#2@19.0:0.1:105 A#2@19.5:0.4:88 F#2@20.0:0.1:94 F#2@20.5:0.1:84 F#2@21.0:0.1:96 F#2@21.5:0.1:77 F#2@22.0:0.1:95 F#2@22.5:0.1:76 F#2@23.0:0.08:64 F#2@23.1667:0.08:75 F#2@23.3333:0.08:79 F#2@23.5:0.08:84 F#2@23.6667:0.08:94 F#2@23.8333:0.08:100 F#2@24.0:0.1:102 F#2@24.5:0.1:84 F#2@24.75:0.08:67 F#2@25.0:0.1:101 F#2@25.5:0.1:85 F#2@26.0:0.1:96 F#2@26.5:0.1:70 F#2@26.6667:0.06:58 F#2@26.8333:0.06:64 F#2@27.0:0.06:70 F#2@27.0:0.1:103 A#2@27.5:0.4:88 F#2@28.0:0.1:97 F#2@28.5:0.1:76 F#2@29.0:0.1:95 F#2@29.5:0.1:71 F#2@30.0:0.1:101 F#2@30.5:0.06:52 F#2@30.625:0.06:52 F#2@30.75:0.06:58 F#2@30.875:0.06:62 F#2@31.0:0.06:67 F#2@31.125:0.06:75 F#2@31.25:0.06:82 F#2@31.375:0.06:84 F#2@31.5:0.06:91 F#2@31.625:0.06:94 F#2@31.75:0.06:102 F#2@31.875:0.06:104"
+clip add_pattern hats hats_p 1.1.1
+plugin add hats builtin:eq --id hats_eq --params "lowCutHz=600 highShelfDb=2"
+# 808: mono sine with slides, saturated, mono below 150 Hz
+track add "808" --id b808 --plugin builtin:synth --role bass --params "wave=sine voices=1 cutoff=2400 attack=0.001 decay=2.5 sustain=0.75 release=0.18 pitchEnv=5 pitchDecay=0.03 glide=0.09 gainDb=-3 width=0"
+mix set b808 --gain -4
+pattern add b808_p --lengthBeats 32 --notes "F1@0.0:1.7:118 F1@1.75:0.7:118 F1@2.5:1.45:118 F1@4.0:0.7:118 F1@4.75:0.7:118 F1@5.5:1.35:118 C2@6.75:0.85:118 F2@7.5:0.6:118 C#1@8.0:1.7:118 C#1@9.75:0.7:118 C#1@10.5:1.45:118 C#1@12.0:0.7:118 C#1@12.75:0.7:118 C#1@13.5:1.35:118 G#1@14.75:0.85:118 C#2@15.5:0.6:118 A#1@16.0:1.7:118 A#1@17.75:0.7:118 A#1@18.5:1.45:118 A#1@20.0:0.7:118 A#1@20.75:0.7:118 A#1@21.5:1.35:118 F2@22.75:0.85:118 A#2@23.5:0.6:118 C2@24.0:1.7:118 C2@25.75:0.7:118 C2@26.5:1.45:118 C2@28.0:0.7:118 C2@28.75:0.85:118 F2@29.5:2.62:118"
+clip add_pattern b808 b808_p 1.1.1
+plugin add b808 builtin:distortion --id b808_sat --params "driveDb=9 outputDb=-7 mix=0.55"
+plugin add b808 builtin:eq --id b808_eq --params "lowCutHz=28"
+plugin add b808 builtin:utility --id b808_mono --params "bassMonoHz=150"
+# dark bell and pad
+track add "Bell" --id bell --plugin builtin:synth --role lead --params "wave=sine voices=2 detune=4 cutoff=7000 attack=0.001 decay=1.0 sustain=0.0 release=0.7 gainDb=-9 width=0.6"
+mix set bell --gain -14
+pattern add bell_p --lengthBeats 32 --notes "C5@0:0.5:88 G#4@0.75:0.5:96 F5@1.5:0.75:89 D#5@2.5:0.5:94 C5@3.0:1.0:91 C#5@4.5:0.5:86 C5@5.0:0.5:91 G#4@5.75:1.0:95 C5@8:0.5:89 G#4@8.75:0.5:86 F5@9.5:0.75:95 D#5@10.5:0.5:87 C#5@11.0:1.0:96 C5@12.5:0.5:87 A#4@13.0:0.5:94 G4@13.75:1.5:96 C5@16:0.5:95 G#4@16.75:0.5:93 F5@17.5:0.75:88 D#5@18.5:0.5:95 C5@19.0:1.0:95 C#5@20.5:0.5:89 C5@21.0:0.5:97 G#4@21.75:1.0:92 C5@24:0.5:96 G#4@24.75:0.5:88 F5@25.5:0.75:94 D#5@26.5:0.5:93 C#5@27.0:1.0:96 C5@28.5:0.5:97 A#4@29.0:0.5:91 G4@29.75:1.5:87"
+clip add_pattern bell bell_p 1.1.1
+plugin add bell builtin:eq --id bell_eq --params "lowCutHz=300"
+track add "Pad" --id pad --plugin builtin:synth --role pad --params "wave=saw voices=5 detune=14 cutoff=900 attack=0.8 decay=0.5 sustain=0.9 release=1.6 gainDb=-16 width=1.0"
+mix set pad --gain -20
+pattern add pad_p --lengthBeats 32 --notes "F3@0:8.0:76 G#3@0:8.0:76 C4@0:8.0:76 C#3@8:8.0:76 F3@8:8.0:76 G#3@8:8.0:76 A#2@16:8.0:76 C#3@16:8.0:76 F3@16:8.0:76 C3@24:8.0:76 E3@24:8.0:76 G3@24:8.0:76"
+clip add_pattern pad pad_p 1.1.1
+plugin add pad builtin:eq --id pad_eq --params "lowCutHz=220"
+track add Verb --id verb --type return
+plugin add verb builtin:reverb --id verb_rv --params "size=0.8 damping=0.5 mix=1.0 lowCutHz=300 predelayMs=25"
+send add bell verb --level -9
+send add pad verb --level -12
+send add clap verb --level -20
+# master
+plugin add master builtin:eq --id master_eq --params "lowCutHz=25"
+plugin add master builtin:compressor --id master_comp --params "thresholdDb=-12 ratio=2 attack=0.02 release=0.2 kneeDb=8"
+plugin add master builtin:limiter --id master_limiter --params "ceilingDb=-1 gainDb=3"
+# kick and 808 share the low end: let AIDAW make room
+clash report
+fix clash kick 808
+listen

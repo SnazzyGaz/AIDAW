@@ -221,12 +221,31 @@ class Renderer:
         params = {k: v for k, v in params.items() if not k.startswith("_")}
         out = np.zeros((2, n))
         samples = {}
+        # mono synth (mono=true, or glide>0 on one voice): each note cuts the previous one, and a
+        # note that starts while the previous is still held slides to its pitch (808 glides)
+        mono = name == "synth" and (bool(params.get("mono")) or (float(params.get("glide", 0)) > 0 and int(params.get("voices", 1)) <= 1))
+        order = sorted(range(len(notes)), key=lambda j: notes[j][0]) if mono else None
+        nxt, prev = {}, {}
+        if mono:
+            for a, b in zip(order, order[1:]):
+                nxt[a] = notes[b][0]
+                if notes[a][1] > notes[b][0] - int(0.002 * self.sr):
+                    prev[b] = notes[a][2]
         for i, (s, e, k, v) in enumerate(notes):
             if s >= n:
                 continue
             rng = _rng(self.seed, t["id"], i)
             if name == "synth":
-                y = dsp.synth_note(params, k, v, e - s, self.sr, rng)
+                hold = e - s
+                if mono and i in nxt:
+                    hold = max(1, min(hold, nxt[i] - s))
+                y = dsp.synth_note(params, k, v, hold, self.sr, rng, from_key=prev.get(i) if mono else None)
+                if mono and i in nxt:
+                    cut = max(1, nxt[i] - s)
+                    if y.shape[1] > cut:
+                        f = min(int(0.004 * self.sr), cut)
+                        y = y[:, :cut].copy()
+                        y[:, cut - f:] *= np.linspace(1.0, 0.0, f)
             elif name == "drums":
                 y = dsp.drum_hit(k, v, self.sr, rng, params)
             else:

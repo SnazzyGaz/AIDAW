@@ -156,3 +156,25 @@ def test_session_analysis_sections_and_tracks(small_song):
     assert [x["name"] for x in rep["sections"]] == ["Intro", "Drop"]
     assert set(rep["tracks"]) == {"drums", "bass"}
     assert rep["target"]["profile"] == "club"
+
+
+def test_mono_synth_glides_between_legato_notes(proj):
+    import numpy as np
+    s = proj
+    s.apply("track.add", {"name": "808", "plugin": "builtin:synth",
+                          "params": {"wave": "sine", "voices": 1, "glide": 0.1, "sustain": 1.0, "cutoff": 8000}})
+    # F1 held into C2 (legato): the second note slides up from F1
+    s.apply("clip.add_notes", {"track": "808", "at": "1.1.1", "notes": [
+        {"t": 0, "len": 1.1, "key": 29}, {"t": 1, "len": 1, "key": 36}]})
+    r = s.render(end="2.1.1", stems=True)
+    x, sr = r.stems["808"][0], r.sr
+    spq = 0.5 * sr  # 120 bpm
+
+    def f0(q, win=0.05):
+        i = int(q * spq); n = int(win * sr)
+        seg = x[i:i + n] * np.hanning(n)
+        f = np.fft.rfftfreq(n * 8, 1 / sr); m = np.abs(np.fft.rfft(seg, n * 8)); m[f < 20] = 0
+        return f[m.argmax()]
+    assert abs(f0(0.5) - 43.65) < 4          # F1
+    assert 46 < f0(1.04) < 62                 # mid-slide
+    assert abs(f0(1.6) - 65.4) < 4            # arrived at C2

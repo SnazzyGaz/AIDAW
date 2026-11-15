@@ -1,0 +1,10 @@
+# iteration 1, after `listen`/`analyze`: the mix is all sub (centroid 125 Hz, mids ~-20 dB, presence -30 dB).
+# lift the top end so the bell, clap and hats read on small speakers; 808 down a touch
+mix set bell --gain -9
+mix set hats --gain -6
+mix set clap --gain -4
+mix set pad --gain -17
+mix set b808 --gain -6
+plugin set_params b808 b808_sat --params "driveDb=12 outputDb=-8 mix=0.6"
+humanize hats --feel natural --seed 7
+listen

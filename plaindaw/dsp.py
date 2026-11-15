@@ -199,17 +199,23 @@ def osc(wave: str, freq: np.ndarray, sr: float, phase0: float, rng: np.random.Ge
 SYNTH_DEFAULTS = {"wave": "saw", "voices": 1, "detune": 12.0, "octave": 0, "cutoff": 8000.0, "resonance": 0.2,
                   "envAmount": 0.0, "filterDecay": 0.3, "attack": 0.005, "decay": 0.2, "sustain": 0.7,
                   "release": 0.15, "gainDb": -6.0, "width": 0.8, "sub": 0.0, "glide": 0.0, "pitchEnv": 0.0,
-                  "pitchDecay": 0.05}
+                  "pitchDecay": 0.05, "mono": False}
 
 
-def synth_note(p: dict, key: int, vel: float, n_hold: int, sr: float, rng: np.random.Generator) -> np.ndarray:
+def synth_note(p: dict, key: int, vel: float, n_hold: int, sr: float, rng: np.random.Generator,
+               from_key: int | None = None) -> np.ndarray:
+    """One note. from_key: the previous legato note in mono mode; the pitch slides from it to
+    `key` over `glide` seconds (808-style slides) and the pitch-envelope punch is skipped."""
     voices = int(np.clip(p["voices"], 1, 9))
     env = adsr(n_hold, sr, p["attack"], p["decay"], p["sustain"], p["release"])
     n = env.shape[0]
     t = np.arange(n) / sr
     f0 = mtof(key + 12 * int(p["octave"]))
     pitch = 1.0
-    if p["pitchEnv"]:
+    if from_key is not None and from_key != key and p.get("glide", 0) > 0:
+        ramp = np.clip(1.0 - t / max(1e-3, float(p["glide"])), 0.0, 1.0)
+        pitch = 2.0 ** ((from_key - key) * ramp ** 2 / 12.0)
+    elif p["pitchEnv"]:
         pitch = 2.0 ** (p["pitchEnv"] * np.exp(-t / max(1e-3, p["pitchDecay"])) / 12.0)
     out = np.zeros((2, n))
     for v in range(voices):
