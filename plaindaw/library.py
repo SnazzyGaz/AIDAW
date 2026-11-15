@@ -368,14 +368,26 @@ def _phrase_for(e) -> list:
 
 
 def _vst3_for_class(class_id: str) -> str | None:
+    """Find the VST3 bundle for a .vstpreset class id: first from bundle metadata
+    (moduleinfo.json, no loading), then - only when probing is enabled - by loading each
+    unknown plugin in a subprocess. Skip-listed plugins (Waves shells by default) are never loaded."""
     idx = load()
     if class_id in idx.get("vst3Classes", {}):
         return idx["vst3Classes"][class_id]
-    from .plugins.scan import scan as pscan
+    from .plugins.scan import probe_default, scan as pscan
     import subprocess
     import sys
-    for d in pscan(probe=False):
-        if d["format"] != "vst3" or d["path"] in idx.get("vst3Probed", []):
+    descs = [d for d in pscan(probe=False) if d["format"] == "vst3"]
+    for d in descs:
+        for cid in d.get("classes", {}):
+            idx.setdefault("vst3Classes", {})[cid] = d["path"]
+    if class_id in idx.get("vst3Classes", {}):
+        save(idx)
+        return idx["vst3Classes"][class_id]
+    if not probe_default():
+        return None
+    for d in descs:
+        if d["path"] in idx.get("vst3Probed", []) or d.get("classes"):
             continue
         code = ("import pedalboard,sys;from plaindaw.plugins.host import vst3_binary;p=pedalboard.load_plugin(vst3_binary(sys.argv[1]));"
                 "sys.stdout.write(p.preset_data[8:40].decode('latin-1'))")

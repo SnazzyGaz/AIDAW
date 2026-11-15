@@ -83,3 +83,32 @@ def test_surge_clap_and_vst3(proj, monkeypatch):
     params = s.call("plugin.params", {"plugin": "clap:org.surge-synth-team.surge-xt"})
     assert len(params["params"]) > 100
     reset_cache()
+
+
+def test_scan_skip_list_and_metadata_only(tmp_path, monkeypatch):
+    from plaindaw.plugins import scan as sc
+    vst = tmp_path / "VST3"
+    (vst / "WaveShell1-VST3 13.0_x64.vst3").mkdir(parents=True)
+    (vst / "Waves" / "Some.vst3").mkdir(parents=True)
+    good = vst / "Good Synth.vst3" / "Contents" / "Resources"
+    good.mkdir(parents=True)
+    (good / "moduleinfo.json").write_text('{"Classes": [{"CID": "0123456789ABCDEF0123456789ABCDEF", '
+                                          '"Category": "Audio Module Class", "Name": "Good Synth",},],}')
+    (vst / "Thing.clap").write_bytes(b"not a real clap")
+    monkeypatch.delenv("PLAINDAW_PLUGIN_SKIP", raising=False)
+    monkeypatch.setenv("PLAINDAW_PLUGIN_PROBE", "0")
+    found = [d for d in sc.scan([vst]) if str(vst) in d["path"]]
+    names = sorted(d["name"] for d in found)
+    assert names == ["Good Synth", "Thing"]          # Waves skipped, the bogus CLAP listed without loading
+    g = next(d for d in found if d["name"] == "Good Synth")
+    assert g["classes"] == {"0123456789ABCDEF0123456789ABCDEF": "Good Synth"}
+    assert next(d for d in found if d["name"] == "Thing")["probed"] is False
+    with pytest.raises(PermissionError):
+        sc.resolve("vst3:WaveShell1-VST3 13.0_x64", str(vst / "WaveShell1-VST3 13.0_x64.vst3"))
+    monkeypatch.setenv("PLAINDAW_PLUGIN_SKIP", "")
+    assert len([d for d in sc.scan([vst]) if str(vst) in d["path"]]) == 4
+    monkeypatch.delenv("PLAINDAW_PLUGIN_PROBE")
+    monkeypatch.setattr(sc.sys, "platform", "win32")
+    assert sc.probe_default() is False
+    monkeypatch.setattr(sc.sys, "platform", "linux")
+    assert sc.probe_default() is True
