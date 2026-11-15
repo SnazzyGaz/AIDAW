@@ -153,10 +153,30 @@ class Engine:
         self._want_version = 0
         self._done_version = -1
         self._null_thread = None
+        if output in ("auto", "portaudio"):
+            self._probe_rate()               # render at the rate the device will run at (no re-render on first Play)
         session.listeners.append(self._on_change)
         self._worker = threading.Thread(target=self._render_loop, daemon=True, name="aidaw-render")
         self._worker.start()
         self.invalidate()
+
+    def _probe_rate(self):
+        try:
+            sd = _sd()
+            dev = self.device
+            if isinstance(dev, str) and dev.isdigit():
+                dev = int(dev)
+            if dev is None and os.name == "nt" and not os.environ.get("PLAINDAW_ASIO"):
+                dev = _wasapi_default(sd)
+            try:
+                sd.check_output_settings(device=dev, samplerate=self.sr, channels=2, dtype="float32")
+            except Exception:
+                rate = int(sd.query_devices(dev, "output")["default_samplerate"])
+                if rate > 0:
+                    self.sr = rate
+                    self._clicks = (_click(rate, True), _click(rate, False))
+        except Exception:
+            pass
 
     # ------------------------------------------------------------ rendering
     def _on_change(self, ev):
