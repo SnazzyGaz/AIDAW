@@ -656,8 +656,9 @@ def compose(s, p, author=None):
 
 
 # ------------------------------------------------------------------ arrange
-# clip velocity (percent) per section kind: leaves headroom for the drop to feel bigger
-SECTION_DYNAMICS = {"intro": 70, "break": 72, "outro": 60, "verse": 85, "tension": 85}
+# level offset (dB) per section kind, written as hold automation on a utility insert so the
+# faders stay free: quieter intro/break/outro leave room for the drop to land
+SECTION_DYNAMICS = {"intro": -4.0, "break": -4.0, "outro": -6.0, "verse": -2.0, "tension": -2.0}
 
 
 def plan_arrange(s, p, doc=None):
@@ -706,11 +707,18 @@ def plan_arrange(s, p, doc=None):
             args = {"track": tid, "pattern": pid, "at": _bar_pos(b0), "lengthBeats": nb * bar_qn, "id": cid}
             if tr:
                 args["transpose"] = tr
-            dyn = SECTION_DYNAMICS.get(kind, 100)
-            if dyn != 100:
-                args["velocity"] = dyn          # quieter intro/break/outro so the drop lands
             ops.append({"op": "clip.add_pattern", "args": args})
             placed.setdefault(tid, []).append(nm)
+    if str(p.get("dynamics", True)).lower() not in ("false", "0", "no"):
+        pts = [[_bar_pos(b0), SECTION_DYNAMICS.get(kind, 0.0)] for nm, kind, b0, nb in layout]
+        if any(v for _, v in pts):
+            for tid in placed:
+                t = _find_track(doc, tid)
+                uid = f"{tid}_sections"
+                if not any(i.get("id") == uid for i in t.get("inserts", [])):
+                    ops.append({"op": "plugin.add", "args": {"track": tid, "plugin": "builtin:utility", "id": uid}})
+                ops.append({"op": "auto.set", "args": {"track": tid, "target": f"inserts/{uid}/gainDb",
+                                                       "points": pts, "curve": "hold"}})
     if str(p.get("fx", True)).lower() not in ("false", "0", "no"):
         builds = [(b0, nb) for nm, kind, b0, nb in layout if kind in ("build", "tension")]
         drops = [b0 for nm, kind, b0, nb in layout if kind in ("drop", "hook", "climax")]

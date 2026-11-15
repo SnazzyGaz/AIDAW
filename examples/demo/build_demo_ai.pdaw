@@ -1,0 +1,26 @@
+# PlainDAW AI demo: the whole song is written with the musical commands.
+# Every line is one undo step with a logged reason (see `plaindaw history`).
+#   plaindaw new demo-ai --bpm 126 --title "PlainDAW AI Demo"
+#   plaindaw -p demo-ai run examples/demo/build_demo_ai.pdaw
+#   plaindaw -p demo-ai render --formats wav,mp3
+
+# 1. write a big-room song in F minor and lay it out (intro, build, drop, break, build, drop, outro)
+compose song --genre bigroom --key "F minor" --chords "i VI III VII" --seed 11 --tempo 126
+
+# 2. listen to the loop (the first drop) before touching the mix
+listen
+
+# 3. make room: the kick ducks the bass, the lead gets space from the chords
+clash report
+fix clash kick bass
+fix clash lead chords
+
+# 4. try four leads and keep the one that sits best in the key
+variations 4 compose lead --target keyfit
+
+# 5. feel: loosen the hats a little
+humanize hats --feel natural --seed 5
+
+# 6. check the drop again
+listen --bars 25-32
+history

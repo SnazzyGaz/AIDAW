@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "plaindaw"
-version = "0.1.0"
+version = "0.2.0"
 description = "A plain-text, headless-first DAW that people and AI can both drive: JSON projects, one op layer, undo history, offline render, loudness analysis, VST3/CLAP hosting, CLI + JSON-RPC + MCP + browser GUI."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -23,6 +23,7 @@ test = ["pytest>=7", "pyloudnorm>=0.1", "mcp>=1.0", "playwright>=1.40"]
 
 [project.scripts]
 plaindaw = "plaindaw.cli:main"
+aidaw = "plaindaw.cli:main"
 
 [project.urls]
 Author = "https://x.com/_mintydoge"
@@ -31,7 +32,7 @@ Author = "https://x.com/_mintydoge"
 include = ["plaindaw*"]
 
 [tool.setuptools.package-data]
-plaindaw = ["gui/*", "native/src/*.c", "native/third_party/clap-include/**/*", "schema/*.json"]
+plaindaw = ["gui/*", "kit_pins.json", "native/src/*.c", "native/third_party/clap-include/**/*", "schema/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
