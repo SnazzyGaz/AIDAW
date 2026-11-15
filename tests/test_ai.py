@@ -370,3 +370,9 @@ def test_variations_forwards_flags_to_the_command(proj):
     lead = next(t for t in proj.doc["tracks"] if t.get("role") == "lead")
     pat = proj.doc["patterns"][lead["clips"][0]["pattern"]]
     assert "pluck" in lead["clips"][0]["pattern"] and pat["lengthBeats"] == 8
+
+
+def test_listen_notes_key_mismatch():
+    assert "relative key" in L.key_relation("Ab major", "F minor")
+    assert L.key_relation("F minor", "F minor") is None
+    assert "5 of 7" in L.key_relation("Bb major", "F minor")

@@ -1,0 +1,928 @@
+{
+  "format": "plaindaw/0.1",
+  "meta": {"title": "AIDAW AI Demo", "author": ""},
+  "settings": {"sampleRate": 48000, "seed": 1, "block": 512, "tailSec": 2.0, "pluginSandbox": true},
+  "transport": {
+    "tempo": [{"at": "1.1.1", "bpm": 126.0}],
+    "timeSig": [{"at": "1.1.1", "num": 4, "den": 4}],
+    "keySig": "F minor",
+    "loop": {"start": "17.1.1", "end": "25.1.1"}
+  },
+  "patterns": {
+    "bass_offbeat_s11": {
+      "name": "Bass (offbeat, seed 11)",
+      "lengthBeats": 32.0,
+      "notes": [
+        {"t": 0.5, "len": 0.4, "key": 41, "vel": 110},
+        {"t": 1.5, "len": 0.4, "key": 41, "vel": 110},
+        {"t": 2.5, "len": 0.4, "key": 41, "vel": 110},
+        {"t": 3.5, "len": 0.4, "key": 41, "vel": 110},
+        {"t": 4.5, "len": 0.4, "key": 37, "vel": 110},
+        {"t": 5.5, "len": 0.4, "key": 37, "vel": 110},
+        {"t": 6.5, "len": 0.4, "key": 37, "vel": 110},
+        {"t": 7.5, "len": 0.4, "key": 37, "vel": 110},
+        {"t": 8.5, "len": 0.4, "key": 44, "vel": 110},
+        {"t": 9.5, "len": 0.4, "key": 44, "vel": 110},
+        {"t": 10.5, "len": 0.4, "key": 44, "vel": 110},
+        {"t": 11.5, "len": 0.4, "key": 44, "vel": 110},
+        {"t": 12.5, "len": 0.4, "key": 39, "vel": 110},
+        {"t": 13.5, "len": 0.4, "key": 39, "vel": 110},
+        {"t": 14.5, "len": 0.4, "key": 39, "vel": 110},
+        {"t": 15.5, "len": 0.4, "key": 39, "vel": 110},
+        {"t": 16.5, "len": 0.4, "key": 41, "vel": 110},
+        {"t": 17.5, "len": 0.4, "key": 41, "vel": 110},
+        {"t": 18.5, "len": 0.4, "key": 41, "vel": 110},
+        {"t": 19.5, "len": 0.4, "key": 41, "vel": 110},
+        {"t": 20.5, "len": 0.4, "key": 37, "vel": 110},
+        {"t": 21.5, "len": 0.4, "key": 37, "vel": 110},
+        {"t": 22.5, "len": 0.4, "key": 37, "vel": 110},
+        {"t": 23.5, "len": 0.4, "key": 37, "vel": 110},
+        {"t": 24.5, "len": 0.4, "key": 44, "vel": 110},
+        {"t": 25.5, "len": 0.4, "key": 44, "vel": 110},
+        {"t": 26.5, "len": 0.4, "key": 44, "vel": 110},
+        {"t": 27.5, "len": 0.4, "key": 44, "vel": 110},
+        {"t": 28.5, "len": 0.4, "key": 39, "vel": 110},
+        {"t": 29.5, "len": 0.4, "key": 39, "vel": 110},
+        {"t": 30.5, "len": 0.4, "key": 39, "vel": 110},
+        {"t": 31.5, "len": 0.4, "key": 39, "vel": 110}
+      ]
+    },
+    "chords_supersaw_s11": {
+      "name": "Chords (supersaw, seed 11)",
+      "lengthBeats": 32.0,
+      "notes": [
+        {"t": 0.0, "len": 3.5, "key": 53, "vel": 96},
+        {"t": 0.0, "len": 3.5, "key": 56, "vel": 96},
+        {"t": 0.0, "len": 3.5, "key": 60, "vel": 96},
+        {"t": 0.0, "len": 3.5, "key": 65, "vel": 96},
+        {"t": 4.0, "len": 3.5, "key": 53, "vel": 96},
+        {"t": 4.0, "len": 3.5, "key": 56, "vel": 96},
+        {"t": 4.0, "len": 3.5, "key": 61, "vel": 96},
+        {"t": 4.0, "len": 3.5, "key": 65, "vel": 96},
+        {"t": 8.0, "len": 3.5, "key": 51, "vel": 96},
+        {"t": 8.0, "len": 3.5, "key": 56, "vel": 96},
+        {"t": 8.0, "len": 3.5, "key": 60, "vel": 96},
+        {"t": 8.0, "len": 3.5, "key": 63, "vel": 96},
+        {"t": 12.0, "len": 3.5, "key": 51, "vel": 96},
+        {"t": 12.0, "len": 3.5, "key": 55, "vel": 96},
+        {"t": 12.0, "len": 3.5, "key": 58, "vel": 96},
+        {"t": 12.0, "len": 3.5, "key": 63, "vel": 96},
+        {"t": 16.0, "len": 3.5, "key": 53, "vel": 96},
+        {"t": 16.0, "len": 3.5, "key": 56, "vel": 96},
+        {"t": 16.0, "len": 3.5, "key": 60, "vel": 96},
+        {"t": 16.0, "len": 3.5, "key": 65, "vel": 96},
+        {"t": 20.0, "len": 3.5, "key": 53, "vel": 96},
+        {"t": 20.0, "len": 3.5, "key": 56, "vel": 96},
+        {"t": 20.0, "len": 3.5, "key": 61, "vel": 96},
+        {"t": 20.0, "len": 3.5, "key": 65, "vel": 96},
+        {"t": 24.0, "len": 3.5, "key": 51, "vel": 96},
+        {"t": 24.0, "len": 3.5, "key": 56, "vel": 96},
+        {"t": 24.0, "len": 3.5, "key": 60, "vel": 96},
+        {"t": 24.0, "len": 3.5, "key": 63, "vel": 96},
+        {"t": 28.0, "len": 3.5, "key": 51, "vel": 96},
+        {"t": 28.0, "len": 3.5, "key": 55, "vel": 96},
+        {"t": 28.0, "len": 3.5, "key": 58, "vel": 96},
+        {"t": 28.0, "len": 3.5, "key": 63, "vel": 96}
+      ]
+    },
+    "clap_bigroom_s11": {
+      "name": "Clap (bigroom, seed 11)",
+      "lengthBeats": 32.0,
+      "notes": [
+        {"t": 1.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 3.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 5.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 7.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 9.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 11.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 13.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 15.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 15.25, "len": 0.2, "key": 39, "vel": 70},
+        {"t": 15.5, "len": 0.2, "key": 39, "vel": 85},
+        {"t": 15.75, "len": 0.2, "key": 39, "vel": 100},
+        {"t": 17.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 19.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 21.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 23.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 25.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 27.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 29.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 31.0, "len": 0.25, "key": 39, "vel": 112},
+        {"t": 31.5, "len": 0.2, "key": 39, "vel": 70},
+        {"t": 31.75, "len": 0.2, "key": 39, "vel": 85}
+      ]
+    },
+    "crash_hit": {
+      "name": "Crash",
+      "lengthBeats": 4.0,
+      "notes": [{"t": 0.0, "len": 1.0, "key": 49, "vel": 110}]
+    },
+    "hats_bigroom_s11": {
+      "name": "Hats (bigroom, seed 11)",
+      "lengthBeats": 32.0,
+      "notes": [
+        {"t": 0.511529, "len": 0.125, "key": 42, "vel": 98},
+        {"t": 1.500579, "len": 0.125, "key": 42, "vel": 91},
+        {"t": 2.483139, "len": 0.125, "key": 42, "vel": 97},
+        {"t": 3.49654, "len": 0.125, "key": 42, "vel": 98},
+        {"t": 4.482943, "len": 0.125, "key": 42, "vel": 103},
+        {"t": 5.50576, "len": 0.125, "key": 42, "vel": 90},
+        {"t": 6.497541, "len": 0.125, "key": 42, "vel": 113},
+        {"t": 7.515032, "len": 0.125, "key": 42, "vel": 100},
+        {"t": 8.495933, "len": 0.125, "key": 42, "vel": 103},
+        {"t": 9.506679, "len": 0.125, "key": 42, "vel": 93},
+        {"t": 10.502102, "len": 0.125, "key": 42, "vel": 101},
+        {"t": 11.514351, "len": 0.125, "key": 42, "vel": 87},
+        {"t": 12.506773, "len": 0.125, "key": 42, "vel": 99},
+        {"t": 13.489693, "len": 0.125, "key": 42, "vel": 106},
+        {"t": 14.514069, "len": 0.125, "key": 42, "vel": 87},
+        {"t": 15.507843, "len": 0.125, "key": 42, "vel": 95},
+        {"t": 16.500127, "len": 0.125, "key": 42, "vel": 102},
+        {"t": 17.488783, "len": 0.125, "key": 42, "vel": 101},
+        {"t": 18.511575, "len": 0.125, "key": 42, "vel": 100},
+        {"t": 19.486734, "len": 0.125, "key": 42, "vel": 100},
+        {"t": 20.498055, "len": 0.125, "key": 42, "vel": 97},
+        {"t": 21.490003, "len": 0.125, "key": 42, "vel": 91},
+        {"t": 22.511335, "len": 0.125, "key": 42, "vel": 99},
+        {"t": 23.500241, "len": 0.125, "key": 42, "vel": 94},
+        {"t": 24.481649, "len": 0.125, "key": 42, "vel": 109},
+        {"t": 25.484344, "len": 0.125, "key": 42, "vel": 99},
+        {"t": 26.495006, "len": 0.125, "key": 42, "vel": 103},
+        {"t": 27.496198, "len": 0.125, "key": 42, "vel": 112},
+        {"t": 28.502123, "len": 0.125, "key": 42, "vel": 91},
+        {"t": 29.509126, "len": 0.125, "key": 42, "vel": 107},
+        {"t": 30.506963, "len": 0.125, "key": 42, "vel": 103},
+        {"t": 31.489487, "len": 0.125, "key": 42, "vel": 99}
+      ]
+    },
+    "kick_bigroom_s11": {
+      "name": "Kick (bigroom, seed 11)",
+      "lengthBeats": 32.0,
+      "notes": [
+        {"t": 0.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 1.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 2.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 3.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 4.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 5.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 6.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 7.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 8.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 9.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 10.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 11.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 12.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 13.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 14.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 15.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 16.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 17.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 18.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 19.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 20.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 21.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 22.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 23.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 24.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 25.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 26.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 27.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 28.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 29.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 30.0, "len": 0.25, "key": 36, "vel": 120},
+        {"t": 31.0, "len": 0.25, "key": 36, "vel": 120}
+      ]
+    },
+    "lead_anthem_s11": {
+      "name": "Lead (anthem, seed 11)",
+      "lengthBeats": 32.0,
+      "notes": [
+        {"t": 0.5, "len": 0.45, "key": 70, "vel": 104},
+        {"t": 1.0, "len": 0.45, "key": 72, "vel": 106},
+        {"t": 1.5, "len": 0.45, "key": 79, "vel": 104},
+        {"t": 2.0, "len": 0.45, "key": 80, "vel": 113},
+        {"t": 2.5, "len": 0.45, "key": 77, "vel": 103},
+        {"t": 3.0, "len": 0.45, "key": 72, "vel": 105},
+        {"t": 3.5, "len": 0.9, "key": 79, "vel": 99},
+        {"t": 4.5, "len": 0.45, "key": 75, "vel": 101},
+        {"t": 5.0, "len": 0.45, "key": 73, "vel": 115},
+        {"t": 5.5, "len": 0.675, "key": 77, "vel": 96},
+        {"t": 6.25, "len": 0.45, "key": 75, "vel": 98},
+        {"t": 6.75, "len": 0.225, "key": 72, "vel": 97},
+        {"t": 7.0, "len": 0.675, "key": 73, "vel": 109},
+        {"t": 7.75, "len": 0.225, "key": 75, "vel": 94},
+        {"t": 8.5, "len": 0.45, "key": 70, "vel": 104},
+        {"t": 9.0, "len": 0.45, "key": 72, "vel": 106},
+        {"t": 9.5, "len": 0.45, "key": 79, "vel": 104},
+        {"t": 10.0, "len": 0.45, "key": 80, "vel": 113},
+        {"t": 10.5, "len": 0.45, "key": 77, "vel": 103},
+        {"t": 11.0, "len": 0.45, "key": 72, "vel": 105},
+        {"t": 11.5, "len": 0.9, "key": 79, "vel": 99},
+        {"t": 12.5, "len": 0.45, "key": 75, "vel": 101},
+        {"t": 13.0, "len": 0.45, "key": 75, "vel": 115},
+        {"t": 13.5, "len": 0.675, "key": 77, "vel": 96},
+        {"t": 14.25, "len": 0.45, "key": 75, "vel": 98},
+        {"t": 14.75, "len": 0.225, "key": 72, "vel": 97},
+        {"t": 15.0, "len": 0.675, "key": 75, "vel": 109},
+        {"t": 15.75, "len": 0.225, "key": 75, "vel": 94},
+        {"t": 16.5, "len": 0.45, "key": 70, "vel": 104},
+        {"t": 17.0, "len": 0.45, "key": 72, "vel": 106},
+        {"t": 17.5, "len": 0.45, "key": 79, "vel": 104},
+        {"t": 18.0, "len": 0.45, "key": 80, "vel": 113},
+        {"t": 18.5, "len": 0.45, "key": 77, "vel": 103},
+        {"t": 19.0, "len": 0.45, "key": 72, "vel": 105},
+        {"t": 19.5, "len": 0.9, "key": 79, "vel": 99},
+        {"t": 20.5, "len": 0.45, "key": 75, "vel": 101},
+        {"t": 21.0, "len": 0.45, "key": 73, "vel": 115},
+        {"t": 21.5, "len": 0.675, "key": 77, "vel": 96},
+        {"t": 22.25, "len": 0.45, "key": 75, "vel": 98},
+        {"t": 22.75, "len": 0.225, "key": 72, "vel": 97},
+        {"t": 23.0, "len": 0.675, "key": 73, "vel": 109},
+        {"t": 23.75, "len": 0.225, "key": 75, "vel": 94},
+        {"t": 24.25, "len": 0.45, "key": 79, "vel": 99},
+        {"t": 24.75, "len": 0.225, "key": 80, "vel": 100},
+        {"t": 25.0, "len": 0.45, "key": 79, "vel": 105},
+        {"t": 25.5, "len": 0.45, "key": 80, "vel": 99},
+        {"t": 26.0, "len": 0.45, "key": 84, "vel": 109},
+        {"t": 26.5, "len": 0.225, "key": 80, "vel": 103},
+        {"t": 26.75, "len": 0.225, "key": 77, "vel": 105},
+        {"t": 27.0, "len": 0.45, "key": 75, "vel": 113},
+        {"t": 27.5, "len": 0.45, "key": 79, "vel": 94},
+        {"t": 28.0, "len": 0.45, "key": 75, "vel": 112},
+        {"t": 28.5, "len": 0.45, "key": 77, "vel": 97},
+        {"t": 29.0, "len": 0.675, "key": 70, "vel": 110},
+        {"t": 29.75, "len": 0.675, "key": 72, "vel": 96},
+        {"t": 30.5, "len": 0.45, "key": 73, "vel": 97},
+        {"t": 31.0, "len": 0.675, "key": 80, "vel": 104},
+        {"t": 31.75, "len": 0.225, "key": 77, "vel": 95}
+      ]
+    },
+    "lead_anthem_s3": {
+      "name": "Lead (anthem, seed 3)",
+      "lengthBeats": 32.0,
+      "notes": [
+        {"t": 0.0, "len": 0.675, "key": 68, "vel": 115},
+        {"t": 0.75, "len": 0.675, "key": 70, "vel": 101},
+        {"t": 1.5, "len": 0.675, "key": 80, "vel": 98},
+        {"t": 2.25, "len": 0.45, "key": 82, "vel": 101},
+        {"t": 2.75, "len": 0.45, "key": 70, "vel": 96},
+        {"t": 3.25, "len": 0.45, "key": 75, "vel": 106},
+        {"t": 3.75, "len": 0.675, "key": 77, "vel": 94},
+        {"t": 4.5, "len": 0.45, "key": 79, "vel": 94},
+        {"t": 5.0, "len": 0.45, "key": 77, "vel": 111},
+        {"t": 5.5, "len": 0.225, "key": 80, "vel": 99},
+        {"t": 5.75, "len": 0.225, "key": 84, "vel": 105},
+        {"t": 6.0, "len": 0.9, "key": 82, "vel": 109},
+        {"t": 7.0, "len": 0.45, "key": 80, "vel": 107},
+        {"t": 7.5, "len": 0.225, "key": 79, "vel": 96},
+        {"t": 7.75, "len": 0.225, "key": 82, "vel": 97},
+        {"t": 8.0, "len": 0.675, "key": 68, "vel": 115},
+        {"t": 8.75, "len": 0.675, "key": 70, "vel": 101},
+        {"t": 9.5, "len": 0.675, "key": 80, "vel": 98},
+        {"t": 10.25, "len": 0.45, "key": 82, "vel": 101},
+        {"t": 10.75, "len": 0.45, "key": 70, "vel": 96},
+        {"t": 11.25, "len": 0.45, "key": 75, "vel": 106},
+        {"t": 11.75, "len": 0.675, "key": 77, "vel": 94},
+        {"t": 12.5, "len": 0.45, "key": 79, "vel": 94},
+        {"t": 13.0, "len": 0.45, "key": 75, "vel": 111},
+        {"t": 13.5, "len": 0.225, "key": 80, "vel": 99},
+        {"t": 13.75, "len": 0.225, "key": 84, "vel": 105},
+        {"t": 14.0, "len": 0.9, "key": 82, "vel": 109},
+        {"t": 15.0, "len": 0.45, "key": 79, "vel": 107},
+        {"t": 15.5, "len": 0.225, "key": 79, "vel": 96},
+        {"t": 15.75, "len": 0.225, "key": 82, "vel": 97},
+        {"t": 16.0, "len": 0.675, "key": 68, "vel": 115},
+        {"t": 16.75, "len": 0.675, "key": 70, "vel": 101},
+        {"t": 17.5, "len": 0.675, "key": 80, "vel": 98},
+        {"t": 18.25, "len": 0.45, "key": 82, "vel": 101},
+        {"t": 18.75, "len": 0.45, "key": 70, "vel": 96},
+        {"t": 19.25, "len": 0.45, "key": 75, "vel": 106},
+        {"t": 19.75, "len": 0.675, "key": 77, "vel": 94},
+        {"t": 20.5, "len": 0.45, "key": 79, "vel": 94},
+        {"t": 21.0, "len": 0.45, "key": 77, "vel": 111},
+        {"t": 21.5, "len": 0.225, "key": 80, "vel": 99},
+        {"t": 21.75, "len": 0.225, "key": 84, "vel": 105},
+        {"t": 22.0, "len": 0.9, "key": 80, "vel": 109},
+        {"t": 23.0, "len": 0.45, "key": 80, "vel": 107},
+        {"t": 23.5, "len": 0.225, "key": 79, "vel": 96},
+        {"t": 23.75, "len": 0.225, "key": 82, "vel": 97},
+        {"t": 24.0, "len": 0.45, "key": 84, "vel": 105},
+        {"t": 24.5, "len": 0.45, "key": 80, "vel": 98},
+        {"t": 25.0, "len": 0.9, "key": 84, "vel": 108},
+        {"t": 26.0, "len": 0.45, "key": 82, "vel": 114},
+        {"t": 26.5, "len": 0.45, "key": 85, "vel": 94},
+        {"t": 27.0, "len": 0.45, "key": 84, "vel": 114},
+        {"t": 27.5, "len": 0.45, "key": 82, "vel": 100},
+        {"t": 28.0, "len": 0.45, "key": 79, "vel": 105},
+        {"t": 28.5, "len": 0.225, "key": 77, "vel": 104},
+        {"t": 28.75, "len": 0.225, "key": 75, "vel": 97},
+        {"t": 29.0, "len": 1.125, "key": 79, "vel": 114},
+        {"t": 30.25, "len": 0.45, "key": 75, "vel": 97},
+        {"t": 30.75, "len": 0.45, "key": 77, "vel": 96},
+        {"t": 31.25, "len": 0.45, "key": 75, "vel": 99},
+        {"t": 31.75, "len": 0.225, "key": 77, "vel": 103}
+      ]
+    },
+    "pad_pad_s11": {
+      "name": "Pad (pad, seed 11)",
+      "lengthBeats": 32.0,
+      "notes": [
+        {"t": 0.0, "len": 4.0, "key": 53, "vel": 82},
+        {"t": 0.0, "len": 4.0, "key": 56, "vel": 82},
+        {"t": 0.0, "len": 4.0, "key": 60, "vel": 82},
+        {"t": 4.0, "len": 4.0, "key": 53, "vel": 82},
+        {"t": 4.0, "len": 4.0, "key": 56, "vel": 82},
+        {"t": 4.0, "len": 4.0, "key": 61, "vel": 82},
+        {"t": 8.0, "len": 4.0, "key": 51, "vel": 82},
+        {"t": 8.0, "len": 4.0, "key": 56, "vel": 82},
+        {"t": 8.0, "len": 4.0, "key": 60, "vel": 82},
+        {"t": 12.0, "len": 4.0, "key": 51, "vel": 82},
+        {"t": 12.0, "len": 4.0, "key": 55, "vel": 82},
+        {"t": 12.0, "len": 4.0, "key": 58, "vel": 82},
+        {"t": 16.0, "len": 4.0, "key": 53, "vel": 82},
+        {"t": 16.0, "len": 4.0, "key": 56, "vel": 82},
+        {"t": 16.0, "len": 4.0, "key": 60, "vel": 82},
+        {"t": 20.0, "len": 4.0, "key": 53, "vel": 82},
+        {"t": 20.0, "len": 4.0, "key": 56, "vel": 82},
+        {"t": 20.0, "len": 4.0, "key": 61, "vel": 82},
+        {"t": 24.0, "len": 4.0, "key": 51, "vel": 82},
+        {"t": 24.0, "len": 4.0, "key": 56, "vel": 82},
+        {"t": 24.0, "len": 4.0, "key": 60, "vel": 82},
+        {"t": 28.0, "len": 4.0, "key": 51, "vel": 82},
+        {"t": 28.0, "len": 4.0, "key": 55, "vel": 82},
+        {"t": 28.0, "len": 4.0, "key": 58, "vel": 82}
+      ]
+    },
+    "riser_8bars": {
+      "name": "Riser 8 bars",
+      "lengthBeats": 32.0,
+      "notes": [{"t": 0.0, "len": 32.0, "key": 60, "vel": 100}]
+    },
+    "roll_8bars": {
+      "name": "Snare roll 8 bars",
+      "lengthBeats": 32.0,
+      "notes": [
+        {"t": 0.0, "len": 0.2, "key": 38, "vel": 40},
+        {"t": 1.0, "len": 0.2, "key": 38, "vel": 43},
+        {"t": 2.0, "len": 0.2, "key": 38, "vel": 45},
+        {"t": 3.0, "len": 0.2, "key": 38, "vel": 48},
+        {"t": 4.0, "len": 0.2, "key": 38, "vel": 51},
+        {"t": 5.0, "len": 0.2, "key": 38, "vel": 54},
+        {"t": 6.0, "len": 0.2, "key": 38, "vel": 56},
+        {"t": 7.0, "len": 0.2, "key": 38, "vel": 59},
+        {"t": 8.0, "len": 0.2, "key": 38, "vel": 62},
+        {"t": 9.0, "len": 0.2, "key": 38, "vel": 64},
+        {"t": 10.0, "len": 0.2, "key": 38, "vel": 67},
+        {"t": 11.0, "len": 0.2, "key": 38, "vel": 70},
+        {"t": 12.0, "len": 0.2, "key": 38, "vel": 73},
+        {"t": 13.0, "len": 0.2, "key": 38, "vel": 75},
+        {"t": 14.0, "len": 0.2, "key": 38, "vel": 78},
+        {"t": 15.0, "len": 0.2, "key": 38, "vel": 81},
+        {"t": 16.0, "len": 0.2, "key": 38, "vel": 84},
+        {"t": 16.5, "len": 0.2, "key": 38, "vel": 85},
+        {"t": 17.0, "len": 0.2, "key": 38, "vel": 86},
+        {"t": 17.5, "len": 0.2, "key": 38, "vel": 88},
+        {"t": 18.0, "len": 0.2, "key": 38, "vel": 89},
+        {"t": 18.5, "len": 0.2, "key": 38, "vel": 90},
+        {"t": 19.0, "len": 0.2, "key": 38, "vel": 92},
+        {"t": 19.5, "len": 0.2, "key": 38, "vel": 93},
+        {"t": 20.0, "len": 0.2, "key": 38, "vel": 94},
+        {"t": 20.5, "len": 0.2, "key": 38, "vel": 96},
+        {"t": 21.0, "len": 0.2, "key": 38, "vel": 97},
+        {"t": 21.5, "len": 0.2, "key": 38, "vel": 98},
+        {"t": 22.0, "len": 0.2, "key": 38, "vel": 100},
+        {"t": 22.5, "len": 0.2, "key": 38, "vel": 101},
+        {"t": 23.0, "len": 0.2, "key": 38, "vel": 103},
+        {"t": 23.5, "len": 0.2, "key": 38, "vel": 104},
+        {"t": 24.0, "len": 0.2, "key": 38, "vel": 105},
+        {"t": 24.25, "len": 0.2, "key": 38, "vel": 106},
+        {"t": 24.5, "len": 0.2, "key": 38, "vel": 107},
+        {"t": 24.75, "len": 0.2, "key": 38, "vel": 107},
+        {"t": 25.0, "len": 0.2, "key": 38, "vel": 108},
+        {"t": 25.25, "len": 0.2, "key": 38, "vel": 109},
+        {"t": 25.5, "len": 0.2, "key": 38, "vel": 109},
+        {"t": 25.75, "len": 0.2, "key": 38, "vel": 110},
+        {"t": 26.0, "len": 0.2, "key": 38, "vel": 111},
+        {"t": 26.25, "len": 0.2, "key": 38, "vel": 111},
+        {"t": 26.5, "len": 0.2, "key": 38, "vel": 112},
+        {"t": 26.75, "len": 0.2, "key": 38, "vel": 113},
+        {"t": 27.0, "len": 0.2, "key": 38, "vel": 113},
+        {"t": 27.25, "len": 0.2, "key": 38, "vel": 114},
+        {"t": 27.5, "len": 0.2, "key": 38, "vel": 115},
+        {"t": 27.75, "len": 0.2, "key": 38, "vel": 115},
+        {"t": 28.0, "len": 0.2, "key": 38, "vel": 116},
+        {"t": 28.25, "len": 0.2, "key": 38, "vel": 117},
+        {"t": 28.5, "len": 0.2, "key": 38, "vel": 117},
+        {"t": 28.75, "len": 0.2, "key": 38, "vel": 118},
+        {"t": 29.0, "len": 0.2, "key": 38, "vel": 119},
+        {"t": 29.25, "len": 0.2, "key": 38, "vel": 120},
+        {"t": 29.5, "len": 0.2, "key": 38, "vel": 120},
+        {"t": 29.75, "len": 0.2, "key": 38, "vel": 121},
+        {"t": 30.0, "len": 0.2, "key": 38, "vel": 122},
+        {"t": 30.25, "len": 0.2, "key": 38, "vel": 122},
+        {"t": 30.5, "len": 0.2, "key": 38, "vel": 123},
+        {"t": 30.75, "len": 0.2, "key": 38, "vel": 124},
+        {"t": 31.0, "len": 0.1, "key": 38, "vel": 124},
+        {"t": 31.125, "len": 0.1, "key": 38, "vel": 125},
+        {"t": 31.25, "len": 0.1, "key": 38, "vel": 125},
+        {"t": 31.375, "len": 0.1, "key": 38, "vel": 125},
+        {"t": 31.5, "len": 0.1, "key": 38, "vel": 126},
+        {"t": 31.625, "len": 0.1, "key": 38, "vel": 126},
+        {"t": 31.75, "len": 0.1, "key": 38, "vel": 126},
+        {"t": 31.875, "len": 0.1, "key": 38, "vel": 127}
+      ]
+    }
+  },
+  "tracks": [
+    {
+      "id": "kick",
+      "type": "instrument",
+      "name": "Kick",
+      "role": "kick",
+      "instrument": {
+        "plugin": "builtin:drums",
+        "params": {"gainDb": -1, "kickDecay": 0.42, "kickPitch": 48}
+      },
+      "clips": [
+        {"id": "kick_intro", "pattern": "kick_bigroom_s11", "at": "1.1.1", "lengthBeats": 32.0},
+        {"id": "kick_drop", "pattern": "kick_bigroom_s11", "at": "17.1.1", "lengthBeats": 64.0},
+        {"id": "kick_drop2", "pattern": "kick_bigroom_s11", "at": "49.1.1", "lengthBeats": 64.0}
+      ],
+      "inserts": [{"id": "kick_sections", "plugin": "builtin:utility"}],
+      "mix": {"gainDb": -1.0, "pan": 0.0},
+      "sends": [],
+      "output": "master",
+      "automation": [
+        {
+          "target": "inserts/kick_sections/gainDb",
+          "points": [
+            ["1.1.1", -4.0],
+            ["9.1.1", 0.0],
+            ["17.1.1", 0.0],
+            ["33.1.1", -4.0],
+            ["41.1.1", 0.0],
+            ["49.1.1", 0.0],
+            ["65.1.1", -6.0]
+          ],
+          "curve": "hold"
+        }
+      ]
+    },
+    {
+      "id": "clap",
+      "type": "instrument",
+      "name": "Clap",
+      "role": "clap",
+      "instrument": {
+        "plugin": "builtin:drums",
+        "params": {"gainDb": -6}
+      },
+      "clips": [
+        {"id": "clap_drop", "pattern": "clap_bigroom_s11", "at": "17.1.1", "lengthBeats": 64.0},
+        {"id": "clap_drop2", "pattern": "clap_bigroom_s11", "at": "49.1.1", "lengthBeats": 64.0}
+      ],
+      "inserts": [{"id": "clap_sections", "plugin": "builtin:utility"}],
+      "mix": {"gainDb": -5.0, "pan": 0.0},
+      "sends": [],
+      "output": "master",
+      "automation": [
+        {
+          "target": "inserts/clap_sections/gainDb",
+          "points": [
+            ["1.1.1", -4.0],
+            ["9.1.1", 0.0],
+            ["17.1.1", 0.0],
+            ["33.1.1", -4.0],
+            ["41.1.1", 0.0],
+            ["49.1.1", 0.0],
+            ["65.1.1", -6.0]
+          ],
+          "curve": "hold"
+        }
+      ]
+    },
+    {
+      "id": "hats",
+      "type": "instrument",
+      "name": "Hats",
+      "role": "hat",
+      "instrument": {
+        "plugin": "builtin:drums",
+        "params": {"gainDb": -11, "hatDecay": 0.045, "openHatDecay": 0.22}
+      },
+      "clips": [
+        {"id": "hats_intro", "pattern": "hats_bigroom_s11", "at": "1.1.1", "lengthBeats": 32.0},
+        {"id": "hats_build", "pattern": "hats_bigroom_s11", "at": "9.1.1", "lengthBeats": 32.0},
+        {"id": "hats_drop", "pattern": "hats_bigroom_s11", "at": "17.1.1", "lengthBeats": 64.0},
+        {"id": "hats_build2", "pattern": "hats_bigroom_s11", "at": "41.1.1", "lengthBeats": 32.0},
+        {"id": "hats_drop2", "pattern": "hats_bigroom_s11", "at": "49.1.1", "lengthBeats": 64.0},
+        {"id": "hats_outro", "pattern": "hats_bigroom_s11", "at": "65.1.1", "lengthBeats": 32.0}
+      ],
+      "inserts": [
+        {
+          "id": "hats_eq",
+          "plugin": "builtin:eq",
+          "params": {"highShelfDb": 2, "lowCutHz": 500}
+        },
+        {"id": "hats_sections", "plugin": "builtin:utility"}
+      ],
+      "mix": {"gainDb": -9.0, "pan": 0.15},
+      "sends": [],
+      "output": "master",
+      "automation": [
+        {
+          "target": "inserts/hats_sections/gainDb",
+          "points": [
+            ["1.1.1", -4.0],
+            ["9.1.1", 0.0],
+            ["17.1.1", 0.0],
+            ["33.1.1", -4.0],
+            ["41.1.1", 0.0],
+            ["49.1.1", 0.0],
+            ["65.1.1", -6.0]
+          ],
+          "curve": "hold"
+        }
+      ]
+    },
+    {
+      "id": "bass",
+      "type": "instrument",
+      "name": "Bass",
+      "role": "bass",
+      "instrument": {"plugin": "clap:org.surge-synth-team.surge-xt", "state": "states/kit_Bass_1_46ac20c121.bin"},
+      "clips": [
+        {"id": "bass_drop", "pattern": "bass_offbeat_s11", "at": "17.1.1", "lengthBeats": 64.0},
+        {"id": "bass_drop2", "pattern": "bass_offbeat_s11", "at": "49.1.1", "lengthBeats": 64.0}
+      ],
+      "inserts": [
+        {
+          "id": "bass_utility",
+          "plugin": "builtin:utility",
+          "params": {"bassMonoHz": 150}
+        },
+        {
+          "id": "bass_duck",
+          "plugin": "builtin:compressor",
+          "params": {"ratio": 6, "attack": 0.002, "release": 0.12, "thresholdDb": -26.0},
+          "sidechain": "kick"
+        },
+        {"id": "bass_sections", "plugin": "builtin:utility"}
+      ],
+      "mix": {"gainDb": -2.0, "pan": 0.0},
+      "sends": [],
+      "output": "master",
+      "automation": [
+        {
+          "target": "inserts/bass_sections/gainDb",
+          "points": [
+            ["1.1.1", -4.0],
+            ["9.1.1", 0.0],
+            ["17.1.1", 0.0],
+            ["33.1.1", -4.0],
+            ["41.1.1", 0.0],
+            ["49.1.1", 0.0],
+            ["65.1.1", -6.0]
+          ],
+          "curve": "hold"
+        }
+      ]
+    },
+    {
+      "id": "chords",
+      "type": "instrument",
+      "name": "Chords",
+      "role": "chords",
+      "instrument": {
+        "plugin": "clap:org.surge-synth-team.surge-xt",
+        "state": "states/kit_Anthemish_1_1d95378734.bin"
+      },
+      "clips": [
+        {"id": "chords_build", "pattern": "chords_supersaw_s11", "at": "9.1.1", "lengthBeats": 32.0},
+        {"id": "chords_drop", "pattern": "chords_supersaw_s11", "at": "17.1.1", "lengthBeats": 64.0},
+        {
+          "id": "chords_break",
+          "pattern": "chords_supersaw_s11",
+          "at": "33.1.1",
+          "lengthBeats": 32.0
+        },
+        {
+          "id": "chords_build2",
+          "pattern": "chords_supersaw_s11",
+          "at": "41.1.1",
+          "lengthBeats": 32.0
+        },
+        {
+          "id": "chords_drop2",
+          "pattern": "chords_supersaw_s11",
+          "at": "49.1.1",
+          "lengthBeats": 64.0
+        }
+      ],
+      "inserts": [
+        {
+          "id": "chords_eq",
+          "plugin": "builtin:eq",
+          "params": {"lowCutHz": 180, "peak1Db": -2.3, "peak1Hz": 354, "peak1Q": 1.2}
+        },
+        {
+          "id": "chords_pump",
+          "plugin": "builtin:volumeshaper",
+          "params": {"depthDb": 12, "hold": 0.04, "rateBeats": 1, "recover": 0.5}
+        },
+        {"id": "chords_sections", "plugin": "builtin:utility"}
+      ],
+      "mix": {"gainDb": -9.0, "pan": 0.0},
+      "sends": [{"to": "verb", "levelDb": -14.0, "pre": false}],
+      "output": "master",
+      "automation": [
+        {
+          "target": "inserts/chords_sections/gainDb",
+          "points": [
+            ["1.1.1", -4.0],
+            ["9.1.1", 0.0],
+            ["17.1.1", 0.0],
+            ["33.1.1", -4.0],
+            ["41.1.1", 0.0],
+            ["49.1.1", 0.0],
+            ["65.1.1", -6.0]
+          ],
+          "curve": "hold"
+        }
+      ]
+    },
+    {
+      "id": "verb",
+      "type": "return",
+      "name": "Verb",
+      "inserts": [
+        {
+          "id": "verb_reverb",
+          "plugin": "builtin:reverb",
+          "params": {"mix": 1.0, "damping": 0.4, "lowCutHz": 250, "predelayMs": 20, "size": 0.85}
+        }
+      ],
+      "mix": {"gainDb": 0.0, "pan": 0.0},
+      "sends": [],
+      "output": "master"
+    },
+    {
+      "id": "pad",
+      "type": "instrument",
+      "name": "Pad",
+      "role": "pad",
+      "instrument": {
+        "plugin": "clap:org.surge-synth-team.surge-xt",
+        "state": "states/kit_MKS-70_Warm_Pad_8786d4bb94.bin"
+      },
+      "clips": [
+        {"id": "pad_intro", "pattern": "pad_pad_s11", "at": "1.1.1", "lengthBeats": 32.0},
+        {"id": "pad_build", "pattern": "pad_pad_s11", "at": "9.1.1", "lengthBeats": 32.0},
+        {"id": "pad_break", "pattern": "pad_pad_s11", "at": "33.1.1", "lengthBeats": 32.0},
+        {"id": "pad_build2", "pattern": "pad_pad_s11", "at": "41.1.1", "lengthBeats": 32.0},
+        {"id": "pad_outro", "pattern": "pad_pad_s11", "at": "65.1.1", "lengthBeats": 32.0}
+      ],
+      "inserts": [
+        {
+          "id": "pad_eq",
+          "plugin": "builtin:eq",
+          "params": {"lowCutHz": 150}
+        },
+        {"id": "pad_sections", "plugin": "builtin:utility"}
+      ],
+      "mix": {"gainDb": -14.0, "pan": 0.0},
+      "sends": [{"to": "verb", "levelDb": -10.0, "pre": false}],
+      "output": "master",
+      "automation": [
+        {
+          "target": "inserts/pad_sections/gainDb",
+          "points": [
+            ["1.1.1", -4.0],
+            ["9.1.1", 0.0],
+            ["17.1.1", 0.0],
+            ["33.1.1", -4.0],
+            ["41.1.1", 0.0],
+            ["49.1.1", 0.0],
+            ["65.1.1", -6.0]
+          ],
+          "curve": "hold"
+        }
+      ]
+    },
+    {
+      "id": "lead",
+      "type": "instrument",
+      "name": "Lead",
+      "role": "lead",
+      "instrument": {
+        "plugin": "clap:org.surge-synth-team.surge-xt",
+        "state": "states/kit_Classic_Lead_1_85a67de38b.bin"
+      },
+      "clips": [
+        {"id": "lead_drop", "pattern": "lead_anthem_s3", "at": "17.1.1", "lengthBeats": 64.0},
+        {"id": "lead_break", "pattern": "lead_anthem_s3", "at": "33.1.1", "lengthBeats": 32.0},
+        {"id": "lead_drop2", "pattern": "lead_anthem_s3", "at": "49.1.1", "lengthBeats": 64.0}
+      ],
+      "inserts": [
+        {
+          "id": "lead_eq",
+          "plugin": "builtin:eq",
+          "params": {"lowCutHz": 250, "peak2Db": 1.5, "peak2Hz": 3000}
+        },
+        {"id": "lead_sections", "plugin": "builtin:utility"}
+      ],
+      "mix": {"gainDb": -9.0, "pan": 0.0},
+      "sends": [{"to": "verb", "levelDb": -15.0, "pre": false}],
+      "output": "master",
+      "automation": [
+        {
+          "target": "inserts/lead_sections/gainDb",
+          "points": [
+            ["1.1.1", -4.0],
+            ["9.1.1", 0.0],
+            ["17.1.1", 0.0],
+            ["33.1.1", -4.0],
+            ["41.1.1", 0.0],
+            ["49.1.1", 0.0],
+            ["65.1.1", -6.0]
+          ],
+          "curve": "hold"
+        }
+      ]
+    },
+    {
+      "id": "snare_roll",
+      "type": "instrument",
+      "name": "Snare Roll",
+      "role": "roll",
+      "instrument": {
+        "plugin": "builtin:drums",
+        "params": {"gainDb": -8, "snareDecay": 0.15}
+      },
+      "clips": [
+        {"id": "snare_roll_c1", "pattern": "roll_8bars", "at": "9.1.1"},
+        {"id": "snare_roll_c2", "pattern": "roll_8bars", "at": "41.1.1"}
+      ],
+      "inserts": [],
+      "mix": {"gainDb": -8.0, "pan": 0.0},
+      "sends": [{"to": "verb", "levelDb": -8.0, "pre": false}],
+      "output": "master"
+    },
+    {
+      "id": "riser",
+      "type": "instrument",
+      "name": "Riser",
+      "role": "riser",
+      "instrument": {
+        "plugin": "builtin:synth",
+        "params": {
+          "gainDb": -14,
+          "attack": 3,
+          "decay": 0.1,
+          "release": 0.3,
+          "sustain": 1,
+          "wave": "noise",
+          "width": 1
+        }
+      },
+      "clips": [
+        {"id": "riser_c1", "pattern": "riser_8bars", "at": "9.1.1"},
+        {"id": "riser_c2", "pattern": "riser_8bars", "at": "41.1.1"}
+      ],
+      "inserts": [
+        {
+          "id": "riser_filter",
+          "plugin": "builtin:filter",
+          "params": {"type": "bandpass", "cutoff": 400, "resonance": 0.4}
+        }
+      ],
+      "mix": {"gainDb": -12.0, "pan": 0.0},
+      "sends": [{"to": "verb", "levelDb": -8.0, "pre": false}],
+      "output": "master",
+      "automation": [
+        {
+          "target": "inserts/riser_filter/cutoff",
+          "points": [
+            ["1.1.1", 300.0],
+            [32.0, 300.0],
+            [33.0, 300.265503],
+            [34.0, 302.124023],
+            [35.0, 307.168579],
+            [36.0, 316.992188],
+            [37.0, 333.187866],
+            [38.0, 357.348633],
+            [39.0, 391.067505],
+            [40.0, 435.9375],
+            [41.0, 493.551636],
+            [42.0, 565.50293],
+            [43.0, 653.384399],
+            [44.0, 758.789062],
+            [45.0, 883.309937],
+            [46.0, 1028.540039],
+            [47.0, 1196.072388],
+            [48.0, 1387.5],
+            [49.0, 1604.415894],
+            [50.0, 1848.413086],
+            [51.0, 2121.084595],
+            [52.0, 2424.023438],
+            [53.0, 2758.822632],
+            [54.0, 3127.075195],
+            [55.0, 3530.374146],
+            [56.0, 3970.3125],
+            [57.0, 4448.483276],
+            [58.0, 4966.479492],
+            [59.0, 5525.894165],
+            [60.0, 6128.320312],
+            [61.0, 6775.350952],
+            [62.0, 7468.579102],
+            [63.0, 8209.597778],
+            [64.0, 9000.0],
+            [160.0, 300.0],
+            [161.0, 300.265503],
+            [162.0, 302.124023],
+            [163.0, 307.168579],
+            [164.0, 316.992188],
+            [165.0, 333.187866],
+            [166.0, 357.348633],
+            [167.0, 391.067505],
+            [168.0, 435.9375],
+            [169.0, 493.551636],
+            [170.0, 565.50293],
+            [171.0, 653.384399],
+            [172.0, 758.789062],
+            [173.0, 883.309937],
+            [174.0, 1028.540039],
+            [175.0, 1196.072388],
+            [176.0, 1387.5],
+            [177.0, 1604.415894],
+            [178.0, 1848.413086],
+            [179.0, 2121.084595],
+            [180.0, 2424.023438],
+            [181.0, 2758.822632],
+            [182.0, 3127.075195],
+            [183.0, 3530.374146],
+            [184.0, 3970.3125],
+            [185.0, 4448.483276],
+            [186.0, 4966.479492],
+            [187.0, 5525.894165],
+            [188.0, 6128.320312],
+            [189.0, 6775.350952],
+            [190.0, 7468.579102],
+            [191.0, 8209.597778],
+            [192.0, 9000.0]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "crash",
+      "type": "instrument",
+      "name": "Crash",
+      "role": "crash",
+      "instrument": {
+        "plugin": "builtin:drums",
+        "params": {"gainDb": -9, "crashDecay": 2.2}
+      },
+      "clips": [
+        {"id": "crash_c1", "pattern": "crash_hit", "at": "17.1.1"},
+        {"id": "crash_c2", "pattern": "crash_hit", "at": "49.1.1"}
+      ],
+      "inserts": [],
+      "mix": {"gainDb": -9.0, "pan": 0.0},
+      "sends": [{"to": "verb", "levelDb": -8.0, "pre": false}],
+      "output": "master"
+    },
+    {
+      "id": "master",
+      "type": "master",
+      "name": "Master",
+      "inserts": [
+        {
+          "id": "master_eq",
+          "plugin": "builtin:eq",
+          "params": {"highShelfDb": 1, "highShelfHz": 10000, "lowCutHz": 28}
+        },
+        {
+          "id": "master_comp",
+          "plugin": "builtin:compressor",
+          "params": {"ratio": 2, "attack": 0.02, "kneeDb": 8, "release": 0.2, "thresholdDb": -14}
+        },
+        {
+          "id": "master_limiter",
+          "plugin": "builtin:limiter",
+          "params": {"gainDb": 6, "ceilingDb": -1}
+        }
+      ],
+      "mix": {"gainDb": 0.0, "pan": 0.0}
+    }
+  ],
+  "markers": [
+    {"name": "Intro", "at": "1.1.1"},
+    {"name": "Build", "at": "9.1.1"},
+    {"name": "Drop", "at": "17.1.1"},
+    {"name": "Break", "at": "33.1.1"},
+    {"name": "Build 2", "at": "41.1.1"},
+    {"name": "Drop 2", "at": "49.1.1"},
+    {"name": "Outro", "at": "65.1.1"}
+  ]
+}

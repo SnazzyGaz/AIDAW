@@ -520,8 +520,34 @@ def run_plugins(x: np.ndarray, sr: int) -> dict:
     return out
 
 
+def key_relation(heard: str, project: str) -> str | None:
+    """Plain-English note when the heard key differs from the project key."""
+    from . import theory as th
+    try:
+        a, b = th.parse_key(heard), th.parse_key(project)
+    except Exception:
+        return None
+    if a == b:
+        return None
+    shared = len(set(th.scale_pcs(*a)) & set(th.scale_pcs(*b)))
+    if shared == 7:
+        how = "it uses the same notes (relative key), so this is about which chord feels like home"
+    elif shared >= 6:
+        how = f"they share {shared} of 7 notes, so the audio leans towards a neighbouring key"
+    else:
+        how = (f"they share only {shared} of 7 notes: either a part is out of key, or the detector is hearing "
+               "another chord as home (try `listen --tracks` on the melodic parts)")
+    return f"The project is set to {project} and the audio sounds like {heard}; {how}."
+
+
 def report_text(rep: dict) -> str:
     lines = list(rep.get("summary", []))
+    k = (rep.get("key") or {}).get("key")
+    if k and rep.get("projectKey"):
+        note = key_relation(k, rep["projectKey"])
+        if note:
+            rep["keyNote"] = note
+            lines.insert(1 if lines else 0, note)
     if rep.get("sectionEnergy"):
         lines.append("Section energy: " + ", ".join(f"{s['name']} {s['rmsDb']} dB" for s in rep["sectionEnergy"]))
     if rep.get("energyCurveDb"):

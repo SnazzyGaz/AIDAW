@@ -1,0 +1,163 @@
+{
+  "_note": "measured from this render",
+  "sampleRate": 48000,
+  "durationSec": 139.143,
+  "master": {
+    "integratedLufs": -11.82,
+    "momentaryMaxLufs": -9.5,
+    "shortTermMaxLufs": -10.11,
+    "lra": 12.78,
+    "samplePeakDbfs": -1.01,
+    "truePeakDbtp": -1.0,
+    "rmsDbfs": -14.29,
+    "crestDb": 13.29,
+    "stereoCorrelation": 0.925,
+    "stereoWidth": 0.197,
+    "monoLossDb": -0.16,
+    "dcOffset": 1.6e-05,
+    "clippedSamples": 0,
+    "leadingSilenceSec": 0.0,
+    "trailingSilenceSec": 0.004,
+    "lowEndCorrelation": 0.998,
+    "plrDb": 10.82
+  },
+  "bandsDbRel": {
+    "sub_20_60": -4.9,
+    "low_60_250": -3.7,
+    "lowmid_250_500": -15.9,
+    "mid_500_2000": -9.7,
+    "highmid_2000_4000": -14.7,
+    "presence_4000_8000": -17.3,
+    "air_8000_20000": -23.2
+  },
+  "spectralCentroidHz": 450.0,
+  "sections": [
+    {
+      "name": "Intro",
+      "startSec": 0.0,
+      "endSec": 15.238,
+      "integratedLufs": -12.02,
+      "shortTermMaxLufs": -11.58,
+      "peakDbfs": -1.01
+    },
+    {
+      "name": "Build",
+      "startSec": 15.238,
+      "endSec": 30.476,
+      "integratedLufs": -20.58,
+      "shortTermMaxLufs": -17.03,
+      "peakDbfs": -5.99
+    },
+    {
+      "name": "Drop",
+      "startSec": 30.476,
+      "endSec": 60.952,
+      "integratedLufs": -10.44,
+      "shortTermMaxLufs": -10.07,
+      "peakDbfs": -1.01
+    },
+    {
+      "name": "Break",
+      "startSec": 60.952,
+      "endSec": 76.19,
+      "integratedLufs": -14.67,
+      "shortTermMaxLufs": -14.34,
+      "peakDbfs": -2.49
+    },
+    {
+      "name": "Build 2",
+      "startSec": 76.19,
+      "endSec": 91.429,
+      "integratedLufs": -20.6,
+      "shortTermMaxLufs": -17.01,
+      "peakDbfs": -5.66
+    },
+    {
+      "name": "Drop 2",
+      "startSec": 91.429,
+      "endSec": 121.905,
+      "integratedLufs": -10.42,
+      "shortTermMaxLufs": -10.12,
+      "peakDbfs": -1.01
+    },
+    {
+      "name": "Outro",
+      "startSec": 121.905,
+      "endSec": 139.143,
+      "integratedLufs": -32.55,
+      "shortTermMaxLufs": -27.58,
+      "peakDbfs": -11.21
+    }
+  ],
+  "dropContrastLu": 4.25,
+  "tracks": {
+    "kick": {
+      "peakDbfs": -3.74,
+      "rmsDbfs": -15.8,
+      "integratedLufs": -12.78
+    },
+    "clap": {
+      "peakDbfs": -10.74,
+      "rmsDbfs": -37.71,
+      "integratedLufs": -27.16
+    },
+    "hats": {
+      "peakDbfs": -21.79,
+      "rmsDbfs": -52.71,
+      "integratedLufs": -45.13
+    },
+    "bass": {
+      "peakDbfs": -16.63,
+      "rmsDbfs": -32.73,
+      "integratedLufs": -30.73
+    },
+    "chords": {
+      "peakDbfs": -10.52,
+      "rmsDbfs": -37.03,
+      "integratedLufs": -34.04
+    },
+    "crash": {
+      "peakDbfs": -23.08,
+      "rmsDbfs": -56.83,
+      "integratedLufs": -33.07
+    },
+    "lead": {
+      "peakDbfs": -5.9,
+      "rmsDbfs": -25.61,
+      "integratedLufs": -18.66
+    },
+    "pad": {
+      "peakDbfs": -24.1,
+      "rmsDbfs": -42.84,
+      "integratedLufs": -38.25
+    },
+    "riser": {
+      "peakDbfs": -25.0,
+      "rmsDbfs": -50.33,
+      "integratedLufs": -35.48
+    },
+    "snare_roll": {
+      "peakDbfs": -14.22,
+      "rmsDbfs": -43.92,
+      "integratedLufs": -32.81
+    },
+    "verb": {
+      "peakDbfs": -10.0,
+      "rmsDbfs": -28.67,
+      "integratedLufs": -22.93
+    }
+  },
+  "maskingHints": [
+    {
+      "tracks": [
+        "kick",
+        "lead"
+      ],
+      "band": "250-500 Hz",
+      "severity": 0.2
+    }
+  ],
+  "warnings": [
+    "Kick and Lead compete in 250-500 Hz"
+  ]
+}
