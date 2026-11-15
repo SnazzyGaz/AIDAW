@@ -15,6 +15,7 @@ returns {"audio": ndarray (2, n), "state": bytes|None, "param_names": [...]}
 from __future__ import annotations
 
 import numpy as np
+from pathlib import Path
 
 
 def _clap(job: dict) -> dict:
@@ -60,9 +61,21 @@ def juce_vst3_state(component: bytes) -> bytes:
     return b"VC2!" + struct.pack("<I", len(xml) - 1) + xml
 
 
+def vst3_binary(path: str) -> str:
+    """On Windows pedalboard can fail to scan a .vst3 bundle folder; load the DLL inside it instead."""
+    import sys
+    p = Path(path)
+    if sys.platform == "win32" and p.is_dir():
+        for arch in ("x86_64-win", "x64-win", "x86-win"):
+            dll = p / "Contents" / arch / p.name
+            if dll.is_file():
+                return str(dll)
+    return path
+
+
 def _vst3(job: dict) -> dict:
     import pedalboard
-    pl = pedalboard.load_plugin(job["path"])
+    pl = pedalboard.load_plugin(vst3_binary(job["path"]))
     if job.get("state"):
         st = bytes(job["state"])
         if st[:4] == b"VST3":      # a .vstpreset file (from the sound library)
@@ -148,7 +161,7 @@ def describe(fmt: str, path: str, plugin_id: str | None = None) -> dict:
         finally:
             pl.close()
     import pedalboard
-    pl = pedalboard.load_plugin(path)
+    pl = pedalboard.load_plugin(vst3_binary(path))
     params = []
     for k, p in pl.parameters.items():
         item = {"name": k, "label": getattr(p, "units", "") or ""}

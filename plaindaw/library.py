@@ -377,7 +377,7 @@ def _vst3_for_class(class_id: str) -> str | None:
     for d in pscan(probe=False):
         if d["format"] != "vst3" or d["path"] in idx.get("vst3Probed", []):
             continue
-        code = ("import pedalboard,sys;p=pedalboard.load_plugin(sys.argv[1]);"
+        code = ("import pedalboard,sys;from plaindaw.plugins.host import vst3_binary;p=pedalboard.load_plugin(vst3_binary(sys.argv[1]));"
                 "sys.stdout.write(p.preset_data[8:40].decode('latin-1'))")
         try:
             r = subprocess.run([sys.executable, "-c", code, d["path"]], capture_output=True, timeout=60, text=True)
