@@ -195,13 +195,19 @@ def make_server(session: Session, host="127.0.0.1", port=8765) -> ThreadingHTTPS
 
 
 def serve_http(session: Session, host="127.0.0.1", port=8765, open_browser=False) -> int:
+    from . import live
     srv = make_server(session, host, port)
     url = f"http://{host}:{srv.server_address[1]}/"
-    print(f"PlainDAW serving {session.dir} at {url}  (Ctrl+C to stop)", flush=True)
+    live.write_server_file(session, host, srv.server_address[1])
+    eng = live.engine_for(session)          # starts rendering the timeline now, so Play is instant
+    print(f"AIDAW serving {session.dir} at {url}  (Ctrl+C to stop)", flush=True)
     if open_browser:
         webbrowser.open(url)
     try:
         srv.serve_forever()
     except KeyboardInterrupt:
         pass
+    finally:
+        live.remove_server_file(session)
+        eng.close()
     return 0

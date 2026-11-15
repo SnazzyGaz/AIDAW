@@ -14,9 +14,17 @@
   <div class="spacer"></div>
   <button id="undo" title="Undo (Ctrl+Z)">Undo</button>
   <button id="redo" title="Redo (Ctrl+Y)">Redo</button>
-  <button id="render" class="primary" title="Render WAV + MP3 and analyse">Render</button>
-  <audio id="player" controls loop></audio>
-  <label class="status" title="Repeat playback"><input type="checkbox" id="looptoggle" checked> Loop</label>
+  <div class="tbar" id="tbar">
+    <button id="t-home" title="Back to the start (Home)">&#9198;</button>
+    <button id="t-play" class="play" title="Play / pause (Space)">&#9654; Play</button>
+    <button id="t-stop" title="Stop and go back to the start">&#9632;</button>
+    <button id="t-loop" title="Loop the loop range (Q); drag on the ruler to set it">&#10227; Loop</button>
+    <button id="t-click" title="Metronome (M)">&#9833; Click</button>
+    <button id="t-rec" class="rec" title="Record notes from the MIDI keyboard / computer keys into the selected track (R)">&#9679; Rec</button>
+    <span id="t-pos" class="tpos">1.1.1</span>
+    <span id="t-info" class="tinfo"></span>
+  </div>
+  <button id="render" class="primary" title="Render WAV + MP3 files and analyse">Render</button>
   <span id="status" class="status"></span>
 </header>
 <main>
@@ -27,7 +35,17 @@
   <aside id="side" class="panel">
     <div class="panel-head">History <span class="hint">click an edit to revert it</span></div>
     <ol id="history" class="history"></ol>
+    <div class="panel-head">Audio &amp; MIDI</div>
+    <div class="audio-set">
+      <label>Output <select id="a-dev"><option value="">default</option></select></label>
+      <label>Buffer <select id="a-buf"><option>128</option><option>256</option><option selected>512</option><option>1024</option><option>2048</option></select></label>
+      <label>MIDI in <select id="m-port"><option value="">none</option></select></label>
+      <label>Rec quantize <select id="m-quant"><option value="0">off</option><option value="0.125">1/32</option><option value="0.25" selected>1/16</option><option value="0.5">1/8</option><option value="1">1/4</option></select></label>
+      <div class="hint" id="m-target">Keyboard plays: (click a track)</div>
+      <div class="hint">Computer keys A W S E D F T G Y H U J K play notes · Z/X octave</div>
+    </div>
     <div class="panel-head">Analysis</div>
+    <div class="lastrender"><span class="hint">last render file:</span> <audio id="player" controls></audio></div>
     <pre id="analysis" class="analysis">Render to measure loudness, peaks and balance.</pre>
   </aside>
   <section id="roll" class="panel">
@@ -36,7 +54,7 @@
       <label>grid <select id="grid"><option value="0.25" selected>1/16</option><option value="0.5">1/8</option><option value="1">1/4</option><option value="0.125">1/32</option></select></label>
       <label>length <select id="nlen"><option value="0.25" selected>1/16</option><option value="0.5">1/8</option><option value="1">1/4</option><option value="2">1/2</option><option value="4">1 bar</option></select></label>
     </div>
-    <div id="rollwrap" class="rollwrap"><canvas id="rollcanvas" height="360"></canvas></div>
+    <div id="rollwrap" class="rollwrap"><canvas id="rollcanvas" height="360"></canvas><canvas id="rolloverlay"></canvas></div>
   </section>
   <section id="ai" class="panel">
     <div class="panel-head">AI · Listen <span class="hint">same commands as the CLI · every change is one undo step with a reason</span></div>

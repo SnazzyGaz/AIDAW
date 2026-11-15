@@ -120,6 +120,35 @@ plaindaw -p demo run examples/demo/build_demo.pdaw
 plaindaw -p demo render --formats wav,mp3 --target club --stems true
 ```
 
+## Live playback and MIDI
+
+Install the extra once: `uv pip install -e ".[live]"` (sounddevice for audio, mido + python-rtmidi for MIDI).
+
+* **Transport**: the GUI header has Home / Play / Stop / Loop / Click / Rec, the position (bar.beat.tick) and a
+  readout of render state, output, latency and CPU. Click the ruler to move the playhead; drag on the ruler to set
+  the loop range (snaps to bars). Space plays/pauses, Home rewinds, M toggles the click, Q the loop, R record.
+* **From anywhere**: `aidaw -p song play`, `stop`, `seek 5.1.1`, `transport.loop on`, `metronome on`, `status`;
+  JSON-RPC `transport.*`; MCP tools `transport` and `play_note`. When the GUI is running, the CLI and the AI
+  drive the GUI's engine, so you hear what they do.
+* **Live notes**: plug in a MIDI keyboard and pick it under *Audio & MIDI* (it plays the selected track), or use
+  the computer keys A W S E D F T G Y H U J K O L (Z/X change octave), or press the keys on the piano roll.
+  Rec + Play records what you play into the pattern under the playhead (or a new 2-bar pattern) as one undo step,
+  quantized to the chosen grid.
+* **Audio device**: pick the output and buffer size under *Audio & MIDI* (`aidaw devices`, `audio.set`).
+  WASAPI/DirectSound/MME work out of the box; set `PLAINDAW_ASIO=1` before starting to list ASIO drivers.
+  Latency shown = PortAudio's output latency + one buffer.
+
+How it works, honestly:
+* The timeline is **rendered ahead** with the same renderer that writes files, in a background thread, and
+  streamed. With loop on, only up to the loop end is rendered and reverb tails fold back onto the loop start.
+  Edits trigger a re-render that only redoes the tracks that changed (instrument, sample and plugin output is
+  cached), then crossfades in at the playhead: well under a second for built-in instruments, longer for
+  Surge XT / VST3 tracks. It is not per-buffer plugin processing.
+* **Live notes are real time** for built-in synth and drums. Plugin and SFZ tracks are previewed with a stand-in
+  built-in synth (`standIn` in the reply); recorded notes still play back through the real plugin. Live notes get
+  the track's fader and pan, not its insert effects.
+* Without an audio device (servers, tests) a silent "null" output runs the same engine.
+
 ## For AI assistants (MCP)
 
 ```bash

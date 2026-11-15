@@ -10,6 +10,8 @@ Examples
   plaindaw -p mysong analyze --target club
   plaindaw -p mysong undo | redo | history | summary | ops
   plaindaw -p mysong run script.pdaw      (one command per line)
+  plaindaw -p mysong play [5.1.1] | stop | seek 9.1.1 | status   (live playback)
+  plaindaw -p mysong transport loop on | transport metronome on | devices
   plaindaw -p mysong serve [--port 8765]  (browser GUI + JSON-RPC over HTTP)
   plaindaw -p mysong rpc                  (JSON-RPC 2.0 over stdio)
   plaindaw -p mysong mcp                  (MCP server over stdio for AI assistants)
@@ -34,6 +36,8 @@ SHORT = {  # "noun verb" shortcuts that are not ops
     "undo": "history.undo", "redo": "history.redo", "history": "history.list", "summary": "project.summary",
     "info": "project.summary", "ops": "ops.list", "render": "render", "export": "render", "analyze": "analyze",
     "diff": "diff", "validate": "project.validate", "get": "project.get", "revert": "history.revert",
+    "play": "transport.play", "stop": "transport.stop", "seek": "transport.seek", "status": "transport.status",
+    "metronome": "transport.metronome", "devices": "audio.devices",
 }
 
 NOTE_RE = re.compile(r"^([A-Ga-g][#b]?-?\d+|\d+)@([\d.]+)(?::([\d.]+))?(?::(\d+))?$")
@@ -255,6 +259,8 @@ def fmt_result(method, res) -> str:
     from .musical import QUERIES as MQ
     if method.startswith(("lib.", "kit.")) and method != "lib.use":
         return fmt_global(method, res)
+    if method.startswith(("transport.", "audio.set", "midi.open", "midi.close", "midi.target")):
+        return _fmt_transport(res)
     if (method in MQ or method in ("listen", "lib.use")) and isinstance(res, dict):
         if method == "listen" and res.get("text"):
             return res["text"]
@@ -343,6 +349,25 @@ def find_project(p: str | None) -> Path:
     raise OpError("no project: pass -p <folder>, set PLAINDAW_PROJECT, or cd into a project folder")
 
 
+def _fmt_transport(res) -> str:
+    if not isinstance(res, dict) or "posQn" not in res:
+        return json.dumps(res, ensure_ascii=False, indent=2)
+    r = res.get("render", {})
+    lines = [f"{'playing' if res['playing'] else 'stopped'} at {res['pos']} ({res['bpm']:g} BPM)"
+             + (" · loop" if res.get("loop") else "") + (" · click" if res.get("metronome") else "")
+             + (" · REC" if res.get("record") else ""),
+             f"  render: {r.get('state')}" + (f", {r['renderSec']} s ({r.get('cachedParts', 0)} cached, "
+                                               f"{r.get('renderedParts', 0)} re-rendered)" if 'renderSec' in r else ""),
+             f"  audio: {res['output']} · device {res.get('device') or 'default'} · {res['sampleRate']} Hz · "
+             f"buffer {res['blocksize']} · latency {res['latencyMs']} ms · cpu {res['cpu']}%"
+             + (f" · served by the GUI" if res.get("where") == "server" else "")]
+    if res.get("midiPort"):
+        lines.append(f"  midi: {res['midiPort']} -> {res.get('midiTrack')}")
+    if res.get("error"):
+        lines.append(f"  note: {res['error']}")
+    return "\n".join(lines)
+
+
 def run_line(session, words, as_author, out, force_json=False) -> int:
     method, params, flags = build_call(words)
     if flags["dry_run"]:
@@ -351,7 +376,29 @@ def run_line(session, words, as_author, out, force_json=False) -> int:
         params["confirm"] = True
     res = session.call(method, params, author=as_author)
     out.write((json.dumps(res, ensure_ascii=False) if (flags["json"] or force_json) else fmt_result(method, res)) + "\n")
+    if method == "transport.play" and isinstance(res, dict) and res.get("where") == "local" and out is sys.stdout:
+        _play_here(session, out)
     return 0
+
+
+def _play_here(session, out) -> None:
+    """`plaindaw play` with no GUI server running: play in this process until the song ends
+    (or forever when looping) and show the playhead; Ctrl+C stops."""
+    import time
+    from .live import engine_for
+    e = engine_for(session)
+    try:
+        while e.playing:
+            st = e.status()
+            out.write(f"\r  {st['pos']:<12} {st['render']['state']:<10} cpu {st['cpu']:>4}%  "
+                      f"latency {st['latencyMs']} ms  {'loop' if st['loop'] else ''}   ")
+            out.flush()
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        pass
+    e.stop()
+    out.write("\n")
+    e.close()
 
 
 def _utf8_streams(argv) -> None:

@@ -4,7 +4,8 @@ const PX = 28;            // pixels per quarter note in the arrangement
 const ROW_KEY_H = 12;     // piano roll row height
 const ROLL_PX = 48;       // piano roll pixels per quarter note
 let S = null;             // last project.layout result
-let selPattern = null, selClip = null;
+let ROLL = null;          // geometry of the drawn piano roll (for the live overlay)
+let selPattern = null, selClip = null, selTrack = null;
 let rpcId = 0;
 
 async function rpc(method, params = {}) {
@@ -45,7 +46,9 @@ function drawTimeline() {
   for (const t of S.doc.tracks) {
     if (t.type === "master") continue;
     const row = el("div", "row"); row.style.width = width + "px";
-    const head = el("div", "head"); head.appendChild(el("div", "", t.name));
+    const head = el("div", "head" + (selTrack === t.id ? " sel" : "")); head.appendChild(el("div", "", t.name));
+    head.title = "click: the keyboard plays this track";
+    head.onclick = () => selectTrack(t.id);
     const sub = t.type === "instrument" ? (t.instrument?.plugin || "") : t.type;
     head.appendChild(el("div", "sub", sub + (t.inserts?.length ? ` · ${t.inserts.length} fx` : "")));
     row.appendChild(head);
@@ -55,6 +58,7 @@ function drawTimeline() {
     row.appendChild(lane);
     tl.appendChild(row);
   }
+  liveTimelineDecor(tl, ruler);
 }
 
 function clipEl(t, c) {
@@ -85,7 +89,7 @@ function clipEl(t, c) {
     const mm = m => { const dx = m.clientX - x0; if (Math.abs(dx) > 3) moved = true; e.style.left = Math.max(0, left0 + dx) + "px"; };
     const mu = async m => {
       window.removeEventListener("mousemove", mm); window.removeEventListener("mouseup", mu);
-      if (!moved) { selClip = c.id; if (isPat) selPattern = c.pattern; drawTimeline(); drawRoll(); return; }
+      if (!moved) { selClip = c.id; if (isPat) selPattern = c.pattern; selectTrack(t.id, true); drawTimeline(); drawRoll(); return; }
       const by = Math.round((m.clientX - x0) / PX);
       if (by !== 0) { try { await rpc("clip.move", { track: t.id, clip: c.id, by }); status(`moved ${c.id} by ${by} beats`); } catch (_) {} }
       refresh();
@@ -105,7 +109,7 @@ function drawRoll() {
   const cv = document.getElementById("rollcanvas");
   const name = document.getElementById("rollname");
   const p = selPattern && S.doc.patterns[selPattern];
-  if (!p) { name.textContent = "(click a pattern clip)"; cv.width = 600; cv.height = 60;
+  if (!p) { ROLL = null; name.textContent = "(click a pattern clip)"; cv.width = 600; cv.height = 60;
     const g = cv.getContext("2d"); g.fillStyle = "#8a93a3"; g.font = "13px system-ui"; g.fillText("No pattern selected", 12, 34); return; }
   name.textContent = `${selPattern} · ${p.lengthBeats} beats · ${p.notes.length} notes`;
   const [lo, hi] = rollRange(p); const rows = hi - lo + 1;
@@ -122,6 +126,7 @@ function drawRoll() {
     const x = 44 + q * ROLL_PX; g.fillStyle = Math.abs(q % 4) < 1e-9 ? "#4a5263" : (Math.abs(q % 1) < 1e-9 ? "#323946" : "#262b34");
     g.fillRect(x, 0, 1, cv.height);
   }
+  ROLL = { lo, hi, len: p.lengthBeats, w: cv.width, h: cv.height };
   p.notes.forEach(n => {
     if (n.key < lo || n.key > hi) return;
     const x = 44 + n.t * ROLL_PX, y = (hi - n.key) * ROW_KEY_H;
@@ -132,7 +137,7 @@ function drawRoll() {
 document.getElementById("rollcanvas").addEventListener("click", async ev => {
   const p = selPattern && S.doc.patterns[selPattern]; if (!p) return;
   const r = ev.target.getBoundingClientRect();
-  const x = ev.clientX - r.left - 44, y = ev.clientY - r.top; if (x < 0) return;
+  const x = ev.clientX - r.left - 44, y = ev.clientY - r.top; if (x < 0) return;   // key column = preview (see live.js part)
   const [lo, hi] = rollRange(p);
   const key = hi - Math.floor(y / ROW_KEY_H), q = x / ROLL_PX;
   const hit = p.notes.findIndex(n => n.key === key && q >= n.t && q < n.t + n.len);
@@ -263,8 +268,221 @@ function live() {
     if (e.version !== S?.version) { clearTimeout(pending); pending = setTimeout(refresh, 80); } };
   es.onerror = () => { es.close(); setTimeout(live, 2000); };
 }
-// playback repeats (loop on by default); open with the last loop preview ready to play
-document.getElementById("looptoggle").onchange = e => { document.getElementById("player").loop = e.target.checked; };
-{ const p = document.getElementById("player");
-  if (!p.src) { p.onerror = () => { p.onerror = null; p.removeAttribute("src"); }; p.onloadeddata = () => { p.onerror = null; }; p.src = "/renders/preview.wav?t=" + Date.now(); } }
-refresh().then(live);
+refresh().then(() => { live(); liveInit(); });
+
+
+// ================================================================ live playback + live MIDI
+// The server renders the timeline ahead in the background (only changed tracks are re-rendered)
+// and streams it to the audio device; live notes are synthesised in real time.
+let TS = null, TS_AT = 0, polling = null, octave = 0;
+const heldKeys = new Map();
+
+async function lrpc(method, params = {}) {   // quiet rpc for the transport (no status spam)
+  const r = await fetch("/rpc", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: ++rpcId, method, params: { _as: "human", ...params } }) });
+  const j = await r.json();
+  if (j.error) throw new Error(j.error.message);
+  return j.result;
+}
+function setTS(st) { if (st && st.posQn !== undefined) { TS = st; TS_AT = performance.now(); paintTransport(); } return st; }
+async function poll() {
+  clearTimeout(polling);
+  try { setTS(await lrpc("transport.status")); } catch (_) {}
+  polling = setTimeout(poll, TS && (TS.playing || TS.render.state === "rendering" || TS.active.length) ? 120 : 600);
+}
+function nowQn() {
+  if (!TS) return 0;
+  let q = TS.posQn;
+  if (TS.playing && TS.render.state !== "error") q += (performance.now() - TS_AT) / 1000 * TS.qnPerSec;
+  const lr = TS.loopRange;
+  if (TS.playing && TS.loop) {
+    const s = lr ? lr.start : 0, e = lr ? lr.end : (S ? S.endQn - 8 : 16);
+    if (e > s && q >= e) q = s + ((q - e) % (e - s));
+  }
+  return q;
+}
+function fmtPos(q) {
+  const bars = S ? S.bars : []; let b = 0;
+  while (b + 1 < bars.length && bars[b + 1] <= q + 1e-9) b++;
+  const rel = q - (bars[b] || 0), beat = Math.floor(rel + 1e-9), six = Math.floor((rel - beat) * 4 + 1e-9);
+  return `${b + 1}.${beat + 1}.${six + 1}`;
+}
+function paintTransport() {
+  if (!TS) return;
+  const on = (id, v) => document.getElementById(id).classList.toggle("on", !!v);
+  on("t-play", TS.playing); on("t-loop", TS.loop); on("t-click", TS.metronome); on("t-rec", TS.record);
+  document.getElementById("t-play").innerHTML = TS.playing ? "&#10074;&#10074; Pause" : "&#9654; Play";
+  const r = TS.render || {};
+  const rs = r.state === "rendering" ? "rendering…" : r.state === "error" ? "render error" :
+    r.renderSec !== undefined ? `ready (${r.renderSec}s, ${r.cachedParts} cached)` : r.state;
+  document.getElementById("t-info").textContent =
+    `${rs} · ${TS.output === "portaudio" ? `${TS.latencyMs} ms` : TS.output} · cpu ${TS.cpu}%` + (TS.xruns ? ` · ${TS.xruns} dropouts` : "");
+  document.getElementById("t-info").title = (TS.error || "") + (r.warnings && r.warnings.length ? "\n" + r.warnings.join("\n") : "")
+    + `\n${TS.sampleRate} Hz, buffer ${TS.blocksize}, device ${TS.device ?? "default"}`;
+  const lz = document.getElementById("loopzone");
+  if (lz) lz.classList.toggle("off", !TS.loop);
+}
+function liveTimelineDecor(tl, ruler) {
+  const ph = el("div", "playhead"); ph.id = "playhead"; tl.appendChild(ph);
+  const lr = S.doc.transport.loop;
+  if (lr) {
+    const s = S.bars.length ? qnOf(lr.start) : 0, e = qnOf(lr.end);
+    const z = el("div", "loopzone" + (TS && !TS.loop ? " off" : "")); z.id = "loopzone";
+    z.style.left = (150 + s * PX) + "px"; z.style.width = Math.max(2, (e - s) * PX) + "px"; ruler.appendChild(z);
+  }
+  // click the ruler = move the playhead; drag = set the loop range (snaps to bars)
+  ruler.onmousedown = ev => {
+    const r0 = ruler.getBoundingClientRect(), x0 = ev.clientX;
+    const qAt = x => Math.max(0, (x - r0.left - 150) / PX);
+    const up = async m => {
+      window.removeEventListener("mouseup", up);
+      if (Math.abs(m.clientX - x0) < 4) { setTS(await lrpc("transport.seek", { at: Math.round(qAt(x0) * 4) / 4 })); return; }
+      const snap = q => { let best = 0; for (const b of S.bars) if (Math.abs(b - q) < Math.abs(best - q)) best = b; return best; };
+      let a = snap(qAt(Math.min(x0, m.clientX))), b = snap(qAt(Math.max(x0, m.clientX)));
+      if (b <= a) return;
+      try { setTS(await lrpc("transport.loop", { on: true, start: fmtPos(a), end: fmtPos(b) })); status(`loop ${fmtPos(a)} – ${fmtPos(b)}`); } catch (e) { status("⚠ " + e.message, true); }
+      refresh();
+    };
+    window.addEventListener("mouseup", up);
+  };
+}
+function qnOf(pos) {   // 'bar.beat.16th' -> quarter notes using the drawn bar lines (4/4 beats)
+  if (typeof pos === "number") return pos;
+  const [b, be = 1, s = 1] = String(pos).split(".").map(Number);
+  return (S.bars[b - 1] ?? (b - 1) * 4) + (be - 1) + (s - 1) * 0.25;
+}
+function frame() {
+  if (S && TS) {
+    const q = nowQn();
+    document.getElementById("t-pos").textContent = fmtPos(q);
+    const ph = document.getElementById("playhead"), tl = document.getElementById("timeline");
+    if (ph) {
+      ph.style.left = (150 + q * PX) + "px"; ph.style.height = tl.scrollHeight + "px";
+      if (TS.playing) {   // keep the playhead in view
+        const x = 150 + q * PX;
+        if (x > tl.scrollLeft + tl.clientWidth - 40 || x < tl.scrollLeft + 150) tl.scrollLeft = Math.max(0, x - 200);
+      }
+    }
+    drawRollOverlay(q);
+  }
+  requestAnimationFrame(frame);
+}
+function drawRollOverlay(q) {
+  const ov = document.getElementById("rolloverlay"), cv = document.getElementById("rollcanvas");
+  if (ov.width !== cv.width || ov.height !== cv.height) { ov.width = cv.width; ov.height = cv.height; }
+  const g = ov.getContext("2d"); g.clearRect(0, 0, ov.width, ov.height);
+  if (!ROLL || !TS) return;
+  // incoming / held notes: light up their keys
+  const tid = selTrack;
+  for (const a of TS.active) {
+    if (tid && a.track !== tid) continue;
+    if (a.key < ROLL.lo || a.key > ROLL.hi) continue;
+    const y = (ROLL.hi - a.key) * ROW_KEY_H;
+    g.fillStyle = "rgba(255,90,90,.85)"; g.fillRect(0, y, 40, ROW_KEY_H - 1);
+    g.fillStyle = "rgba(255,90,90,.12)"; g.fillRect(44, y, ROLL.w, ROW_KEY_H - 1);
+  }
+  for (const k of heldKeys.keys()) {
+    if (k < ROLL.lo || k > ROLL.hi) continue;
+    g.fillStyle = "rgba(255,200,90,.8)"; g.fillRect(0, (ROLL.hi - k) * ROW_KEY_H, 40, ROW_KEY_H - 1);
+  }
+  // playhead inside the selected clip's pattern
+  const span = selClip && S.clips[selClip];
+  if (span && q >= span.start && q < span.start + span.len) {
+    const rel = (q - span.start) % ROLL.len, x = 44 + rel * ROLL_PX;
+    g.fillStyle = "#ff5a5a"; g.fillRect(x, 0, 2, ROLL.h);
+  }
+}
+function selectTrack(id, quiet) {
+  selTrack = id;
+  const t = S && S.doc.tracks.find(x => x.id === id);
+  document.getElementById("m-target").textContent = `Keyboard plays: ${t ? t.name : "(click a track)"}` +
+    (t && t.instrument && !String(t.instrument.plugin).startsWith("builtin:") ? " (preview uses a stand-in synth)" : "");
+  lrpc("midi.target", { track: id }).then(setTS, () => {});
+  if (!quiet) drawTimeline();
+}
+async function noteOn(key, vel = 100) {
+  if (heldKeys.has(key)) return;
+  heldKeys.set(key, true);
+  const track = selTrack || (selPattern && S.doc.tracks.find(t => (t.clips || []).some(c => c.pattern === selPattern))?.id);
+  try { const r = await lrpc("live.note", { track, key, vel, on: true }); if (r.standIn) status("plugin track: live preview uses a stand-in synth"); } catch (e) { status("⚠ " + e.message, true); }
+  poll();
+}
+async function noteOff(key) {
+  if (!heldKeys.has(key)) return;
+  heldKeys.delete(key);
+  const track = selTrack || (selPattern && S.doc.tracks.find(t => (t.clips || []).some(c => c.pattern === selPattern))?.id);
+  try { await lrpc("live.note", { track, key, on: false }); } catch (_) {}
+}
+// piano-roll key column: press = hear the note
+document.getElementById("rollcanvas").addEventListener("mousedown", ev => {
+  if (!ROLL) return;
+  const r = ev.target.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+  if (x >= 44) return;
+  const key = ROLL.hi - Math.floor(y / ROW_KEY_H);
+  noteOn(key, 100);
+  const up = () => { window.removeEventListener("mouseup", up); noteOff(key); };
+  window.addEventListener("mouseup", up);
+});
+// computer keyboard as a MIDI keyboard (when not typing in a box)
+const KEYMAP = { a: 0, w: 1, s: 2, e: 3, d: 4, f: 5, t: 6, g: 7, y: 8, h: 9, u: 10, j: 11, k: 12, o: 13, l: 14 };
+function typing(ev) { const t = ev.target; return t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT"); }
+window.addEventListener("keydown", ev => {
+  if (typing(ev) || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+  const k = ev.key.toLowerCase();
+  if (k === " ") { ev.preventDefault(); document.getElementById("t-play").click(); return; }
+  if (ev.key === "Home") { document.getElementById("t-home").click(); return; }
+  if (k === "z") { octave = Math.max(-3, octave - 1); status(`octave ${4 + octave}`); return; }
+  if (k === "x") { octave = Math.min(4, octave + 1); status(`octave ${4 + octave}`); return; }
+  if (k === "m" && !ev.repeat) { document.getElementById("t-click").click(); return; }
+  if (k === "r" && !ev.repeat) { document.getElementById("t-rec").click(); return; }
+  if (k === "q" && !ev.repeat) { document.getElementById("t-loop").click(); return; }
+  if (k in KEYMAP && !ev.repeat && !keyNote.has(k)) { const key = 60 + 12 * octave + KEYMAP[k]; keyNote.set(k, key); noteOn(key, 100); }
+});
+const keyNote = new Map();
+window.addEventListener("keyup", ev => {
+  const k = ev.key.toLowerCase();
+  if (keyNote.has(k)) { noteOff(keyNote.get(k)); keyNote.delete(k); }
+});
+window.addEventListener("blur", () => { for (const [k, key] of keyNote) noteOff(key); keyNote.clear(); });
+async function liveInit() {
+  const $ = id => document.getElementById(id);
+  $("t-play").onclick = async () => {
+    try { setTS(await lrpc(TS && TS.playing ? "transport.stop" : "transport.play")); }
+    catch (e) { status("⚠ " + e.message, true); }
+    poll();
+  };
+  $("t-stop").onclick = async () => { try { setTS(await lrpc("transport.stop", { rewind: true })); } catch (_) {} poll(); refresh(); };
+  $("t-home").onclick = async () => { try { setTS(await lrpc("transport.seek", { at: TS && TS.loop && TS.loopRange ? TS.loopRange.start : 0 })); } catch (_) {} };
+  $("t-loop").onclick = async () => { try { setTS(await lrpc("transport.loop", { on: !(TS && TS.loop) })); } catch (_) {} };
+  $("t-click").onclick = async () => { try { setTS(await lrpc("transport.metronome", { on: !(TS && TS.metronome) })); } catch (_) {} };
+  $("t-rec").onclick = async () => {
+    const on = !(TS && TS.record);
+    try { setTS(await lrpc("transport.record", { on, track: selTrack, quantize: parseFloat($("m-quant").value) }));
+      status(on ? `recording into ${selTrack || "the first instrument track"} — press Play` : "recording off"); } catch (e) { status("⚠ " + e.message, true); }
+    if (!on) refresh();
+  };
+  $("m-quant").onchange = () => lrpc("transport.record", { on: !!(TS && TS.record), quantize: parseFloat($("m-quant").value) }).then(setTS, () => {});
+  // audio devices / MIDI ports
+  try {
+    const d = await lrpc("audio.devices"), sel = $("a-dev");
+    for (const x of d.devices || []) { const o = el("option", "", `${x.name} (${x.hostapi})`); o.value = String(x.id); sel.appendChild(o); }
+    if (d.current !== null && d.current !== undefined) sel.value = String(d.current);
+    if (d.error) sel.title = d.error;
+  } catch (_) {}
+  $("a-dev").onchange = async () => { try { setTS(await lrpc("audio.set", { device: $("a-dev").value })); status("audio output changed"); } catch (e) { status("⚠ " + e.message, true); } };
+  $("a-buf").onchange = async () => { try { setTS(await lrpc("audio.set", { blocksize: parseInt($("a-buf").value) })); status(`buffer ${$("a-buf").value}`); } catch (e) { status("⚠ " + e.message, true); } };
+  try {
+    const m = await lrpc("midi.ports"), sel = $("m-port");
+    for (const n of m.inputs || []) { const o = el("option", "", n); o.value = n; sel.appendChild(o); }
+    if (!m.available) { sel.disabled = true; sel.title = m.error || "no MIDI support"; }
+  } catch (_) {}
+  $("m-port").onchange = async () => {
+    const v = $("m-port").value;
+    try { setTS(await lrpc(v ? "midi.open" : "midi.close", v ? { port: v, track: selTrack } : {})); status(v ? `MIDI: ${v}` : "MIDI closed"); } catch (e) { status("⚠ " + e.message, true); }
+  };
+  const st = await lrpc("transport.status").catch(() => null);
+  setTS(st);
+  if (st) { $("a-buf").value = String(st.blocksize); if (st.midiTrack) selectTrack(st.midiTrack, true); }
+  if (!selTrack && S) { const t = S.doc.tracks.find(x => x.type === "instrument"); if (t) selectTrack(t.id); }
+  poll(); requestAnimationFrame(frame);
+}

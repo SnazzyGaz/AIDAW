@@ -7,6 +7,8 @@ Signal flow per track (in graph order):
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -106,8 +108,15 @@ def song_end_qn(doc: dict, tm: TimeMap, project_dir: Path | None = None) -> floa
 
 
 class Renderer:
-    def __init__(self, doc: dict, project_dir: Path, sr: int | None = None, sandbox: bool | None = None):
+    def __init__(self, doc: dict, project_dir: Path, sr: int | None = None, sandbox: bool | None = None,
+                 cache: dict | None = None):
         self.doc = doc
+        # optional source cache (live playback): instrument outputs, audio clips and plugin results keyed
+        # by everything that feeds them, so a re-render after an edit only redoes what changed
+        self.cache_in = cache if cache is not None else None
+        self.cache_out: dict = {}
+        self.cache_hits = 0
+        self.cache_misses = 0
         self.dir = Path(project_dir)
         s = doc.get("settings", {})
         self.sr = int(sr or s.get("sampleRate", 48000))
@@ -121,6 +130,33 @@ class Renderer:
         self.plugin_states: dict = {}
 
     # ------------------------------------------------------------ helpers
+    @staticmethod
+    def _digest(*parts) -> str:
+        h = hashlib.blake2b(digest_size=16)
+        for x in parts:
+            if isinstance(x, np.ndarray):
+                h.update(str(x.shape).encode()); h.update(np.ascontiguousarray(x).tobytes())
+            elif isinstance(x, (bytes, bytearray)):
+                h.update(x)
+            else:
+                h.update(json.dumps(x, sort_keys=True, default=str).encode())
+            h.update(b"|")
+        return h.hexdigest()
+
+    def _cached(self, key: str, fn):
+        if self.cache_in is None:
+            return fn()
+        if key in self.cache_out:
+            return self.cache_out[key].copy()
+        if key in self.cache_in:
+            self.cache_hits += 1
+            self.cache_out[key] = self.cache_in[key]
+            return self.cache_in[key].copy()
+        self.cache_misses += 1
+        y = fn()
+        self.cache_out[key] = np.array(y, copy=True)
+        return y
+
     def curve(self, points: list, n: int, curve: str = "linear") -> np.ndarray:
         xs = np.array([self.clock.sample(p[0]) for p in points], dtype=np.float64)
         ys = np.array([float(p[1]) for p in points], dtype=np.float64)
@@ -170,6 +206,16 @@ class Renderer:
         return res
 
     def plugin_job(self, ref: str, spec: dict, n: int, audio, notes, curves: dict, prefix: str) -> np.ndarray:
+        if self.cache_in is None:
+            return self._plugin_job(ref, spec, n, audio, notes, curves, prefix)
+        cv = {k: v for k, v in curves.items() if k.startswith(prefix)}
+        sp = spec.get("state")
+        st_m = (self.dir / sp).stat().st_mtime_ns if sp and (self.dir / sp).exists() else None
+        key = self._digest("plugin", ref, spec, st_m, n, self.sr, self.block, notes,
+                           audio, *[cv[k] for k in sorted(cv)], sorted(cv))
+        return self._cached(key, lambda: self._plugin_job(ref, spec, n, audio, notes, curves, prefix))
+
+    def _plugin_job(self, ref: str, spec: dict, n: int, audio, notes, curves: dict, prefix: str) -> np.ndarray:
         from .plugins.scan import resolve
         fmt, path, pid = resolve(ref, spec.get("path"))
         state = None
@@ -203,6 +249,15 @@ class Renderer:
 
     # ------------------------------------------------------------ sources
     def instrument(self, t: dict, n: int, curves: dict) -> np.ndarray:
+        inst = t.get("instrument") or {"plugin": "builtin:synth"}
+        fmt, name = _ref_kind(inst.get("plugin", "builtin:synth"))
+        if self.cache_in is not None and fmt in ("builtin", "sfz"):
+            notes = self.notes_for(t)
+            key = self._digest("inst", t["id"], inst, notes, n, self.sr, self.seed)
+            return self._cached(key, lambda: self._instrument(t, n, curves))
+        return self._instrument(t, n, curves)
+
+    def _instrument(self, t: dict, n: int, curves: dict) -> np.ndarray:
         inst = t.get("instrument") or {"plugin": "builtin:synth"}
         fmt, name = _ref_kind(inst.get("plugin", "builtin:synth"))
         notes = self.notes_for(t)
@@ -265,6 +320,14 @@ class Renderer:
         return out
 
     def audio_clips(self, t: dict, n: int) -> np.ndarray:
+        if self.cache_in is not None:
+            clips = [c for c in t.get("clips", []) if "file" in c]
+            mt = [(self.dir / c["file"]).stat().st_mtime_ns if (self.dir / c["file"]).exists() else None for c in clips]
+            key = self._digest("audio", t["id"], clips, mt, n, self.sr, self.doc.get("transport"))
+            return self._cached(key, lambda: self._audio_clips(t, n))
+        return self._audio_clips(t, n)
+
+    def _audio_clips(self, t: dict, n: int) -> np.ndarray:
         out = np.zeros((2, n))
         for c in t.get("clips", []):
             if "file" not in c or c.get("mute"):
@@ -410,8 +473,12 @@ class Renderer:
 
 
 def render(doc: dict, project_dir: Path, *, sr: int | None = None, start=None, end=None, stems: bool = False,
-           include_tail: bool = True, sandbox: bool | None = None) -> RenderResult:
-    r = Renderer(doc, project_dir, sr=sr, sandbox=sandbox)
+           include_tail: bool = True, sandbox: bool | None = None, cache: dict | None = None) -> RenderResult:
+    r = Renderer(doc, project_dir, sr=sr, sandbox=sandbox, cache=cache)
     sq = None if start is None else r.tm.qn(start)
     eq = None if end is None else r.tm.qn(end)
-    return r.run(sq, eq, stems, include_tail)
+    res = r.run(sq, eq, stems, include_tail)
+    if cache is not None:
+        res.cache_out = r.cache_out
+        res.cache_stats = {"hits": r.cache_hits, "misses": r.cache_misses}
+    return res

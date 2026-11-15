@@ -824,3 +824,9 @@ def _q_cli_exec(s, p, author):
 
 QUERIES["cli.exec"] = _q_cli_exec
 QUERY_POSITIONAL["cli.exec"] = ["line"]
+
+
+# ---- live playback / live MIDI (render-ahead timeline + real-time live voices)
+from . import live as _live  # noqa: E402
+
+_live.register(QUERIES, METHODS_DOC, QUERY_POSITIONAL)

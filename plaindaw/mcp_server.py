@@ -129,7 +129,24 @@ TOOLS = [
      _obj({"id": S, "track": S, "at": S, "as": S}, ["id"]), lambda s, a: s.call("lib.use", dict(a), author="ai")),
     ("kit_status", "Which kit instruments (Surge XT, sfizz, SFZ sets) are installed.", _obj({}),
      lambda s, a: s.call("kit.status", {}, author="ai")),
+    ("transport", "Live playback on the person's speakers (through the open GUI if one is running): action "
+                  "play|stop|seek|loop|metronome|status; at='9.1.1' for play/seek; on=true/false for loop/metronome; "
+                  "start/end set the loop range. Returns playhead, render state, latency and CPU.",
+     _obj({"action": S, "at": S, "on": B, "start": S, "end": S}, ["action"]),
+     lambda s, a: s.call(f"transport.{a['action']}", {k: v for k, v in a.items() if k != "action"}, author="ai")),
+    ("play_note", "Sound one note live on a track's instrument (the person hears it): track, key ('C4' or 60), vel, "
+                  "seconds (default 0.5).",
+     _obj({"track": S, "key": S, "vel": I, "seconds": N}, ["key"]),
+     lambda s, a: _play_note(s, a)),
 ]
+
+
+def _play_note(s, a):
+    import time
+    r = s.call("live.note", {"track": a.get("track"), "key": a["key"], "vel": a.get("vel", 100), "on": True}, author="ai")
+    time.sleep(min(4.0, float(a.get("seconds", 0.5))))
+    s.call("live.note", {"track": a.get("track"), "key": a["key"], "on": False}, author="ai")
+    return r
 
 
 def _slim(rep):

@@ -9,7 +9,8 @@ CHROME = shutil.which("google-chrome") or shutil.which("chromium") or shutil.whi
 
 
 @pytest.fixture
-def gui(small_song):
+def gui(small_song, monkeypatch):
+    monkeypatch.setenv("PLAINDAW_AUDIO_OUTPUT", "null")
     if not CHROME:
         pytest.skip("no Chrome/Chromium")
     from plaindaw.rpc import make_server
@@ -76,3 +77,33 @@ def test_gui_ai_panel(gui):
     page.click("#airun")
     page.wait_for_selector("#aiout.err")
     assert not errors
+
+
+def test_gui_live_transport(gui, monkeypatch):
+    s, page, errors = gui
+    from plaindaw import live
+    page.wait_for_function("document.getElementById('t-info').textContent.length > 0", timeout=30000)
+    x0 = page.evaluate("document.getElementById('playhead').getBoundingClientRect().x")
+    page.click("#t-play")
+    page.wait_for_timeout(1200)
+    e = live.engine_for(s, create=False)
+    assert e is not None and e.playing and e.output_kind in ("null", "portaudio")
+    x1 = page.evaluate("document.getElementById('playhead').getBoundingClientRect().x")
+    assert x1 > x0                                    # the playhead moves
+    assert page.text_content("#t-pos").startswith("1.") or page.text_content("#t-pos").startswith("2.")
+    page.click("#t-stop")
+    page.wait_for_timeout(300)
+    assert not e.playing
+    # piano-roll keys preview notes on the clip's track
+    page.locator(".clip", has_text="bass_notes").click()
+    page.wait_for_timeout(200)
+    box = page.locator("#rollcanvas").bounding_box()
+    page.mouse.move(box["x"] + 20, box["y"] + 60)
+    page.mouse.down()
+    page.wait_for_timeout(250)
+    assert any(t == "bass" for (t, k) in e.active)
+    page.mouse.up()
+    page.wait_for_timeout(250)
+    assert not e.active
+    assert errors == []
+    e.close()
