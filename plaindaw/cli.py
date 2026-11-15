@@ -358,7 +358,7 @@ def _fmt_transport(res) -> str:
              + (" · REC" if res.get("record") else ""),
              f"  render: {r.get('state')}" + (f", {r['renderSec']} s ({r.get('cachedParts', 0)} cached, "
                                                f"{r.get('renderedParts', 0)} re-rendered)" if 'renderSec' in r else ""),
-             f"  audio: {res['output']} · device {res.get('device') or 'default'} · {res['sampleRate']} Hz · "
+             f"  audio: {res['output']} · device {res.get('deviceName') or res.get('device') or 'default'} · {res['sampleRate']} Hz · "
              f"buffer {res['blocksize']} · latency {res['latencyMs']} ms · cpu {res['cpu']}%"
              + (f" · served by the GUI" if res.get("where") == "server" else "")]
     if res.get("midiPort"):

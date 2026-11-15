@@ -318,7 +318,7 @@ function paintTransport() {
   document.getElementById("t-info").textContent =
     `${rs} · ${TS.output === "portaudio" ? `${TS.latencyMs} ms` : TS.output} · cpu ${TS.cpu}%` + (TS.xruns ? ` · ${TS.xruns} dropouts` : "");
   document.getElementById("t-info").title = (TS.error || "") + (r.warnings && r.warnings.length ? "\n" + r.warnings.join("\n") : "")
-    + `\n${TS.sampleRate} Hz, buffer ${TS.blocksize}, device ${TS.device ?? "default"}`;
+    + `\n${TS.sampleRate} Hz, buffer ${TS.blocksize}, device ${TS.deviceName || TS.device || "default"}`;
   const lz = document.getElementById("loopzone");
   if (lz) lz.classList.toggle("off", !TS.loop);
 }

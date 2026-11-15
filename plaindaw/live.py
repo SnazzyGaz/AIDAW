@@ -40,6 +40,16 @@ def _sd():
     return sd
 
 
+def _wasapi_default(sd):
+    try:
+        for api in sd.query_hostapis():
+            if "WASAPI" in api["name"] and api.get("default_output_device", -1) >= 0:
+                return int(api["default_output_device"])
+    except Exception:
+        pass
+    return None
+
+
 class Voice:
     __slots__ = ("data", "pos", "delay", "track", "key", "fade_from", "fade_len", "click")
 
@@ -104,6 +114,7 @@ class Engine:
         self.output_req = output
         self.output_kind = None          # "portaudio" | "null" | "manual"
         self.stream = None
+        self.device_name = None
         self.lock = threading.RLock()
         self.playing = False
         self.pos = 0                     # next sample to send (song timeline)
@@ -366,6 +377,8 @@ class Engine:
         dev = self.device
         if isinstance(dev, str) and dev.isdigit():
             dev = int(dev)
+        if dev is None and os.name == "nt" and not os.environ.get("PLAINDAW_ASIO"):
+            dev = _wasapi_default(sd)       # MME (PortAudio's default) adds ~100 ms; WASAPI shared is far lower
         last = None
         rates = [self.sr]
         try:
@@ -386,6 +399,11 @@ class Engine:
                 st.start()
                 self.stream = st
                 self.latency = float(st.latency) + self.blocksize / sr
+                try:
+                    info = sd.query_devices(st.device)
+                    self.device_name = f"{info['name']} ({sd.query_hostapis(info['hostapi'])['name']})"
+                except Exception:
+                    self.device_name = None
                 return
             except Exception as e:  # noqa: BLE001
                 last = e
@@ -480,7 +498,7 @@ class Engine:
                 "metronome": self.metronome, "record": self.rec_on, "recordTrack": self.rec_track,
                 "recordQuantize": self.rec_quant, "recordPending": len(self.rec_notes) + len(self.rec_pending),
                 "render": {"state": self.render_state, **self.render_info},
-                "output": self.output_kind or "closed", "device": self.device, "blocksize": self.blocksize,
+                "output": self.output_kind or "closed", "device": self.device, "deviceName": self.device_name, "blocksize": self.blocksize,
                 "sampleRate": self.sr, "latencyMs": round(self.latency * 1000, 1), "cpu": round(self.cpu * 100, 1),
                 "xruns": self.xruns, "midiPort": self.midi_port, "midiTrack": self.midi_track,
                 "active": [{"track": t, "key": k, "vel": v} for (t, k), v in list(self.active.items())],
