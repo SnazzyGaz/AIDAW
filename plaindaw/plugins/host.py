@@ -149,6 +149,17 @@ def render_plugin(job: dict) -> dict:
     raise ValueError(f"unknown plugin format {job['format']}")
 
 
+def _plain(v):
+    """pedalboard returns float/bool/str *subclasses* (weak wrappers) that can't be pickled to the sandbox."""
+    if v is None:
+        return None
+    if isinstance(v, bool):
+        return bool(v)
+    if isinstance(v, (int, float)):
+        return float(v)
+    return str(v)
+
+
 def describe(fmt: str, path: str, plugin_id: str | None = None) -> dict:
     """Parameter list for a plugin (name, min, max, default, current)."""
     if fmt == "clap":
@@ -166,13 +177,17 @@ def describe(fmt: str, path: str, plugin_id: str | None = None) -> dict:
     for k, p in pl.parameters.items():
         item = {"name": k, "label": getattr(p, "units", "") or ""}
         try:
-            item["value"] = getattr(pl, k)
-            if isinstance(item["value"], (bool, int, float, str)) is False:
-                item["value"] = str(item["value"])
+            item["value"] = _plain(getattr(pl, k))
         except Exception:
             pass
-        rng = getattr(p, "range", None)
-        if rng:
-            item["min"], item["max"] = rng[0], rng[1]
+        try:
+            rng = getattr(p, "range", None)
+            if rng:
+                item["min"], item["max"] = _plain(rng[0]), _plain(rng[1])
+            vals = getattr(p, "valid_values", None)
+            if vals and len(vals) <= 64 and isinstance(vals[0], str):
+                item["choices"] = [str(v) for v in vals]
+        except Exception:
+            pass
         params.append(item)
     return {"instrument": bool(pl.is_instrument), "params": params}
