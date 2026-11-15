@@ -143,7 +143,7 @@ def post(url, body):
 
 def test_http_rpc_and_sse(server):
     s, url = server
-    assert "PlainDAW" in urllib.request.urlopen(url + "/", timeout=10).read().decode()
+    assert "AIDAW" in urllib.request.urlopen(url + "/", timeout=10).read().decode()
     events = []
 
     def listen():
