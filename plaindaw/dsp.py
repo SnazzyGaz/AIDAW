@@ -199,7 +199,9 @@ def osc(wave: str, freq: np.ndarray, sr: float, phase0: float, rng: np.random.Ge
 SYNTH_DEFAULTS = {"wave": "saw", "voices": 1, "detune": 12.0, "octave": 0, "cutoff": 8000.0, "resonance": 0.2,
                   "envAmount": 0.0, "filterDecay": 0.3, "attack": 0.005, "decay": 0.2, "sustain": 0.7,
                   "release": 0.15, "gainDb": -6.0, "width": 0.8, "sub": 0.0, "glide": 0.0, "pitchEnv": 0.0,
-                  "pitchDecay": 0.05, "mono": False}
+                  "pitchDecay": 0.05, "mono": False, "lfoRate": 0.0, "lfoPitch": 0.0, "lfoCutoff": 0.0,
+                  "lfoAmp": 0.0, "fmRatio": 0.0, "fmIndex": 0.0, "fmDecay": 0.0, "noise": 0.0, "drift": 0.0,
+                  "formant": "", "formantMix": 1.0}
 
 
 def synth_note(p: dict, key: int, vel: float, n_hold: int, sr: float, rng: np.random.Generator,
@@ -217,12 +219,28 @@ def synth_note(p: dict, key: int, vel: float, n_hold: int, sr: float, rng: np.ra
         pitch = 2.0 ** ((from_key - key) * ramp ** 2 / 12.0)
     elif p["pitchEnv"]:
         pitch = 2.0 ** (p["pitchEnv"] * np.exp(-t / max(1e-3, p["pitchDecay"])) / 12.0)
+    lfo_rate = float(p.get("lfoRate", 0.0) or 0.0)
+    lfo = np.sin(TWO_PI * lfo_rate * t) if lfo_rate > 0 else None
+    if lfo is not None and p.get("lfoPitch"):
+        pitch = pitch * 2.0 ** (float(p["lfoPitch"]) * lfo / 12.0)
+    if p.get("drift"):                     # slow random pitch wander (cents), e.g. an unsteady motor
+        k = max(2, int(n / sr * 4) + 2)
+        pts = rng.normal(0, 1, k)
+        pitch = pitch * 2.0 ** (float(p["drift"]) * np.interp(np.arange(n), np.linspace(0, n, k), pts) / 1200.0)
+    fm_ratio, fm_index = float(p.get("fmRatio", 0.0) or 0.0), float(p.get("fmIndex", 0.0) or 0.0)
     out = np.zeros((2, n))
     for v in range(voices):
         spread = 0.0 if voices == 1 else (v / (voices - 1)) * 2 - 1
         cents = spread * p["detune"]
         f = np.full(n, f0 * 2 ** (cents / 1200.0)) * pitch
+        if fm_ratio > 0 and fm_index:      # 2-op FM: a sine modulator at f*ratio bends the carrier
+            idx = fm_index * (np.exp(-t / float(p["fmDecay"])) if p.get("fmDecay") else 1.0)
+            mod = np.sin(TWO_PI * np.cumsum(f * fm_ratio) / sr)
+            f = f * (1.0 + idx * mod * fm_ratio)
+            f = np.abs(f)
         s = osc(p["wave"], f, sr, rng.uniform(0, 1) if voices > 1 else 0.0, rng)
+        if p.get("noise"):
+            s = s * (1 - float(p["noise"])) + rng.uniform(-1, 1, n) * float(p["noise"])
         pan = spread * p["width"]
         gl, gr = pan_gains(pan)
         out[0] += s * gl; out[1] += s * gr
@@ -236,12 +254,163 @@ def synth_note(p: dict, key: int, vel: float, n_hold: int, sr: float, rng: np.ra
         cut = np.clip(cutoff * 2.0 ** (p["envAmount"] * fenv), 20, sr * 0.45)
     else:
         cut = None
+    if lfo is not None and p.get("lfoCutoff"):
+        base = cut if cut is not None else np.full(n, float(cutoff))
+        cut = np.clip(base * 2.0 ** (float(p["lfoCutoff"]) * lfo), 20, sr * 0.45)
     q = 0.707 + p["resonance"] * 8
     if cut is not None:
         out = timevarying("lowpass", out, sr, cut, q)
     elif cutoff < sr * 0.45:
         out = sos_filter([biquad("lowpass", cutoff, sr, q)], out)
+    if p.get("formant"):
+        out = formant_filter(out, sr, str(p["formant"]), float(p.get("formantMix", 1.0)))
+    if lfo is not None and p.get("lfoAmp"):
+        out = out * (1.0 - float(p["lfoAmp"]) * 0.5 * (1 - lfo))
     return out * env * (vel / 127.0) * db2lin(p["gainDb"])
+
+
+# ---------------------------------------------------------------- vowels, bells, machinery
+FORMANTS = {  # (Hz, dB) for F1..F4 of a low male voice
+    "a": ((730, 0), (1090, -5), (2440, -15), (3400, -22)),
+    "o": ((570, 0), (840, -4), (2410, -20), (3400, -26)),
+    "u": ((300, 0), (870, -10), (2240, -24), (3300, -30)),
+    "e": ((530, 0), (1840, -8), (2480, -12), (3500, -20)),
+    "i": ((270, 0), (2290, -10), (3010, -14), (3600, -20)),
+}
+
+
+def formant_filter(x, sr, vowel="a", mix=1.0, q=8.0):
+    """Parallel band-passes at a vowel's formants: turns a buzzy saw/noise into an 'ahh'/'ooh' choir tone.
+    vowel: a|e|i|o|u, or two letters ('ao') for the halfway blend."""
+    v = (vowel or "a").lower()
+    tabs = [FORMANTS[c] for c in v if c in FORMANTS] or [FORMANTS["a"]]
+    if len(tabs) > 1:
+        tab = [((a[0] + b[0]) / 2, (a[1] + b[1]) / 2) for a, b in zip(tabs[0], tabs[1])]
+    else:
+        tab = tabs[0]
+    y = np.zeros_like(x)
+    for f, g in tab:
+        if f < sr * 0.45:
+            y += sos_filter([biquad("bandpass", f, sr, q)], x) * db2lin(g)
+    y *= 2.5
+    return x * (1 - mix) + y * mix
+
+
+BELL_PARTIALS = ((0.5, 1.0, 1.0), (1.0, 0.8, 0.75), (1.183, 0.6, 0.55), (1.506, 0.45, 0.45), (2.0, 0.7, 0.4),
+                 (2.514, 0.35, 0.3), (2.662, 0.3, 0.25), (3.011, 0.25, 0.2), (4.166, 0.2, 0.14), (5.433, 0.12, 0.09))
+
+
+def bell_note(p: dict, key: int, vel: float, sr: float, rng: np.random.Generator) -> np.ndarray:
+    """Church-bell additive synthesis: hum, prime, minor-third 'tierce', quint, nominal and inharmonic upper
+    partials, each with its own decay and a slight beat between the left and right copies. `key` is the nominal."""
+    dec = float(p.get("decay", 6.0))
+    n = int((dec * 1.2 + 0.05) * sr)
+    t = np.arange(n) / sr
+    f0 = mtof(key + 12 * int(p.get("octave", 0))) / 2.0          # hum note an octave below the nominal
+    bright = float(p.get("brightness", 0.5))
+    out = np.zeros((2, n))
+    for i, (ratio, amp, dk) in enumerate(BELL_PARTIALS):
+        f = f0 * ratio * 2.0
+        if f > sr * 0.45:
+            continue
+        a = amp * (bright ** (i / 4.0) if i > 4 else 1.0)
+        e = np.exp(-t / max(0.05, dec * dk))
+        beat = float(p.get("beat", 0.6))
+        for ch, sgn in ((0, 1), (1, -1)):
+            out[ch] += a * np.sin(TWO_PI * (f + sgn * beat * (i % 3)) * t + rng.uniform(0, TWO_PI)) * e
+    strike = rng.uniform(-1, 1, n) * np.exp(-t / 0.004) * float(p.get("strike", 0.3))
+    strike = sos_filter([biquad("bandpass", min(f0 * 8, sr * 0.4), sr, 1.5)], strike)
+    out += strike
+    out /= 3.0
+    return out * (vel / 127.0) * db2lin(p.get("gainDb", -6.0))
+
+
+def _modal(freqs, amps, decays, n, sr, rng, jitter=0.0):
+    t = np.arange(n) / sr
+    s = np.zeros(n)
+    for f, a, d in zip(freqs, amps, decays):
+        f = f * (1 + rng.uniform(-jitter, jitter))
+        if f < sr * 0.45:
+            s += a * np.sin(TWO_PI * f * t + rng.uniform(0, TWO_PI)) * np.exp(-t / d)
+    return s
+
+
+def foundry_hit(key: int, vel: float, sr: float, rng: np.random.Generator, p: dict) -> np.ndarray:
+    """Synthesised heavy machinery (all original, no samples):
+    36 distorted sub kick, 37 piston thump, 38 anvil clank, 39 metal slam, 40 hydraulic hiss,
+    41 ratchet, 42 gear tick, 43 chain rattle, 44 steam release, 45 metal scrape, 46 sheet-metal hit."""
+    tune = 2 ** (p.get("tune", 0.0) / 12)
+    g = (vel / 127.0) * db2lin(p.get("gainDb", -3.0))
+    drive = db2lin(p.get("drive", 6.0))
+    size = float(p.get("size", 1.0))                      # bigger = lower, longer metal
+    def nz(m):
+        return rng.uniform(-1, 1, m)
+    def bp(x, f, q=1.0):
+        return sos_filter([biquad("bandpass", min(f, sr * 0.45), sr, q)], x)
+    if key == 36:                                          # big distorted sub kick
+        dec = p.get("kickDecay", 0.7); n = int(dec * sr); t = np.arange(n) / sr
+        f = p.get("kickPitch", 42.0) * tune * (1 + 4.0 * np.exp(-t / 0.03))
+        body = np.sin(TWO_PI * np.cumsum(f) / sr) * np.exp(-t / (dec / 2.5))
+        click = bp(nz(n), 3000, 0.8) * np.exp(-t / 0.004) * 0.6
+        s = np.tanh(body * 1.2 * drive) * 0.85
+        s = sos_filter([biquad("lowpass", 900, sr, 0.6)], s) + click * 0.5
+    elif key == 37:                                        # piston thump + exhaust chuff
+        n = int(0.45 * sr); t = np.arange(n) / sr
+        thud = np.sin(TWO_PI * np.cumsum(70 * tune * (1 + 1.5 * np.exp(-t / 0.02))) / sr) * np.exp(-t / 0.08)
+        chuff = bp(nz(n), 900 * tune, 0.7) * np.exp(-((t - 0.05) / 0.05) ** 2) * 0.6
+        s = sos_filter([biquad("lowpass", 1400, sr, 0.6)], np.tanh(thud * 1.2 * drive)) * 0.8 + chuff * 0.5
+    elif key in (38, 39, 46):                              # anvil clank / big slam / sheet metal
+        base = {38: 520.0, 39: 190.0, 46: 330.0}[key] * tune / size
+        dur = {38: 0.9, 39: 2.2, 46: 1.6}[key] * size; n = int(dur * sr); t = np.arange(n) / sr
+        ratios = (1.0, 2.76, 5.40, 8.93, 13.34, 1.59, 3.9) if key != 46 else (1.0, 1.41, 2.13, 2.97, 3.67, 4.61, 6.2)
+        amps = (1.0, 0.7, 0.5, 0.35, 0.2, 0.5, 0.3)
+        decs = tuple(dur / (2.5 + 1.2 * i) for i in range(len(ratios)))
+        s = _modal([base * r for r in ratios], amps, decs, n, sr, rng, 0.01)
+        hit = bp(nz(n), 2500, 0.6) * np.exp(-t / 0.006) * 1.2
+        s = s * 0.5 + hit
+        if key == 39:
+            s += np.sin(TWO_PI * np.cumsum(55 * tune * (1 + 2 * np.exp(-t / 0.03))) / sr) * np.exp(-t / 0.15) * 0.9
+        s = np.tanh(s * 1.3 * drive) * 0.7
+    elif key == 40:                                        # hydraulic hiss (swelling band-passed noise)
+        n = int(0.8 * sr); t = np.arange(n) / sr
+        env = np.minimum(1, t / 0.08) * np.exp(-np.maximum(0, t - 0.1) / 0.25)
+        cut = 1800 * tune * (1 + 1.5 * t / 0.8)
+        s = timevarying("bandpass", nz(n)[None, :].repeat(2, 0), sr, cut, 1.2)[0] * env * 0.9
+    elif key in (41, 42):                                  # ratchet train / single gear tick
+        clicks = int(p.get("ratchetClicks", 8)) if key == 41 else 1
+        gap = float(p.get("ratchetGap", 0.028))
+        n = int((clicks * gap + 0.08) * sr); s = np.zeros(n)
+        for c in range(clicks):
+            o = int(c * gap * (1 + rng.uniform(-0.08, 0.08)) * sr); m = min(n - o, int(0.03 * sr))
+            tt = np.arange(m) / sr
+            tick = _modal([2300 * tune, 3700 * tune, 5600 * tune], [1, 0.6, 0.4], [0.008, 0.006, 0.004], m, sr, rng, 0.05)
+            tick += nz(m) * np.exp(-tt / 0.0015) * 0.8
+            s[o:o + m] += tick * (0.7 + 0.3 * rng.uniform())
+        s *= 0.6
+    elif key == 43:                                        # chain rattle: cluster of small metal pings
+        n = int(0.6 * sr); s = np.zeros(n)
+        for _ in range(int(p.get("chainLinks", 22))):
+            o = int(abs(rng.normal(0.12, 0.1)) * sr) % (n - int(0.06 * sr)); m = int(0.06 * sr)
+            f = rng.uniform(1800, 4200) * tune
+            s[o:o + m] += _modal([f, f * 1.73, f * 2.41], [1, 0.5, 0.3], [0.012, 0.008, 0.006], m, sr, rng, 0.02) * rng.uniform(0.3, 1)
+        s *= 0.35
+    elif key == 44:                                        # steam release
+        n = int(1.4 * sr); t = np.arange(n) / sr
+        env = np.minimum(1, t / 0.02) * np.exp(-t / 0.5)
+        s = sos_filter([biquad("highpass", 2500 * tune, sr), biquad("peak", 5000 * tune, sr, 2, 6)], nz(n)) * env * 0.5
+    elif key == 45:                                        # metal scrape / grind
+        n = int(1.0 * sr); t = np.arange(n) / sr
+        fm = 600 * tune * (1 + 0.3 * np.sin(TWO_PI * 13 * t)) * (1 + 0.15 * nz(n))
+        car = np.sign(np.sin(TWO_PI * np.cumsum(fm) / sr))
+        s = bp(car * 0.5 + nz(n) * 0.5, 1800 * tune, 2.0) * np.sin(np.pi * t / 1.0) * 0.8
+        s = np.tanh(s * drive)
+    else:
+        return np.zeros((2, 1))
+    s = s * g
+    # tiny stereo offset so stacks of metal hits don't collapse to mono
+    d = int(float(p.get("spreadMs", 0.4)) * sr / 1000)
+    r = np.concatenate([np.zeros(d), s[:len(s) - d]]) if d > 0 else s
+    return np.vstack([s, r])
 
 
 def drum_hit(key: int, vel: float, sr: float, rng: np.random.Generator, p: dict) -> np.ndarray:
@@ -521,17 +690,55 @@ def fx_volumeshaper(x, p, ctx):
     return x * (1 - mix) + x * g * mix
 
 
+def fx_bitcrush(x, p, ctx):
+    """Lo-fi: quantise to `bits` and sample-and-hold every `downsample` samples."""
+    bits = float(ctx.curves.get("bits", p.get("bits", 8)))
+    ds = max(1, int(p.get("downsample", 4)))
+    y = x * db2lin(p.get("driveDb", 0.0))
+    if ds > 1:
+        idx = (np.arange(x.shape[1]) // ds) * ds
+        y = y[:, idx]
+    steps = 2.0 ** (max(1.0, float(np.mean(bits))) - 1)
+    y = np.round(y * steps) / steps
+    mix = ctx.curves.get("mix", p.get("mix", 1.0))
+    return x * (1 - mix) + y * mix
+
+
+def fx_formant(x, p, ctx):
+    return formant_filter(x, ctx.sr, str(p.get("vowel", "a")), float(ctx.curves.get("mix", p.get("mix", 1.0))),
+                          float(p.get("q", 8.0)))
+
+
+def fx_saturator(x, p, ctx):
+    """Warm asymmetric tube-style saturation with a tone tilt (less fizzy than distortion)."""
+    drive = db2lin(ctx.curves.get("driveDb", p.get("driveDb", 9.0)))
+    bias = float(p.get("bias", 0.15))
+    y = np.tanh(x * drive + bias) - np.tanh(bias)
+    if p.get("toneHz"):
+        y = sos_filter([biquad("lowpass", p["toneHz"], ctx.sr)], y)
+    y *= db2lin(p.get("outputDb", -4.0))
+    mix = ctx.curves.get("mix", p.get("mix", 1.0))
+    return x * (1 - mix) + y * mix
+
+
 FX = {"eq": fx_eq, "filter": fx_filter, "compressor": fx_compressor, "limiter": fx_limiter, "gate": fx_gate,
       "reverb": fx_reverb, "delay": fx_delay, "chorus": fx_chorus, "distortion": fx_distortion,
-      "utility": fx_utility, "volumeshaper": fx_volumeshaper}
+      "utility": fx_utility, "volumeshaper": fx_volumeshaper, "bitcrush": fx_bitcrush, "formant": fx_formant,
+      "saturator": fx_saturator}
 
-INSTRUMENTS = ("synth", "drums", "sampler")
+INSTRUMENTS = ("synth", "drums", "sampler", "foundry", "bell")
 
 PARAMS = {
-    "synth": {k: v for k, v in SYNTH_DEFAULTS.items()} | {"_doc": "subtractive synth; wave saw|square|sine|triangle|noise; voices>1 = unison/supersaw"},
+    "synth": {k: v for k, v in SYNTH_DEFAULTS.items()} | {"_doc": "subtractive synth; wave saw|square|sine|triangle|noise; voices>1 = unison/supersaw; lfoRate Hz with lfoPitch (semitones), lfoCutoff (octaves), lfoAmp (0-1); fmRatio/fmIndex/fmDecay = 2-op FM; noise 0-1; drift (cents); formant a|e|i|o|u"},
     "drums": {"gainDb": -3.0, "tune": 0.0, "kickPitch": 50.0, "kickDecay": 0.45, "snareDecay": 0.22,
               "hatDecay": 0.05, "openHatDecay": 0.35, "crashDecay": 1.6,
               "_doc": "GM keys: 36 kick, 37 rim, 38 snare, 39 clap, 42 hat, 46 open hat, 41-50 toms, 49 crash, 51 ride"},
+    "foundry": {"gainDb": -3.0, "tune": 0.0, "drive": 6.0, "size": 1.0, "kickPitch": 42.0, "kickDecay": 0.7,
+                "ratchetClicks": 8, "ratchetGap": 0.028, "chainLinks": 22, "spreadMs": 0.4,
+                "_doc": "industrial machinery kit: 36 distorted sub kick, 37 piston, 38 anvil, 39 metal slam, 40 hydraulic "
+                        "hiss, 41 ratchet, 42 gear tick, 43 chain rattle, 44 steam, 45 scrape/grind, 46 sheet metal"},
+    "bell": {"gainDb": -6.0, "decay": 6.0, "brightness": 0.5, "beat": 0.6, "strike": 0.3, "octave": 0,
+             "_doc": "church/tolling bell (additive, inharmonic partials); key = nominal pitch"},
     "sampler": {"file": "", "root": 60, "mode": "oneshot", "attack": 0.0, "release": 0.05, "tune": 0.0, "gainDb": 0.0,
                 "_doc": "plays a media file pitched from root; mode oneshot|sustain; zones: [{file, keyLo, keyHi, root}]"},
     "eq": {"lowCutHz": 0, "highCutHz": 0, "lowShelfHz": 120, "lowShelfDb": 0, "highShelfHz": 8000, "highShelfDb": 0,
@@ -548,6 +755,9 @@ PARAMS = {
     "chorus": {"rate": 1.0, "depth": 0.25, "delayMs": 7.0, "feedback": 0.0, "mix": 0.5, "_auto": ["mix"]},
     "distortion": {"driveDb": 12.0, "outputDb": -6.0, "mix": 1.0, "_auto": ["driveDb", "mix"]},
     "utility": {"gainDb": 0.0, "width": 1.0, "mono": False, "polarity": False, "bassMonoHz": 0, "_auto": ["gainDb", "width"]},
+    "bitcrush": {"bits": 8, "downsample": 4, "driveDb": 0.0, "mix": 1.0, "_auto": ["bits", "mix"]},
+    "formant": {"vowel": "a", "q": 8.0, "mix": 1.0, "_auto": ["mix"], "_doc": "vowel filter a|e|i|o|u (or 'ao' blend)"},
+    "saturator": {"driveDb": 9.0, "bias": 0.15, "toneHz": 0, "outputDb": -4.0, "mix": 1.0, "_auto": ["driveDb", "mix"]},
     "volumeshaper": {"rateBeats": 1.0, "depthDb": 12.0, "hold": 0.05, "recover": 0.55, "curve": 1.5, "mix": 1.0,
                      "_auto": ["mix"], "_doc": "tempo-synced ducking (EDM pump)"},
 }

@@ -600,10 +600,9 @@ def _q_listen(s, p, author):
 
 
 def _q_plugin_scan(s, p, author):
-    from .plugins.scan import scan
-    return {"builtin": {"instruments": [f"builtin:{x}" for x in ("synth", "drums", "sampler")],
-                        "effects": [f"builtin:{x}" for x in ("eq", "filter", "compressor", "limiter", "gate", "reverb",
-                                                             "delay", "chorus", "distortion", "utility", "volumeshaper")]},
+    from . import dsp
+    return {"builtin": {"instruments": [f"builtin:{x}" for x in dsp.INSTRUMENTS],
+                        "effects": [f"builtin:{x}" for x in dsp.FX]},
             "external": _scan(p)}
 
 

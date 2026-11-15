@@ -303,6 +303,10 @@ class Renderer:
                         y[:, cut - f:] *= np.linspace(1.0, 0.0, f)
             elif name == "drums":
                 y = dsp.drum_hit(k, v, self.sr, rng, params)
+            elif name == "foundry":
+                y = dsp.foundry_hit(k, v, self.sr, rng, params)
+            elif name == "bell":
+                y = dsp.bell_note(params, k, v, self.sr, rng)
             else:
                 zone = None
                 for z in params.get("zones") or []:

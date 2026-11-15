@@ -539,9 +539,15 @@ class Engine:
         params = inst.get("params") or {}
         rng = np.random.default_rng(key * 131 + int(vel))
         stand_in = False
-        if fmt == "builtin" and name == "drums":
-            p = dict(dsp.PARAMS["drums"]); p.update(params)
-            y = dsp.drum_hit(key, vel, self.sr, rng, {k: v for k, v in p.items() if not k.startswith("_")})
+        if fmt == "builtin" and name in ("drums", "foundry", "bell"):
+            p = dict(dsp.PARAMS[name]); p.update(params)
+            p = {k: v for k, v in p.items() if not k.startswith("_")}
+            if name == "drums":
+                y = dsp.drum_hit(key, vel, self.sr, rng, p)
+            elif name == "foundry":
+                y = dsp.foundry_hit(key, vel, self.sr, rng, p)
+            else:
+                y = dsp.bell_note(p, key, vel, self.sr, rng)
             rel = None
         else:
             if fmt == "builtin" and name == "synth":
